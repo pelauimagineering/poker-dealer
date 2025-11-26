@@ -1,0 +1,297 @@
+let currentUser = null;
+let gameState = null;
+
+// Get session token from cookie
+function getSessionToken() {
+    const cookies = document.cookie.split(';');
+    for (const cookie of cookies) {
+        const [name, value] = cookie.trim().split('=');
+        if (name === 'sessionToken') {
+            return value;
+        }
+    }
+    return null;
+}
+
+// Initialize app
+async function init() {
+    console.log('Initializing game app...');
+
+    // Check session
+    try {
+        const response = await fetch('/api/auth/session');
+        const data = await response.json();
+
+        if (!data.authenticated) {
+            console.log('Not authenticated, redirecting to login');
+            window.location.href = '/';
+            return;
+        }
+
+        currentUser = data.user;
+        document.getElementById('userName').textContent = currentUser.name;
+
+        console.log('User authenticated:', currentUser.name);
+
+        // Connect WebSocket
+        const token = getSessionToken();
+        if (token) {
+            wsClient.connect(token);
+            setupWebSocketHandlers();
+        } else {
+            console.error('No session token found');
+            window.location.href = '/';
+        }
+
+    } catch (error) {
+        console.error('Session check error:', error);
+        window.location.href = '/';
+    }
+
+    // Setup logout
+    document.getElementById('logoutBtn').addEventListener('click', logout);
+
+    // Setup join game
+    document.getElementById('joinGameBtn').addEventListener('click', joinGame);
+}
+
+function setupWebSocketHandlers() {
+    // Handle authentication confirmation
+    wsClient.on('authenticated', (message) => {
+        console.log('WebSocket authenticated');
+    });
+
+    // Handle game state updates
+    wsClient.on('game-state', (message) => {
+        console.log('Game state updated');
+        gameState = message.data;
+        updateUI();
+    });
+
+    // Handle cards dealt
+    wsClient.on('cards-dealt', (message) => {
+        console.log('Cards dealt!');
+        showSuccess('Cards have been dealt!');
+    });
+
+    // Handle community card revealed
+    wsClient.on('community-revealed', (message) => {
+        console.log('Community card revealed:', message.phase);
+        showSuccess(`${message.phase} revealed!`);
+    });
+
+    // Handle join accepted
+    wsClient.on('join-accepted', (message) => {
+        console.log('Join accepted');
+        showSuccess('Successfully joined the game!');
+    });
+
+    // Handle join rejected
+    wsClient.on('join-rejected', (message) => {
+        console.log('Join rejected:', message.message);
+        showError(message.message);
+    });
+
+    // Handle errors
+    wsClient.on('error', (message) => {
+        console.error('WebSocket error:', message.message);
+        showError(message.message);
+    });
+}
+
+function updateUI() {
+    if (!gameState) {
+        return;
+    }
+
+    console.log('Updating UI with game state:', gameState);
+
+    // Update players list
+    updatePlayersList();
+
+    // Update community cards
+    updateCommunityCards();
+
+    // Update hole cards
+    updateHoleCards();
+
+    // Update phase indicator
+    updatePhaseIndicator();
+
+    // Show/hide join game section
+    updateJoinGameSection();
+}
+
+function updatePlayersList() {
+    const playersList = document.getElementById('playersList');
+
+    if (!gameState.players || gameState.players.length === 0) {
+        playersList.innerHTML = '<div class="no-cards-message">No players yet</div>';
+        return;
+    }
+
+    playersList.innerHTML = '';
+
+    gameState.players.forEach(player => {
+        const playerItem = document.createElement('div');
+        playerItem.className = 'player-item';
+
+        if (player.isDealer) {
+            playerItem.classList.add('is-dealer');
+        }
+
+        const playerName = document.createElement('span');
+        playerName.className = 'player-name';
+        playerName.textContent = player.name;
+
+        playerItem.appendChild(playerName);
+
+        if (player.isDealer) {
+            const badge = document.createElement('span');
+            badge.className = 'player-dealer-badge';
+            badge.textContent = 'DEALER';
+            playerItem.appendChild(badge);
+        }
+
+        playersList.appendChild(playerItem);
+    });
+}
+
+function updateCommunityCards() {
+    const communityCards = document.getElementById('communityCards');
+
+    if (!gameState.communityCards || gameState.communityCards.length === 0) {
+        communityCards.innerHTML = '<div class="no-cards-message">Waiting for cards to be dealt...</div>';
+        return;
+    }
+
+    communityCards.innerHTML = '';
+
+    gameState.communityCards.forEach(card => {
+        const cardElement = createCardElement(card);
+        communityCards.appendChild(cardElement);
+    });
+}
+
+function updateHoleCards() {
+    const holeCards = document.getElementById('holeCards');
+
+    if (!gameState.holeCards || gameState.holeCards.length === 0) {
+        holeCards.innerHTML = '<div class="no-cards-message">No cards yet</div>';
+        return;
+    }
+
+    holeCards.innerHTML = '';
+
+    gameState.holeCards.forEach(card => {
+        const cardElement = createCardElement(card);
+        holeCards.appendChild(cardElement);
+    });
+}
+
+function updatePhaseIndicator() {
+    const phaseIndicator = document.getElementById('phaseIndicator');
+    phaseIndicator.textContent = `Phase: ${gameState.phase}`;
+}
+
+function updateJoinGameSection() {
+    const joinGameSection = document.getElementById('joinGameSection');
+
+    // Check if current user is in the players list
+    const isInGame = gameState.players && gameState.players.some(p => p.id === currentUser.id);
+
+    if (!isInGame && !gameState.cardsDealt) {
+        joinGameSection.classList.remove('hidden');
+    } else {
+        joinGameSection.classList.add('hidden');
+    }
+}
+
+function createCardElement(card) {
+    const cardDiv = document.createElement('div');
+    cardDiv.className = 'card';
+
+    if (!card.visible) {
+        cardDiv.classList.add('card-back');
+        return cardDiv;
+    }
+
+    cardDiv.classList.add(card.suit);
+
+    const cardContent = document.createElement('div');
+    cardContent.className = 'card-content';
+
+    const rankSpan = document.createElement('span');
+    rankSpan.className = 'card-rank';
+    rankSpan.textContent = card.rank;
+
+    const suitSpan = document.createElement('span');
+    suitSpan.className = 'card-suit';
+    suitSpan.textContent = getSuitSymbol(card.suit);
+
+    cardContent.appendChild(rankSpan);
+    cardContent.appendChild(suitSpan);
+    cardDiv.appendChild(cardContent);
+
+    return cardDiv;
+}
+
+function getSuitSymbol(suit) {
+    const symbols = {
+        'hearts': '♥',
+        'diamonds': '♦',
+        'clubs': '♣',
+        'spades': '♠'
+    };
+    return symbols[suit] || suit;
+}
+
+function joinGame() {
+    console.log('Attempting to join game');
+    wsClient.send('join-game');
+}
+
+async function logout() {
+    console.log('Logging out...');
+
+    try {
+        await fetch('/api/auth/logout', { method: 'POST' });
+        wsClient.close();
+        window.location.href = '/';
+    } catch (error) {
+        console.error('Logout error:', error);
+        window.location.href = '/';
+    }
+}
+
+function showError(message) {
+    const errorDiv = document.getElementById('errorMessage');
+    errorDiv.textContent = message;
+    errorDiv.classList.add('show');
+
+    setTimeout(() => {
+        errorDiv.classList.remove('show');
+    }, 5000);
+}
+
+function showSuccess(message) {
+    // Create success message if it doesn't exist
+    let successDiv = document.getElementById('successMessage');
+
+    if (!successDiv) {
+        successDiv = document.createElement('div');
+        successDiv.id = 'successMessage';
+        successDiv.className = 'success-message';
+        document.body.appendChild(successDiv);
+    }
+
+    successDiv.textContent = message;
+    successDiv.classList.add('show');
+
+    setTimeout(() => {
+        successDiv.classList.remove('show');
+    }, 3000);
+}
+
+// Initialize when page loads
+window.addEventListener('load', init);
