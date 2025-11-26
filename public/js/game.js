@@ -19,7 +19,9 @@ async function init() {
 
     // Check session
     try {
-        const response = await fetch('/api/auth/session');
+        const response = await fetch('/api/auth/session', {
+            credentials: 'same-origin'
+        });
         const data = await response.json();
 
         if (!data.authenticated) {
@@ -255,7 +257,10 @@ async function logout() {
     console.log('Logging out...');
 
     try {
-        await fetch('/api/auth/logout', { method: 'POST' });
+        await fetch('/api/auth/logout', {
+            method: 'POST',
+            credentials: 'same-origin'
+        });
         wsClient.close();
         window.location.href = '/';
     } catch (error) {

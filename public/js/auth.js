@@ -60,4 +60,6 @@ async function checkSession() {
     }
 }
 
-checkSession();
+// Don't auto-redirect authenticated users on login page
+// This was causing an infinite redirect loop
+// checkSession();
