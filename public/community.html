@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Cards - Poker Dealer</title>
+    <link rel="stylesheet" href="/css/variables.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/cards.css">
+    <link rel="stylesheet" href="/css/community-display.css">
+</head>
+<body>
+    <div class="community-display-container">
+        <header class="display-header">
+            <h1 class="display-title">♠️ Community Cards ♥️</h1>
+        </header>
+
+        <main class="display-main">
+            <!-- Community Cards Section -->
+            <section class="community-section-large">
+                <div id="communityCards" class="community-cards-large">
+                    <div class="no-cards-message">Waiting for cards to be dealt...</div>
+                </div>
+                <div id="phaseIndicator" class="phase-indicator-large">Waiting for game to start</div>
+            </section>
+        </main>
+
+        <!-- Connection Status -->
+        <div class="connection-status">
+            <div id="statusIndicator" class="status-indicator"></div>
+            <span id="statusText">Connecting...</span>
+        </div>
+    </div>
+
+    <script src="/js/community-display.js"></script>
+</body>
+</html>

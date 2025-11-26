@@ -1,0 +1,239 @@
+.game-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.game-header {
+    background-color: var(--color-surface);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-md);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+}
+
+.game-title {
+    font-size: var(--font-2xl);
+    font-weight: bold;
+    color: var(--color-primary);
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.user-name {
+    color: var(--color-text-secondary);
+    font-size: var(--font-md);
+}
+
+.game-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: var(--spacing-xl);
+    gap: var(--spacing-2xl);
+}
+
+/* Community Cards Section */
+.community-section {
+    background-color: var(--color-surface);
+    padding: var(--spacing-2xl);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+}
+
+.section-header {
+    font-size: var(--font-xl);
+    font-weight: bold;
+    margin-bottom: var(--spacing-lg);
+    text-align: center;
+    color: var(--color-text-primary);
+}
+
+.community-cards {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+    min-height: 120px;
+}
+
+.phase-indicator {
+    text-align: center;
+    margin-top: var(--spacing-lg);
+    font-size: var(--font-lg);
+    color: var(--color-text-secondary);
+    text-transform: capitalize;
+}
+
+/* Hole Cards Section */
+.hole-cards-section {
+    background-color: var(--color-surface);
+    padding: var(--spacing-2xl);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+}
+
+.hole-cards {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-md);
+    min-height: 120px;
+}
+
+.no-cards-message {
+    text-align: center;
+    color: var(--color-text-muted);
+    font-size: var(--font-lg);
+    padding: var(--spacing-2xl);
+}
+
+/* Dealer Controls Section */
+.dealer-controls-section {
+    background-color: var(--color-surface-elevated);
+    padding: var(--spacing-2xl);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    border: 2px solid var(--color-primary);
+}
+
+.dealer-badge {
+    display: inline-block;
+    background-color: var(--color-primary);
+    color: white;
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: var(--radius-md);
+    font-size: var(--font-sm);
+    font-weight: bold;
+    margin-bottom: var(--spacing-md);
+}
+
+.dealer-controls {
+    display: flex;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.dealer-controls button {
+    min-width: 150px;
+}
+
+/* Players Section */
+.players-section {
+    background-color: var(--color-surface);
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+}
+
+.players-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.player-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    background-color: var(--color-bg-tertiary);
+    border-radius: var(--radius-md);
+}
+
+.player-item.is-dealer {
+    border: 2px solid var(--color-primary);
+    background-color: rgba(46, 204, 113, 0.1);
+}
+
+.player-name {
+    flex: 1;
+    font-size: var(--font-md);
+}
+
+.player-dealer-badge {
+    background-color: var(--color-primary);
+    color: white;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-xs);
+    font-weight: bold;
+}
+
+/* Join Game Section */
+.join-game-section {
+    background-color: var(--color-surface);
+    padding: var(--spacing-2xl);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    text-align: center;
+}
+
+.join-game-section p {
+    margin-bottom: var(--spacing-lg);
+    color: var(--color-text-secondary);
+    font-size: var(--font-lg);
+}
+
+/* Connection Status */
+.connection-status {
+    position: fixed;
+    bottom: var(--spacing-lg);
+    right: var(--spacing-lg);
+    background-color: var(--color-surface-elevated);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: var(--font-sm);
+}
+
+.status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: var(--color-danger);
+}
+
+.status-indicator.connected {
+    background-color: var(--color-success);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .game-main {
+        padding: var(--spacing-md);
+        gap: var(--spacing-lg);
+    }
+
+    .community-section,
+    .hole-cards-section,
+    .dealer-controls-section {
+        padding: var(--spacing-lg);
+    }
+
+    .game-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 480px) {
+    .game-title {
+        font-size: var(--font-xl);
+    }
+
+    .community-cards,
+    .hole-cards {
+        gap: var(--spacing-sm);
+    }
+}

@@ -1,0 +1,150 @@
+Poker Dealer - Initial Release
+================================
+
+What's New:
+-----------
+- Complete Texas Hold'em digital dealer application
+- Support for up to 10 simultaneous players
+- Real-time WebSocket communication for instant updates
+- Mobile-responsive design for phones and tablets
+- Automatic dealer rotation after each hand
+- Public community cards display for shared screens (no authentication required)
+
+Key Features to Test:
+--------------------
+
+1. Authentication & Login
+   - Login with test accounts (alice@example.com through jack@example.com)
+   - Password: password123 for all test accounts
+   - Logout functionality
+   - Session persistence across page refreshes
+
+2. Game Setup
+   - Join game before cards are dealt
+   - Verify you cannot join once cards have been dealt
+   - Check that players appear in the order they joined
+   - Confirm random dealer selection for first hand
+
+3. Dealer Controls (Dealer Only)
+   - "Deal Cards" button distributes 2 hole cards to each player
+   - "Deal Cards" button also deals 5 community cards (face down)
+   - "Flip" button reveals cards in correct sequence:
+     * First click: Reveals Flop (3 cards)
+     * Second click: Reveals Turn (1 card)
+     * Third click: Reveals River (1 card)
+     * Fourth click: Completes hand and rotates dealer
+   - Verify only the current dealer can see dealer controls
+   - Verify only the current dealer can use dealer actions
+
+4. Card Display
+   - Community cards visible to all players
+   - Hole cards visible only to the player who owns them
+   - Card backs shown for unrevealed community cards
+   - Proper card suit symbols (♠ ♥ ♦ ♣)
+
+5. Multi-Device Testing
+   - Test with 2-10 devices simultaneously
+   - Verify real-time updates across all devices
+   - Check WebSocket reconnection if connection drops
+   - Test on different browsers (Chrome, Safari, Firefox)
+   - Test on mobile devices (iOS and Android)
+
+6. Game Flow
+   - Complete a full hand from deal to river
+   - Verify dealer rotates to next player after hand completion
+   - Play multiple consecutive hands
+   - Confirm dealer button moves clockwise around the table
+
+7. Player List
+   - All connected players shown
+   - Current dealer indicated with "DEALER" badge
+   - Player order matches join order
+
+8. Responsive Design
+   - Login page displays correctly on mobile
+   - Game interface adapts to different screen sizes
+   - Cards scale appropriately on smaller screens
+   - All buttons accessible on touch devices
+
+9. Connection Status
+   - Connection indicator in bottom right
+   - Shows "Connected" in green when WebSocket active
+   - Shows "Disconnected" in red when connection lost
+
+10. Error Handling
+    - Cannot join game after cards dealt (shows error message)
+    - Cannot deal cards if not the dealer
+    - Cannot flip cards if not the dealer
+    - Appropriate error messages for invalid actions
+
+Known Limitations:
+-----------------
+- Betting is handled outside the app (in-person)
+- No hand evaluation or winner determination
+- No chip tracking or pot management
+- Single game instance (all players join the same game)
+- Test accounts use default password (change in production)
+
+Test Scenarios:
+--------------
+
+Scenario 1: Two-Player Quick Game
+1. Login as Alice on device 1
+2. Login as Bob on device 2
+3. Both click "Join Game"
+4. Dealer clicks "Deal Cards"
+5. Verify each player sees their own hole cards
+6. Dealer clicks "Flip" four times (Flop, Turn, River, Complete)
+7. Verify dealer has rotated to other player
+8. Deal another hand
+
+Scenario 2: Full Table (10 Players)
+1. Login with all 10 test accounts on different devices
+2. All join game in sequence
+3. Verify player order matches join order
+4. Deal cards and complete a full hand
+5. Verify dealer rotation through all players
+
+Scenario 3: Mid-Game Join Attempt
+1. Have 3 players join
+2. Dealer deals cards
+3. Attempt to join with 4th player
+4. Verify join is rejected with appropriate message
+
+Scenario 4: Connection Resilience
+1. Start a game with multiple players
+2. Disconnect one player's internet
+3. Reconnect the player
+4. Verify game state syncs correctly
+
+Scenario 5: Mobile Gameplay
+1. Login on iOS Safari
+2. Login on Android Chrome
+3. Complete a full game using only mobile devices
+4. Verify all controls are accessible via touch
+
+Scenario 6: Public Community Display
+1. On a shared screen/TV, navigate to `/community`
+2. Verify no authentication is required
+3. On player devices, login and join game
+4. Dealer deals cards
+5. Verify community cards appear immediately on public display
+6. Dealer flips through Flop, Turn, River
+7. Verify public display updates in real-time
+8. Check that public display does NOT show hole cards
+9. Test display on different screen sizes (phone, tablet, TV)
+
+Important Notes:
+---------------
+- Always test with multiple devices/browsers simultaneously
+- Check browser console for JavaScript errors
+- Monitor WebSocket connection in network tab
+- Test both portrait and landscape orientations on mobile
+- Verify session persistence after page refresh
+
+For Issues:
+----------
+- Check browser console for errors
+- Verify WebSocket connection status
+- Review server logs if running locally
+- Ensure all players are on the same network (if testing locally)

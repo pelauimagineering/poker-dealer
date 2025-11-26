@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Poker Dealer</title>
+    <link rel="stylesheet" href="/css/variables.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/auth.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1>♠️ Poker Dealer ♥️</h1>
+                <p>Digital dealer for Texas Hold'em</p>
+            </div>
+
+            <div id="errorMessage" class="error-message"></div>
+
+            <form id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        required
+                        autocomplete="email"
+                        placeholder="Enter your email"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        required
+                        autocomplete="current-password"
+                        placeholder="Enter your password"
+                    >
+                </div>
+
+                <button type="submit" class="primary">Login</button>
+            </form>
+
+            <div class="test-accounts">
+                <h3>Test Accounts</h3>
+                <div class="test-accounts-list">
+                    <p>Use any of these test accounts:</p>
+                    <p><code>alice@example.com</code></p>
+                    <p><code>bob@example.com</code></p>
+                    <p><code>charlie@example.com</code></p>
+                    <p><code>diana@example.com</code></p>
+                    <p><code>eve@example.com</code></p>
+                    <p style="margin-top: 8px;">Password: <code>password123</code></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/auth.js"></script>
+</body>
+</html>
