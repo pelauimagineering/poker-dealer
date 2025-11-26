@@ -12,9 +12,10 @@ What's New:
 
 Latest Bug Fix (2025-11-26):
 ----------------------------
-- Fixed login infinite loop issue caused by missing cookie credentials in fetch requests
-- Added `credentials: 'same-origin'` to both login and session check API calls
-- This ensures session cookies are properly sent with authentication requests
+- Fixed login infinite loop issue caused by SameSite cookie policy
+- Changed cookie sameSite from 'strict' to 'lax' to allow cookies on navigation redirects
+- Added `credentials: 'same-origin'` to all fetch API calls for cookie support
+- Added comprehensive logging to authentication flow for debugging
 
 Key Features to Test:
 --------------------

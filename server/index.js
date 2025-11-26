@@ -34,15 +34,23 @@ app.get('/', (req, res) => {
 app.get('/game', (req, res) => {
     const token = req.cookies.sessionToken;
 
+    console.log('GET /game - Cookie present:', !!token);
+    if (token) {
+        console.log('Token:', token.substring(0, 8) + '...');
+    }
+
     if (!token) {
+        console.log('No session token, redirecting to login');
         return res.redirect('/');
     }
 
     auth.validateSession(token, (err, session) => {
         if (err || !session) {
+            console.log('Session validation failed:', err?.message || 'Session not found');
             return res.redirect('/');
         }
 
+        console.log('Session valid, serving game.html for user:', session.name);
         res.sendFile(path.join(__dirname, '..', 'public', 'game.html'));
     });
 });

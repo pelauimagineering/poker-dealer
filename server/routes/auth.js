@@ -41,10 +41,10 @@ router.post('/login', (req, res) => {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 maxAge: 24 * 60 * 60 * 1000, // 24 hours
-                sameSite: 'strict'
+                sameSite: 'lax' // Changed from 'strict' to allow cookies on navigation redirects
             });
 
-            console.log(`User ${user.name} logged in successfully`);
+            console.log(`User ${user.name} logged in successfully with token: ${session.token.substring(0, 8)}...`);
 
             res.json({
                 success: true,
@@ -76,16 +76,20 @@ router.post('/logout', (req, res) => {
 router.get('/session', (req, res) => {
     const token = req.cookies.sessionToken;
 
+    console.log('GET /api/auth/session - Cookie present:', !!token);
+
     if (!token) {
         return res.json({ authenticated: false });
     }
 
     auth.validateSession(token, (err, session) => {
         if (err || !session) {
+            console.log('Session validation failed:', err?.message || 'Session not found');
             res.clearCookie('sessionToken');
             return res.json({ authenticated: false });
         }
 
+        console.log('Session valid for user:', session.name);
         res.json({
             authenticated: true,
             user: {
