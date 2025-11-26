@@ -15,6 +15,7 @@ loginForm.addEventListener('submit', async (e) => {
             headers: {
                 'Content-Type': 'application/json'
             },
+            credentials: 'same-origin',
             body: JSON.stringify({ email, password })
         });
 
@@ -45,7 +46,9 @@ function showError(message) {
 // Check if already logged in
 async function checkSession() {
     try {
-        const response = await fetch('/api/auth/session');
+        const response = await fetch('/api/auth/session', {
+            credentials: 'same-origin'
+        });
         const data = await response.json();
 
         if (data.authenticated) {

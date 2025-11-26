@@ -10,6 +10,12 @@ What's New:
 - Automatic dealer rotation after each hand
 - Public community cards display for shared screens (no authentication required)
 
+Latest Bug Fix (2025-11-26):
+----------------------------
+- Fixed login infinite loop issue caused by missing cookie credentials in fetch requests
+- Added `credentials: 'same-origin'` to both login and session check API calls
+- This ensures session cookies are properly sent with authentication requests
+
 Key Features to Test:
 --------------------
 
