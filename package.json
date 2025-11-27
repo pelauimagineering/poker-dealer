@@ -5,6 +5,7 @@
   "main": "server/index.js",
   "scripts": {
     "start": "node server/index.js",
+    "start:reset": "node server/index.js --reset",
     "dev": "node --watch server/index.js",
     "db:init": "node scripts/init-db.js",
     "test": "echo \"Error: no test specified\" && exit 1"

@@ -14,6 +14,11 @@ Latest Changes (2025-11-27):
 ----------------------------
 - Card suit symbols now display in appropriate colors (hearts/diamonds in red, clubs/spades in black)
 - Applies to both player view and public community display
+- Added `--reset` command line flag to reset game state and log out all users
+  - Usage: `npm run start:reset` or `node server/index.js --reset`
+  - Clears all active game data (players, cards, dealer position)
+  - Logs out all users by clearing all sessions
+  - Useful for starting fresh game sessions or testing
 
 Previous Bug Fixes (2025-11-26):
 ---------------------------------

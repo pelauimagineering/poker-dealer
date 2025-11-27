@@ -15,6 +15,34 @@
 - Modified `public/css/cards.css` to apply suit-specific colors to both rank and suit symbols
 - Leverages existing CSS variable system for consistent theming
 - No changes required to JavaScript card rendering logic
+## 2025-11-27 - feature/reset-game-parameter
+
+### New Feature
+- **Reset Command Line Flag**: Added `--reset` parameter for clean server startup
+  - Clears all game state (players, cards, dealer position, game phase)
+  - Logs out all users by clearing all active sessions
+  - Useful for starting fresh game sessions or testing scenarios
+
+### Usage
+```bash
+# Using npm script
+npm run start:reset
+
+# Direct node command
+node server/index.js --reset
+```
+
+### What Gets Reset
+- **Game State**: All players removed, cards cleared, dealer position reset, phase set to 'waiting'
+- **User Sessions**: All active sessions deleted, forcing all users to log in again
+- **Database**: Only sessions and game_state tables affected; user accounts remain intact
+
+### Technical Details
+- Added `deleteAll()` method to session operations in `server/db.js`
+- Modified `server/index.js` to detect `--reset` flag via `process.argv`
+- Reset operations execute before server starts listening
+- Added `start:reset` npm script in `package.json`
+- Updated README.md with reset documentation
 
 ---
 
