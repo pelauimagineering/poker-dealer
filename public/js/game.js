@@ -1,25 +1,15 @@
 let currentUser = null;
 let gameState = null;
 
-// Get session token from cookie
-function getSessionToken() {
-    const cookies = document.cookie.split(';');
-    for (const cookie of cookies) {
-        const [name, value] = cookie.trim().split('=');
-        if (name === 'sessionToken') {
-            return value;
-        }
-    }
-    return null;
-}
-
 // Initialize app
 async function init() {
     console.log('Initializing game app...');
 
     // Check session
     try {
-        const response = await fetch('/api/auth/session');
+        const response = await fetch('/api/auth/session', {
+            credentials: 'same-origin'
+        });
         const data = await response.json();
 
         if (!data.authenticated) {
@@ -29,12 +19,12 @@ async function init() {
         }
 
         currentUser = data.user;
+        const token = data.token;  // Get token from response instead of cookie
         document.getElementById('userName').textContent = currentUser.name;
 
         console.log('User authenticated:', currentUser.name);
 
         // Connect WebSocket
-        const token = getSessionToken();
         if (token) {
             wsClient.connect(token);
             setupWebSocketHandlers();
@@ -255,7 +245,10 @@ async function logout() {
     console.log('Logging out...');
 
     try {
-        await fetch('/api/auth/logout', { method: 'POST' });
+        await fetch('/api/auth/logout', {
+            method: 'POST',
+            credentials: 'same-origin'
+        });
         wsClient.close();
         window.location.href = '/';
     } catch (error) {
