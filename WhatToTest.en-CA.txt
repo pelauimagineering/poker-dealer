@@ -10,8 +10,13 @@ What's New:
 - Automatic dealer rotation after each hand
 - Public community cards display for shared screens (no authentication required)
 
-Latest Bug Fixes (2025-11-26):
-------------------------------
+Latest Changes (2025-11-27):
+----------------------------
+- Card suit symbols now display in appropriate colors (hearts/diamonds in red, clubs/spades in black)
+- Applies to both player view and public community display
+
+Previous Bug Fixes (2025-11-26):
+---------------------------------
 - Fixed cookie path issue preventing session cookies from being sent with all requests
 - Added explicit `path: '/'` to all cookie operations to ensure site-wide availability
 - Fixed httpOnly cookie access issue by returning token in /api/auth/session response
