@@ -12,7 +12,8 @@
       "Bash(gh auth status:*)",
       "Bash(gh repo view:*)",
       "Bash(git pull:*)",
-      "Bash(npm start)"
+      "Bash(npm start)",
+      "Bash(npm run start:reset:*)"
     ],
     "deny": [],
     "ask": []
