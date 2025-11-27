@@ -51,6 +51,13 @@ A digital card dealer for in-person sessions of Texas Hold'em poker games. Playe
    npm start
    ```
 
+   **Optional: Start with reset** (clears game state and logs out all users)
+   ```bash
+   npm run start:reset
+   # or
+   node server/index.js --reset
+   ```
+
 5. **Open your browser**
    ```
    Navigate to http://localhost:3000
@@ -212,6 +219,22 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions for Digi
 - Change `SESSION_SECRET` in production
 
 ## Troubleshooting
+
+### Resetting Game State
+If you need to clear all active games and log out all users:
+```bash
+npm run start:reset
+```
+
+This will:
+- Reset the game state (clear players, cards, dealer position)
+- Log out all users (clear all sessions)
+- Start the server with a clean slate
+
+Useful when:
+- Starting a new game session
+- Testing from a fresh state
+- Resolving game state corruption issues
 
 ### Database Issues
 If you encounter database errors:

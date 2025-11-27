@@ -67,6 +67,11 @@ const sessionOps = {
     deleteByUserId(userId, callback) {
         const query = 'DELETE FROM sessions WHERE user_id = ?';
         getDb().run(query, [userId], callback);
+    },
+
+    deleteAll(callback) {
+        const query = 'DELETE FROM sessions';
+        getDb().run(query, [], callback);
     }
 };
 
