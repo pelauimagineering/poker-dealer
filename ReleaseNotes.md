@@ -1,5 +1,76 @@
 # Release Notes - Poker Dealer
 
+## 2025-11-27 - feature/logout-player-removal-and-dealer-selection
+
+### New Features
+
+#### Player Removal on Logout
+- **Automatic Player Cleanup**: When a user logs out, they are automatically removed from the active game
+  - Prevents logged-out users from being accidentally selected as dealer
+  - Game state updates in real-time for all remaining players
+  - Ensures player list accurately reflects currently active players
+
+#### Manual Dealer Selection
+- **"Choose Dealer" Button**: Added new UI control for manual dealer selection
+  - Located in the Players section of the game interface
+  - Randomly selects the first dealer from all currently logged-in players
+  - Button is enabled only when:
+    * At least one player has joined the game
+    * No dealer has been selected yet
+    * No cards have been dealt
+  - Once clicked, the button becomes permanently disabled
+  - Button remains disabled for all subsequent hands until server restart with `--reset` flag
+  - Automatic dealer rotation for subsequent hands continues to work as before
+
+### Technical Details
+
+#### Backend Changes
+- Modified `server/routes/auth.js`:
+  - Updated logout endpoint to validate session before deletion
+  - Added call to `removePlayerFromGame()` during logout process
+
+- Modified `server/websocket.js`:
+  - Added `removePlayerFromGame()` function to handle player removal
+  - Added `handleChooseDealer()` WebSocket message handler
+  - Added validation to prevent re-selection of dealer after initial choice
+  - Added 'choose-dealer' message type to WebSocket switch
+  - Broadcasts game state updates when players leave or dealer is selected
+
+- Modified `server/game-manager.js`:
+  - Removed automatic dealer selection when first player joins
+  - Allows manual dealer selection via "Choose Dealer" button
+
+#### Frontend Changes
+- Modified `public/game.html`:
+  - Added "Choose Dealer" button in Players section
+  - Added hint text explaining button functionality
+
+- Modified `public/css/game.css`:
+  - Added `.choose-dealer-section` styling with proper spacing and borders
+  - Added `.choose-dealer-hint` styling for instructional text
+  - Added disabled state styling for the button
+
+- Modified `public/js/game.js`:
+  - Added `chooseDealer()` function to send WebSocket message
+  - Added `updateChooseDealerButton()` function to manage button state
+  - Added event listener for button clicks
+  - Added 'dealer-selected' WebSocket message handler
+  - Integrated button state updates into main `updateUI()` flow
+
+### What Gets Updated
+- **Player List**: Automatically updated when players log out
+- **Dealer Selection**: Manual control for first dealer, automatic rotation thereafter
+- **Game State**: Real-time synchronization across all connected clients
+
+### Usage
+1. Start server normally or with `--reset` flag for clean state
+2. Players login and join the game
+3. Any player can click "Choose Dealer" to randomly select first dealer
+4. Button becomes disabled after selection
+5. Game proceeds with automatic dealer rotation for subsequent hands
+
+---
+
 ## 2025-11-27 - feature/colored-suit-symbols
 
 ### Enhancement

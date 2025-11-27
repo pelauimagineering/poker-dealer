@@ -10,7 +10,9 @@
       "Bash(gh pr create:*)",
       "Bash(git push:*)",
       "Bash(gh auth status:*)",
-      "Bash(gh repo view:*)"
+      "Bash(gh repo view:*)",
+      "Bash(git pull:*)",
+      "Bash(npm start)"
     ],
     "deny": [],
     "ask": []

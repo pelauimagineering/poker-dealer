@@ -64,8 +64,23 @@ router.post('/logout', (req, res) => {
     const token = req.cookies.sessionToken;
 
     if (token) {
-        auth.logout(token, () => {
-            console.log('User logged out');
+        // Validate session to get user ID before deleting
+        auth.validateSession(token, (err, session) => {
+            if (!err && session) {
+                const userId = session.user_id;
+                const userName = session.name;
+
+                // Remove player from active game
+                const { removePlayerFromGame } = require('../websocket');
+                removePlayerFromGame(userId, userName);
+
+                console.log(`User ${userName} logged out and removed from game`);
+            }
+
+            // Delete session
+            auth.logout(token, () => {
+                console.log('Session deleted');
+            });
         });
     }
 
