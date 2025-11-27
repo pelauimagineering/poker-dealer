@@ -51,12 +51,16 @@
 }
 
 .card.hearts .card-rank,
-.card.diamonds .card-rank {
+.card.hearts .card-suit,
+.card.diamonds .card-rank,
+.card.diamonds .card-suit {
     color: var(--color-hearts);
 }
 
 .card.clubs .card-rank,
-.card.spades .card-rank {
+.card.clubs .card-suit,
+.card.spades .card-rank,
+.card.spades .card-suit {
     color: var(--color-clubs);
 }
 

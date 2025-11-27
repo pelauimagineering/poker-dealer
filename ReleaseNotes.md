@@ -1,5 +1,20 @@
 # Release Notes - Poker Dealer
 
+## 2025-11-27 - feature/colored-suit-symbols
+
+### Enhancement
+- **Colored Suit Symbols**: Card suit symbols (♥ ♦ ♣ ♠) now display in their appropriate colors
+  - Hearts and Diamonds: Red (#e74c3c)
+  - Clubs and Spades: Black (#2c3e50)
+  - Applies to all card displays including:
+    - Player hole cards
+    - Community cards on game view
+    - Public community cards display
+
+### Technical Details
+- Modified `public/css/cards.css` to apply suit-specific colors to both rank and suit symbols
+- Leverages existing CSS variable system for consistent theming
+- No changes required to JavaScript card rendering logic
 ## 2025-11-27 - feature/reset-game-parameter
 
 ### New Feature
