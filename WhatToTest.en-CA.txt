@@ -10,8 +10,17 @@ What's New:
 - Automatic dealer rotation after each hand
 - Public community cards display for shared screens (no authentication required)
 
-Latest Bug Fixes (2025-11-26):
-------------------------------
+Latest Changes (2025-11-27):
+----------------------------
+- Added `--reset` command line flag to reset game state and log out all users
+  - Usage: `npm run start:reset` or `node server/index.js --reset`
+  - Clears all active game data (players, cards, dealer position)
+  - Logs out all users by clearing all sessions
+  - Useful for starting fresh game sessions or testing
+- Card suit symbols now display in appropriate colors (hearts/diamonds in red, clubs/spades in black)
+
+Previous Bug Fixes (2025-11-26):
+---------------------------------
 - Fixed cookie path issue preventing session cookies from being sent with all requests
 - Added explicit `path: '/'` to all cookie operations to ensure site-wide availability
 - Fixed httpOnly cookie access issue by returning token in /api/auth/session response

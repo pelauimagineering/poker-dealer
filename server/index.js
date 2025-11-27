@@ -5,9 +5,19 @@ const cookieParser = require('cookie-parser');
 const auth = require('./auth');
 const authRoutes = require('./routes/auth');
 const { initWebSocketServer } = require('./websocket');
+const db = require('./db');
 
 const PORT = process.env.PORT || 3000;
 const app = express();
+
+// Check for --reset flag
+const resetFlag = process.argv.includes('--reset');
+
+if (resetFlag) {
+    console.log('\n===========================================');
+    console.log('RESET MODE: Clearing game state and sessions');
+    console.log('===========================================\n');
+}
 
 // Middleware
 app.use(express.json());
@@ -72,15 +82,46 @@ setInterval(() => {
     auth.cleanupExpiredSessions();
 }, 60 * 60 * 1000);
 
-// Start server
-server.listen(PORT, () => {
-    console.log(`\n===========================================`);
-    console.log(`Poker Dealer Server Started`);
-    console.log(`===========================================`);
-    console.log(`Server running on: http://localhost:${PORT}`);
-    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`===========================================\n`);
-});
+// Perform reset if --reset flag is present
+if (resetFlag) {
+    console.log('Resetting game state...');
+    db.gameState.reset((err) => {
+        if (err) {
+            console.error('Error resetting game state:', err);
+        } else {
+            console.log('✓ Game state reset');
+        }
+
+        console.log('Clearing all active sessions...');
+        db.sessions.deleteAll((err) => {
+            if (err) {
+                console.error('Error clearing sessions:', err);
+            } else {
+                console.log('✓ All sessions cleared');
+                console.log('✓ All users logged out\n');
+            }
+
+            startServer();
+        });
+    });
+} else {
+    startServer();
+}
+
+// Start server function
+function startServer() {
+    server.listen(PORT, () => {
+        console.log(`\n===========================================`);
+        console.log(`Poker Dealer Server Started`);
+        console.log(`===========================================`);
+        console.log(`Server running on: http://localhost:${PORT}`);
+        console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+        if (resetFlag) {
+            console.log(`Reset Mode: Game state and sessions cleared`);
+        }
+        console.log(`===========================================\n`);
+    });
+}
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
