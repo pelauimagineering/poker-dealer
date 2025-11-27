@@ -164,6 +164,10 @@ function handleMessage(ws, data, setUser) {
                 handleFlipCommunityCard(userId, ws);
                 break;
 
+            case 'choose-dealer':
+                handleChooseDealer(userId, ws);
+                break;
+
             case 'get-state':
                 const gameState = gameManager.getGameState(userId);
                 ws.send(JSON.stringify({
@@ -277,6 +281,53 @@ function handleFlipCommunityCard(userId, ws) {
     }
 }
 
+function handleChooseDealer(userId, ws) {
+    console.log(`User ${userId} attempting to choose dealer`);
+
+    // Check if dealer has already been chosen (game has started)
+    if (gameManager.game.cardsDealt || (gameManager.game.dealerIndex >= 0 && gameManager.game.players.length > 0)) {
+        ws.send(JSON.stringify({
+            type: 'error',
+            message: 'Dealer has already been selected for this game session'
+        }));
+        return;
+    }
+
+    // Check if there are players to choose from
+    if (gameManager.game.players.length === 0) {
+        ws.send(JSON.stringify({
+            type: 'error',
+            message: 'No players in game to select as dealer'
+        }));
+        return;
+    }
+
+    try {
+        gameManager.game.selectRandomDealer();
+        gameManager.saveGameState();
+
+        const dealer = gameManager.game.getCurrentDealer();
+        console.log(`Dealer selected: ${dealer.name}`);
+
+        // Broadcast to all clients
+        broadcastGameState();
+
+        // Send specific notification
+        broadcast({
+            type: 'dealer-selected',
+            dealer: {
+                id: dealer.id,
+                name: dealer.name
+            }
+        });
+    } catch (error) {
+        ws.send(JSON.stringify({
+            type: 'error',
+            message: error.message
+        }));
+    }
+}
+
 function broadcastGameState() {
     console.log(`Broadcasting game state to ${clients.size} authenticated clients and ${publicClients.size} public clients`);
 
@@ -318,8 +369,29 @@ function broadcast(message) {
     }
 }
 
+function removePlayerFromGame(userId, userName) {
+    if (gameManager) {
+        console.log(`Removing player ${userName} (${userId}) from game`);
+        gameManager.removePlayer(userId);
+        broadcastGameState();
+    }
+}
+
+function selectRandomDealer() {
+    if (gameManager && gameManager.game.players.length > 0) {
+        console.log('Selecting random dealer from current players');
+        gameManager.game.selectRandomDealer();
+        gameManager.saveGameState();
+        broadcastGameState();
+        return true;
+    }
+    return false;
+}
+
 module.exports = {
     initWebSocketServer,
     broadcastGameState,
-    broadcast
+    broadcast,
+    removePlayerFromGame,
+    selectRandomDealer
 };

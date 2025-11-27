@@ -167,6 +167,25 @@
     font-weight: bold;
 }
 
+/* Choose Dealer Section */
+.choose-dealer-section {
+    margin-top: var(--spacing-lg);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--color-border);
+    text-align: center;
+}
+
+.choose-dealer-hint {
+    margin-top: var(--spacing-sm);
+    color: var(--color-text-muted);
+    font-size: var(--font-sm);
+}
+
+#chooseDealerBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 /* Join Game Section */
 .join-game-section {
     background-color: var(--color-surface);

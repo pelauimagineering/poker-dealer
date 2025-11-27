@@ -48,11 +48,8 @@ class GameManager {
         const added = this.game.addPlayer(userId, userName);
 
         if (added) {
-            // If this is the first player or we're starting fresh, select random dealer
-            if (this.game.players.length === 1 || this.game.dealerIndex === 0) {
-                this.game.selectRandomDealer();
-            }
-
+            // Don't automatically select dealer - let users choose manually
+            // Dealer rotation happens automatically after each hand completes
             this.saveGameState();
         }
 

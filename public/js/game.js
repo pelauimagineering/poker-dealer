@@ -43,6 +43,9 @@ async function init() {
 
     // Setup join game
     document.getElementById('joinGameBtn').addEventListener('click', joinGame);
+
+    // Setup choose dealer
+    document.getElementById('chooseDealerBtn').addEventListener('click', chooseDealer);
 }
 
 function setupWebSocketHandlers() {
@@ -87,6 +90,12 @@ function setupWebSocketHandlers() {
         console.error('WebSocket error:', message.message);
         showError(message.message);
     });
+
+    // Handle dealer selected
+    wsClient.on('dealer-selected', (message) => {
+        console.log('Dealer selected:', message.dealer.name);
+        showSuccess(`${message.dealer.name} has been selected as the dealer!`);
+    });
 }
 
 function updateUI() {
@@ -110,6 +119,9 @@ function updateUI() {
 
     // Show/hide join game section
     updateJoinGameSection();
+
+    // Update choose dealer button state
+    updateChooseDealerButton();
 }
 
 function updatePlayersList() {
@@ -239,6 +251,34 @@ function getSuitSymbol(suit) {
 function joinGame() {
     console.log('Attempting to join game');
     wsClient.send('join-game');
+}
+
+function chooseDealer() {
+    console.log('Attempting to choose dealer');
+    wsClient.send('choose-dealer');
+}
+
+function updateChooseDealerButton() {
+    const chooseDealerBtn = document.getElementById('chooseDealerBtn');
+
+    // Enable button only if:
+    // - There are players in the game
+    // - No dealer has been selected yet
+    // - Cards have not been dealt
+    const hasPlayers = gameState.players && gameState.players.length > 0;
+    const noDealerSelected = !gameState.players || !gameState.players.some(p => p.isDealer);
+    const noCardsDealt = !gameState.cardsDealt;
+
+    const shouldEnable = hasPlayers && noDealerSelected && noCardsDealt;
+
+    chooseDealerBtn.disabled = !shouldEnable;
+
+    console.log('Choose dealer button state:', {
+        hasPlayers,
+        noDealerSelected,
+        noCardsDealt,
+        shouldEnable
+    });
 }
 
 async function logout() {

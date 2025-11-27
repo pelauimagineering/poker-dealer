@@ -19,6 +19,20 @@ Latest Changes (2025-11-27):
   - Clears all active game data (players, cards, dealer position)
   - Logs out all users by clearing all sessions
   - Useful for starting fresh game sessions or testing
+- **NEW: Player Removal on Logout**
+  - When a user logs out, they are automatically removed from the active player list
+  - Prevents logged-out users from being accidentally selected as dealer
+  - Game state updates in real-time for all remaining players
+- **NEW: Manual Dealer Selection**
+  - Added "Choose Dealer" button in the Players section
+  - Button is only enabled when:
+    * At least one player has joined the game
+    * No dealer has been selected yet
+    * No cards have been dealt
+  - Clicking the button randomly selects the first dealer from all logged-in players
+  - Once a dealer is selected, the button becomes disabled
+  - Button remains disabled until the server is restarted with `--reset` flag
+  - Automatic dealer rotation for subsequent hands continues to work as before
 
 Previous Bug Fixes (2025-11-26):
 ---------------------------------
@@ -44,7 +58,10 @@ Key Features to Test:
    - Join game before cards are dealt
    - Verify you cannot join once cards have been dealt
    - Check that players appear in the order they joined
-   - Confirm random dealer selection for first hand
+   - Click "Choose Dealer" button to randomly select first dealer
+   - Verify "Choose Dealer" button is disabled when no players present
+   - Verify "Choose Dealer" button is disabled after dealer is selected
+   - Verify "Choose Dealer" button is disabled after cards are dealt
 
 3. Dealer Controls (Dealer Only)
    - "Deal Cards" button distributes 2 hole cards to each player
@@ -80,6 +97,8 @@ Key Features to Test:
    - All connected players shown
    - Current dealer indicated with "DEALER" badge
    - Player order matches join order
+   - Players are removed from list when they log out
+   - Game state updates immediately when a player leaves
 
 8. Responsive Design
    - Login page displays correctly on mobile
@@ -113,11 +132,12 @@ Scenario 1: Two-Player Quick Game
 1. Login as Alice on device 1
 2. Login as Bob on device 2
 3. Both click "Join Game"
-4. Dealer clicks "Deal Cards"
-5. Verify each player sees their own hole cards
-6. Dealer clicks "Flip" four times (Flop, Turn, River, Complete)
-7. Verify dealer has rotated to other player
-8. Deal another hand
+4. Click "Choose Dealer" button to randomly select first dealer
+5. Dealer clicks "Deal Cards"
+6. Verify each player sees their own hole cards
+7. Dealer clicks "Flip" four times (Flop, Turn, River, Complete)
+8. Verify dealer has rotated to other player
+9. Deal another hand
 
 Scenario 2: Full Table (10 Players)
 1. Login with all 10 test accounts on different devices
@@ -143,6 +163,25 @@ Scenario 5: Mobile Gameplay
 2. Login on Android Chrome
 3. Complete a full game using only mobile devices
 4. Verify all controls are accessible via touch
+
+Scenario 7: Player Logout During Setup
+1. Login as Alice, Bob, and Charlie
+2. All three join the game
+3. Bob logs out before dealer is selected
+4. Verify Bob is removed from player list on all devices
+5. Click "Choose Dealer" - verify only Alice or Charlie can be selected
+6. Complete the game with remaining players
+
+Scenario 8: Manual Dealer Selection
+1. Start server with `--reset` flag to ensure clean state
+2. Login with 3-4 players
+3. All players join game
+4. Verify "Choose Dealer" button is enabled
+5. Click "Choose Dealer" button
+6. Verify a random player is selected as dealer
+7. Verify "Choose Dealer" button becomes disabled
+8. Complete hand and verify automatic dealer rotation still works
+9. Verify "Choose Dealer" button remains disabled for subsequent hands
 
 Scenario 6: Public Community Display
 1. On a shared screen/TV, navigate to `/community`

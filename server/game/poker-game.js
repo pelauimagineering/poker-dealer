@@ -3,7 +3,7 @@ const { Deck } = require('./deck');
 class PokerGame {
     constructor() {
         this.players = [];
-        this.dealerIndex = 0;
+        this.dealerIndex = -1; // -1 indicates no dealer selected yet
         this.deck = new Deck();
         this.communityCards = [];
         this.playerHands = new Map(); // userId -> [card1, card2]
@@ -39,19 +39,29 @@ class PokerGame {
     removePlayer(userId) {
         const index = this.players.findIndex(p => p.id === userId);
         if (index !== -1) {
+            const wasDealer = index === this.dealerIndex;
+
             this.players.splice(index, 1);
             this.playerHands.delete(userId);
 
-            // Adjust dealer index if necessary
-            if (this.dealerIndex >= this.players.length) {
-                this.dealerIndex = 0;
+            // If the dealer was removed, reset to no dealer
+            if (wasDealer) {
+                this.dealerIndex = -1;
+            }
+            // Adjust dealer index if it's now out of bounds
+            else if (this.dealerIndex >= this.players.length) {
+                this.dealerIndex = this.players.length > 0 ? 0 : -1;
+            }
+            // Adjust dealer index if a player before the dealer was removed
+            else if (index < this.dealerIndex) {
+                this.dealerIndex--;
             }
         }
     }
 
     selectRandomDealer() {
         if (this.players.length === 0) {
-            this.dealerIndex = 0;
+            this.dealerIndex = -1;
             return;
         }
 
@@ -61,11 +71,16 @@ class PokerGame {
 
     rotateDealer() {
         if (this.players.length === 0) {
-            this.dealerIndex = 0;
+            this.dealerIndex = -1;
             return;
         }
 
-        this.dealerIndex = (this.dealerIndex + 1) % this.players.length;
+        // If no dealer was set, start with the first player
+        if (this.dealerIndex === -1) {
+            this.dealerIndex = 0;
+        } else {
+            this.dealerIndex = (this.dealerIndex + 1) % this.players.length;
+        }
         console.log(`Dealer rotated to: ${this.players[this.dealerIndex].name} (index ${this.dealerIndex})`);
     }
 
@@ -163,7 +178,7 @@ class PokerGame {
     }
 
     getCurrentDealer() {
-        if (this.players.length === 0) {
+        if (this.players.length === 0 || this.dealerIndex === -1) {
             return null;
         }
         return this.players[this.dealerIndex];
@@ -174,7 +189,7 @@ class PokerGame {
             players: this.players.map((p, index) => ({
                 id: p.id,
                 name: p.name,
-                isDealer: index === this.dealerIndex
+                isDealer: this.dealerIndex !== -1 && index === this.dealerIndex
             })),
             dealerIndex: this.dealerIndex,
             communityCards: this.communityCards.map(card => card.toJSON()),
@@ -214,7 +229,7 @@ class PokerGame {
         }
 
         game.players = data.players || [];
-        game.dealerIndex = data.dealerIndex || 0;
+        game.dealerIndex = data.dealerIndex !== undefined ? data.dealerIndex : -1;
         game.deck = data.deck ? Deck.fromJSON(data.deck) : new Deck();
         game.phase = data.phase || 'waiting';
         game.cardsDealt = data.cardsDealt || false;
