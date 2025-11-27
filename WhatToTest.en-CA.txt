@@ -10,13 +10,16 @@ What's New:
 - Automatic dealer rotation after each hand
 - Public community cards display for shared screens (no authentication required)
 
-Latest Bug Fix (2025-11-26):
-----------------------------
-- Fixed login infinite loop issue caused by automatic session checking on login page
-- Removed automatic checkSession() call that was redirecting already-authenticated users
+Latest Bug Fixes (2025-11-26):
+------------------------------
+- Fixed cookie path issue preventing session cookies from being sent with all requests
+- Added explicit `path: '/'` to all cookie operations to ensure site-wide availability
+- Fixed httpOnly cookie access issue by returning token in /api/auth/session response
+- Removed client-side getSessionToken() function that couldn't access httpOnly cookies
+- WebSocket authentication now uses token from API response instead of trying to read cookie
+- Fixed login infinite loop by removing automatic checkSession() redirect
 - Added `credentials: 'same-origin'` to all fetch API calls for cookie support
 - Changed cookie sameSite from 'strict' to 'lax' to allow cookies on navigation redirects
-- Added comprehensive logging to authentication flow for debugging
 
 Key Features to Test:
 --------------------

@@ -41,7 +41,8 @@ router.post('/login', (req, res) => {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 maxAge: 24 * 60 * 60 * 1000, // 24 hours
-                sameSite: 'lax' // Changed from 'strict' to allow cookies on navigation redirects
+                sameSite: 'lax', // Changed from 'strict' to allow cookies on navigation redirects
+                path: '/' // Ensure cookie is sent with all requests
             });
 
             console.log(`User ${user.name} logged in successfully with token: ${session.token.substring(0, 8)}...`);
@@ -68,7 +69,7 @@ router.post('/logout', (req, res) => {
         });
     }
 
-    res.clearCookie('sessionToken');
+    res.clearCookie('sessionToken', { path: '/' });
     res.json({ success: true });
 });
 
@@ -85,13 +86,14 @@ router.get('/session', (req, res) => {
     auth.validateSession(token, (err, session) => {
         if (err || !session) {
             console.log('Session validation failed:', err?.message || 'Session not found');
-            res.clearCookie('sessionToken');
+            res.clearCookie('sessionToken', { path: '/' });
             return res.json({ authenticated: false });
         }
 
         console.log('Session valid for user:', session.name);
         res.json({
             authenticated: true,
+            token: token, //session.token,
             user: {
                 id: session.user_id,
                 name: session.name,
