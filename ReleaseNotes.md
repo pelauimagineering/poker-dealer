@@ -1,5 +1,40 @@
 # Release Notes - Poker Dealer
 
+## 2025-11-27 - feature/video-toggle-control
+
+### New Feature
+
+#### Video Section Toggle
+- **Show/Hide Video Control**: Added toggle checkbox to show/hide the Jitsi video conference section
+  - Video section is hidden by default when the page loads
+  - "Show Video" checkbox in the header controls visibility
+  - When checked, the video conference section appears
+  - When unchecked, the video section is hidden
+  - Improves page performance by allowing users to hide video when not needed
+
+### Technical Details
+
+#### Frontend Changes
+- Modified `public/css/game.css`:
+  - Added `display: none` to `.game-room-section` to hide by default
+  - Added `.game-room-section.visible` class to show when toggled
+  - Updated comment from "Join Game Section" to "Video Room Section"
+
+- Modified `public/js/game.js`:
+  - Added `setupVideoToggle()` function to handle checkbox changes
+  - Listens for changes on `#toggle-video` checkbox
+  - Toggles `.visible` class on `.game-room-section` element
+  - Added console logging for debugging
+  - Integrated into main `init()` function
+
+### Usage
+1. Load the game page
+2. Video section is hidden by default
+3. Click "Show Video" checkbox to reveal the Jitsi video conference
+4. Uncheck to hide the video section again
+
+---
+
 ## 2025-11-27 - feature/logout-player-removal-and-dealer-selection
 
 ### New Features

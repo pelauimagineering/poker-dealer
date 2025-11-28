@@ -46,6 +46,32 @@ async function init() {
 
     // Setup choose dealer
     document.getElementById('chooseDealerBtn').addEventListener('click', chooseDealer);
+
+    // Setup video toggle
+    setupVideoToggle();
+}
+
+function setupVideoToggle() {
+    const toggleCheckbox = document.getElementById('toggle-video');
+    const videoSection = document.querySelector('.game-room-section');
+
+    if (!toggleCheckbox || !videoSection) {
+        console.warn('Video toggle elements not found');
+        return;
+    }
+
+    // Add event listener for checkbox changes
+    toggleCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            videoSection.classList.add('visible');
+            console.log('Video section shown');
+        } else {
+            videoSection.classList.remove('visible');
+            console.log('Video section hidden');
+        }
+    });
+
+    console.log('Video toggle initialized');
 }
 
 function setupWebSocketHandlers() {
