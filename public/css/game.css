@@ -260,6 +260,25 @@
     background-color: var(--color-success);
 }
 
+.flexible-container {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    display: flex;
+    /* flex-direction: column; */
+    padding: var(--spacing-xl);
+    gap: var(--spacing-2xl);
+}
+
+.flexible-container section {
+    flex: 1;
+    background-color: var(--color-surface);
+    padding: var(--spacing-2xl);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    /* width: 48%; */
+    max-width: 600px;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .game-main {

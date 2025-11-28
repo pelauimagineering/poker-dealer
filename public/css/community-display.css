@@ -22,6 +22,7 @@
 .display-main {
     flex: 1;
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
     align-items: center;
     padding: var(--spacing-2xl);
