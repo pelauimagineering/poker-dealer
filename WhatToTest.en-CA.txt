@@ -12,6 +12,11 @@ What's New:
 
 Latest Changes (2025-11-27):
 ----------------------------
+- **NEW: Video Toggle Control**
+  - Added "Show Video" checkbox in the header to show/hide the Jitsi video conference section
+  - Video section is hidden by default when the page loads for better performance
+  - Toggle the checkbox to show/hide the video conference area
+  - Useful for conserving bandwidth when video is not needed
 - Card suit symbols now display in appropriate colors (hearts/diamonds in red, clubs/spades in black)
 - Applies to both player view and public community display
 - Added `--reset` command line flag to reset game state and log out all users
@@ -19,11 +24,11 @@ Latest Changes (2025-11-27):
   - Clears all active game data (players, cards, dealer position)
   - Logs out all users by clearing all sessions
   - Useful for starting fresh game sessions or testing
-- **NEW: Player Removal on Logout**
+- **Player Removal on Logout**
   - When a user logs out, they are automatically removed from the active player list
   - Prevents logged-out users from being accidentally selected as dealer
   - Game state updates in real-time for all remaining players
-- **NEW: Manual Dealer Selection**
+- **Manual Dealer Selection**
   - Added "Choose Dealer" button in the Players section
   - Button is only enabled when:
     * At least one player has joined the game
@@ -100,18 +105,25 @@ Key Features to Test:
    - Players are removed from list when they log out
    - Game state updates immediately when a player leaves
 
-8. Responsive Design
+8. Video Conference Toggle
+   - Video section is hidden by default when page loads
+   - "Show Video" checkbox in header is visible
+   - Clicking checkbox reveals the Jitsi video conference section
+   - Unchecking checkbox hides the video section
+   - Toggle works smoothly without page reload
+
+9. Responsive Design
    - Login page displays correctly on mobile
    - Game interface adapts to different screen sizes
    - Cards scale appropriately on smaller screens
    - All buttons accessible on touch devices
 
-9. Connection Status
-   - Connection indicator in bottom right
-   - Shows "Connected" in green when WebSocket active
-   - Shows "Disconnected" in red when connection lost
+10. Connection Status
+    - Connection indicator in bottom right
+    - Shows "Connected" in green when WebSocket active
+    - Shows "Disconnected" in red when connection lost
 
-10. Error Handling
+11. Error Handling
     - Cannot join game after cards dealt (shows error message)
     - Cannot deal cards if not the dealer
     - Cannot flip cards if not the dealer
@@ -182,6 +194,17 @@ Scenario 8: Manual Dealer Selection
 7. Verify "Choose Dealer" button becomes disabled
 8. Complete hand and verify automatic dealer rotation still works
 9. Verify "Choose Dealer" button remains disabled for subsequent hands
+
+Scenario 9: Video Toggle Control
+1. Login and navigate to the game page
+2. Verify video conference section is hidden by default
+3. Locate "Show Video" checkbox in the header
+4. Click checkbox to enable video
+5. Verify Jitsi video conference section appears
+6. Verify video loads correctly
+7. Uncheck the "Show Video" checkbox
+8. Verify video section is hidden again
+9. Test toggle multiple times to ensure it works reliably
 
 Scenario 6: Public Community Display
 1. On a shared screen/TV, navigate to `/community`
