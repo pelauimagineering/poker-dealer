@@ -1,84 +1,115 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game - Poker Dealer</title>
-    <link rel="stylesheet" href="/css/variables.css">
-    <link rel="stylesheet" href="/css/common.css">
-    <link rel="stylesheet" href="/css/cards.css">
-    <link rel="stylesheet" href="/css/game.css">
-</head>
-<body>
-    <div class="game-container">
-        <header class="game-header">
-            <h1 class="game-title">♠️ Poker Dealer ♥️</h1>
-            <div class="user-info">
-                <span class="user-name" id="userName">Loading...</span>
-                <button id="logoutBtn" class="danger">Logout</button>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>MMP Poker Dealer</title>
+        <link rel="stylesheet" href="/css/variables.css">
+        <link rel="stylesheet" href="/css/common.css">
+        <link rel="stylesheet" href="/css/cards.css">
+        <link rel="stylesheet" href="/css/game.css">
+        <script src='https://meet.jit.si/external_api.js'></script>
+        <style>
+            html, body { width: 100%; height: 100%; margin: 0px; }
+        </style>
+        <script type="text/javascript">
+            window.onload = () => {
+                loadMain()
+            }
+
+            function loadMain() {
+            const domain = 'meet.jit.si';
+            const options = {
+                roomName: 'ChrisBoxPoker',
+                width: 1100,
+                parentNode: document.querySelector('#game-room'),
+                lang: 'en'
+            };
+            const api = new JitsiMeetExternalAPI(domain, options);
+            }
+        </script>
+    </head>
+    <body>
+        <div class="game-container">
+            <header class="game-header">
+                <h1 class="game-title">MMP Poker ♥️ ♠️ ♦️ ♣️ </h1>
+                <span>
+                    <input type="checkbox" id="toggle-video" class="btn-check">
+                    <label class="btn btn-primary" for="toggle-video">Show Video</label>
+                </span>
+            </header>
+
+            <main class="game-main">
+
+                <!-- Video Section -->
+                <section class="game-room-section">
+                    <div id="game-room"></div>
+                </section>
+
+                <!-- Join Game Section (shown when not in game) -->
+                <section id="joinGameSection" class="join-game-section hidden">
+                    <h2>Welcome to the MMP Poker Dealer!</h2>
+                    <p>Click the button below to join today's game</p>
+                    <button id="joinGameBtn" class="primary">Join Game</button>
+                </section>
+
+                <!-- Community Cards Section -->
+                <section class="community-section">
+                    <h2 class="section-header">Community Cards</h2>
+                    <div id="communityCards" class="community-cards">
+                        <div class="no-cards-message">Waiting for cards to be dealt...</div>
+                    </div>
+                    <div id="phaseIndicator" class="phase-indicator">Phase: Waiting</div>
+                </section>
+
+                <!-- Your Hole Cards Section -->
+                <section class="hole-cards-section">
+                    <h2 class="section-header">Your Hole Cards</h2>
+                    <div id="holeCards" class="hole-cards">
+                        <div class="no-cards-message">No cards yet</div>
+                    </div>
+                </section>
+
+                <!-- Dealer Controls (only shown for dealer) -->
+                <section id="dealerControlsSection" class="dealer-controls-section hidden">
+                    <span class="dealer-badge">DEALER</span>
+                    <h2 class="section-header">Dealer Controls</h2>
+                    <div class="dealer-controls">
+                        <button id="dealBtn" class="primary">Deal Cards</button>
+                        <button id="flipBtn" class="secondary" disabled>Flip Community Card</button>
+                    </div>
+                </section>
+
+                <!-- Players Section -->
+                <section class="players-section">
+                    <h2 class="section-header">Players</h2>
+                    <div id="playersList" class="players-list">
+                        <div class="no-cards-message">No players yet</div>
+                    </div>
+                    <!-- Choose Dealer Button -->
+                    <div class="choose-dealer-section">
+                        <button id="chooseDealerBtn" class="secondary" disabled>Choose Dealer</button>
+                        <p class="choose-dealer-hint">After everyone has joined, click to randomly select the first dealer</p>
+                    </div>
+
+                    <div class="logout-section">
+                        <button id="logoutBtn" class="danger">Logout <span class="user-name" id="userName">...</span> </button>
+                    </div>
+
+                </section>
+            </main>
+
+            <!-- Connection Status -->
+            <div class="connection-status">
+                <div id="statusIndicator" class="status-indicator"></div>
+                <span id="statusText">Connecting...</span>
             </div>
-        </header>
-
-        <main class="game-main">
-            <!-- Join Game Section (shown when not in game) -->
-            <section id="joinGameSection" class="join-game-section hidden">
-                <h2>Welcome to Poker Dealer!</h2>
-                <p>Click the button below to join the game</p>
-                <button id="joinGameBtn" class="primary">Join Game</button>
-            </section>
-
-            <!-- Community Cards Section -->
-            <section class="community-section">
-                <h2 class="section-header">Community Cards</h2>
-                <div id="communityCards" class="community-cards">
-                    <div class="no-cards-message">Waiting for cards to be dealt...</div>
-                </div>
-                <div id="phaseIndicator" class="phase-indicator">Phase: Waiting</div>
-            </section>
-
-            <!-- Your Hole Cards Section -->
-            <section class="hole-cards-section">
-                <h2 class="section-header">Your Hole Cards</h2>
-                <div id="holeCards" class="hole-cards">
-                    <div class="no-cards-message">No cards yet</div>
-                </div>
-            </section>
-
-            <!-- Dealer Controls (only shown for dealer) -->
-            <section id="dealerControlsSection" class="dealer-controls-section hidden">
-                <span class="dealer-badge">DEALER</span>
-                <h2 class="section-header">Dealer Controls</h2>
-                <div class="dealer-controls">
-                    <button id="dealBtn" class="primary">Deal Cards</button>
-                    <button id="flipBtn" class="secondary" disabled>Flip Community Card</button>
-                </div>
-            </section>
-
-            <!-- Players Section -->
-            <section class="players-section">
-                <h2 class="section-header">Players</h2>
-                <div id="playersList" class="players-list">
-                    <div class="no-cards-message">No players yet</div>
-                </div>
-                <!-- Choose Dealer Button -->
-                <div class="choose-dealer-section">
-                    <button id="chooseDealerBtn" class="secondary" disabled>Choose Dealer</button>
-                    <p class="choose-dealer-hint">Click to randomly select the first dealer</p>
-                </div>
-            </section>
-        </main>
-
-        <!-- Connection Status -->
-        <div class="connection-status">
-            <div id="statusIndicator" class="status-indicator"></div>
-            <span id="statusText">Connecting...</span>
         </div>
-    </div>
 
-    <div id="errorMessage" class="error-message"></div>
+        <div id="errorMessage" class="error-message"></div>
 
-    <script src="/js/websocket-client.js"></script>
-    <script src="/js/game.js"></script>
-    <script src="/js/dealer-controls.js"></script>
-</body>
+        <script src="/js/websocket-client.js"></script>
+        <script src="/js/game.js"></script>
+        <script src="/js/dealer-controls.js"></script>
+    </body>
 </html>
