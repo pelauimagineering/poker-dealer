@@ -12,7 +12,7 @@
     justify-content: space-between;
     flex-wrap: wrap;
     gap: var(--spacing-md);
-    width: 100em;
+    width: auto; /* 62em; */
 }
 
 .game-title {
