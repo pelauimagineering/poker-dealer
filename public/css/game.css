@@ -85,7 +85,6 @@
     display: flex;
     justify-content: center;
     gap: var(--spacing-md);
-    flex-wrap: wrap;
     min-height: 120px;
 }
 
