@@ -56,54 +56,42 @@ router.post('/login', (req, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
 
-        // Check if user is already logged in
-        db.sessions.getLoggedInUserIds((err, loggedInUserIds) => {
-            if (err) {
-                console.error('Error checking logged in users:', err);
-                return res.status(500).json({ error: 'Internal server error' });
-            }
-
-            if (loggedInUserIds.includes(parseInt(userId))) {
-                return res.status(409).json({ error: 'This user is already logged in' });
-            }
-
-            // Update display name if changed
-            const trimmedDisplayName = displayName.trim();
-            if (user.display_name !== trimmedDisplayName) {
-                db.users.updateDisplayName(userId, trimmedDisplayName, (err) => {
-                    if (err) {
-                        console.error('Error updating display name:', err);
-                        // Continue with login even if display name update fails
-                    }
-                });
-            }
-
-            // Create session
-            const session = auth.createSession(user.id, (err) => {
+        // Update display name if changed
+        const trimmedDisplayName = displayName.trim();
+        if (user.display_name !== trimmedDisplayName) {
+            db.users.updateDisplayName(userId, trimmedDisplayName, (err) => {
                 if (err) {
-                    console.error('Session creation error:', err);
-                    return res.status(500).json({ error: 'Failed to create session' });
+                    console.error('Error updating display name:', err);
+                    // Continue with login even if display name update fails
                 }
+            });
+        }
 
-                // Set cookie
-                res.cookie('sessionToken', session.token, {
-                    httpOnly: true,
-                    secure: process.env.NODE_ENV === 'production',
-                    maxAge: 24 * 60 * 60 * 1000, // 24 hours
-                    sameSite: 'lax',
-                    path: '/'
-                });
+        // Create session (allow multiple sessions for same user)
+        const session = auth.createSession(user.id, (err) => {
+            if (err) {
+                console.error('Session creation error:', err);
+                return res.status(500).json({ error: 'Failed to create session' });
+            }
 
-                console.log(`User ${trimmedDisplayName} (${user.user_name}) logged in successfully with token: ${session.token.substring(0, 8)}...`);
+            // Set cookie
+            res.cookie('sessionToken', session.token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                maxAge: 24 * 60 * 60 * 1000, // 24 hours
+                sameSite: 'lax',
+                path: '/'
+            });
 
-                res.json({
-                    success: true,
-                    user: {
-                        id: user.id,
-                        display_name: trimmedDisplayName,
-                        user_name: user.user_name
-                    }
-                });
+            console.log(`User ${trimmedDisplayName} (${user.user_name}) logged in successfully with token: ${session.token.substring(0, 8)}...`);
+
+            res.json({
+                success: true,
+                user: {
+                    id: user.id,
+                    display_name: trimmedDisplayName,
+                    user_name: user.user_name
+                }
             });
         });
     });

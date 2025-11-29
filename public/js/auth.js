@@ -33,12 +33,12 @@ function initAuth() {
             displayNameInput.value = displayName;
         }
 
-        // Disable the select option if user is already logged in
+        // Show warning if user is already logged in
         if (isLoggedIn) {
-            selectedOption.disabled = true;
-            userSelect.value = '';
-            displayNameInput.value = '';
-            showError('This user is already logged in');
+            showWarning('⚠️ This user is already logged in on another device. Logging in will create a second session.');
+        } else {
+            // Clear any previous warnings
+            hideWarning();
         }
     });
 
@@ -95,10 +95,9 @@ function initAuth() {
             option.setAttribute('data-display-name', user.display_name);
             option.setAttribute('data-logged-in', loggedInUsers.includes(user.id) ? 'true' : 'false');
 
-            // Style logged-in users differently
+            // Indicate logged-in users with a visual marker
             if (loggedInUsers.includes(user.id)) {
-                option.style.color = '#999';
-                option.textContent += ' - Already logged in';
+                option.textContent += ' ⚠️';
             }
 
             userSelect.appendChild(option);
@@ -151,11 +150,24 @@ function initAuth() {
 
     function showError(message) {
         errorMessage.textContent = message;
+        errorMessage.style.backgroundColor = '#dc3545';
         errorMessage.classList.add('show');
 
         setTimeout(() => {
             errorMessage.classList.remove('show');
         }, 5000);
+    }
+
+    function showWarning(message) {
+        errorMessage.textContent = message;
+        errorMessage.style.backgroundColor = '#ff9800';
+        errorMessage.classList.add('show');
+    }
+
+    function hideWarning() {
+        if (errorMessage.textContent.includes('⚠️')) {
+            errorMessage.classList.remove('show');
+        }
     }
 }
 

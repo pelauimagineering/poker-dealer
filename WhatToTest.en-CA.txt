@@ -16,9 +16,10 @@ Latest Changes (2025-11-29):
   - Removed username/password requirement for login
   - Users now select from a dropdown list of available players
   - Display name field allows users to view and update their display name before joining
-  - Already logged-in users appear in the list but cannot be selected (shown in gray with "Already logged in" label)
+  - Already logged-in users are indicated with a ⚠️ symbol in the dropdown
+  - Warning message displays when selecting an already logged-in user (but login is still allowed)
   - No passwords needed - the app is designed for casual, fun play with no critical resources
-  - System prevents duplicate logins for the same user
+  - Multiple sessions allowed for the same user across different devices
 
 Previous Changes (2025-11-27):
 ------------------------------
@@ -66,8 +67,9 @@ Key Features to Test:
 1. Authentication & Login
    - Select a user from the dropdown list (Gary, Neave, Harish, Chris, Tony, Seymour, Kerwin, Wayne, Dee, Lorenzo)
    - View and optionally update the display name before joining
-   - Verify already logged-in users are shown in gray and cannot be selected
-   - Verify error message appears if attempting to select an already logged-in user
+   - Verify already logged-in users are indicated with ⚠️ symbol in dropdown
+   - Verify warning message appears when selecting an already logged-in user
+   - Verify users can still login even when already logged in elsewhere (multiple sessions allowed)
    - Logout functionality
    - Session persistence across page refreshes
    - Test that display name updates are saved and persist
@@ -198,16 +200,17 @@ Scenario 7: Player Logout During Setup
 6. Click "Choose Dealer" - verify only Gary or Harish can be selected
 7. Complete the game with remaining players
 
-Scenario 10: Duplicate Login Prevention
+Scenario 10: Multiple Login Warning
 1. Login as Gary on device 1 and join the game
 2. On device 2, open the login page
-3. Verify Gary appears in the dropdown but is marked as "Already logged in" in gray
-4. Attempt to select Gary from the dropdown
-5. Verify an error message appears preventing the login
-6. Select a different user (e.g., Neave) and verify login succeeds
-7. Logout Gary on device 1
-8. Refresh the login page on device 2
-9. Verify Gary is now available for selection again
+3. Verify Gary appears in the dropdown with a ⚠️ warning symbol
+4. Select Gary from the dropdown
+5. Verify a warning message appears: "⚠️ This user is already logged in on another device. Logging in will create a second session."
+6. Click "Join Game" and verify login succeeds (multiple sessions allowed)
+7. Verify both devices are now logged in as Gary
+8. Logout Gary on device 1
+9. Refresh the login page on a device 3
+10. Verify Gary still shows ⚠️ symbol (device 2 still logged in)
 
 Scenario 11: Display Name Updates
 1. Login as Gary on device 1
