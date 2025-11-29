@@ -47,6 +47,9 @@ async function init() {
     // Setup choose dealer
     document.getElementById('chooseDealerBtn').addEventListener('click', chooseDealer);
 
+    // Setup reset game
+    document.getElementById('resetGameBtn').addEventListener('click', resetGame);
+
     // Setup video toggle
     setupVideoToggle();
 }
@@ -121,6 +124,16 @@ function setupWebSocketHandlers() {
     wsClient.on('dealer-selected', (message) => {
         console.log('Dealer selected:', message.dealer.name);
         showSuccess(`${message.dealer.name} has been selected as the dealer!`);
+    });
+
+    // Handle game reset
+    wsClient.on('game-reset', (message) => {
+        console.log('Game has been reset');
+        showSuccess(message.message);
+        // Redirect to login after a short delay
+        setTimeout(() => {
+            window.location.href = '/';
+        }, 2000);
     });
 }
 
@@ -282,6 +295,56 @@ function joinGame() {
 function chooseDealer() {
     console.log('Attempting to choose dealer');
     wsClient.send('choose-dealer');
+}
+
+async function resetGame() {
+    console.log('Reset game button clicked');
+
+    // Prompt for challenge phrase
+    const challengePhrase = prompt('Enter the challenge phrase to reset the game:');
+
+    if (!challengePhrase) {
+        console.log('Reset cancelled - no phrase entered');
+        return;
+    }
+
+    // Confirm the action
+    const confirmed = confirm('Are you sure you want to reset the game? This will log out all players and clear the game state.');
+
+    if (!confirmed) {
+        console.log('Reset cancelled by user');
+        return;
+    }
+
+    console.log('Attempting to reset game...');
+
+    try {
+        const response = await fetch('/api/game/reset', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({ challengePhrase })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            console.log('Game reset successful');
+            showSuccess(data.message);
+            // Redirect to login after a short delay
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 2000);
+        } else {
+            console.error('Reset failed:', data.error);
+            showError(data.error || 'Failed to reset game');
+        }
+    } catch (error) {
+        console.error('Reset error:', error);
+        showError('Network error. Please try again.');
+    }
 }
 
 function updateChooseDealerButton() {

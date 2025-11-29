@@ -12,6 +12,14 @@ What's New:
 
 Latest Changes (2025-11-29):
 ----------------------------
+- **NEW: Protected Game Reset Endpoint**
+  - Added "Reset Game" button in the game page header
+  - Reset requires entering the challenge phrase: "milliken mills posse" (case-insensitive)
+  - Confirmation dialog prevents accidental resets
+  - Resets game state, clears all player positions, and logs out all users
+  - All connected clients are notified via WebSocket and redirected to login
+  - API endpoint: POST /api/game/reset with challengePhrase in request body
+
 - **NEW: Simplified Authentication Flow**
   - Removed username/password requirement for login
   - Users now select from a dropdown list of available players
@@ -222,6 +230,32 @@ Scenario 11: Display Name Updates
 7. Verify the display name field shows "Gary the Great" (persisted)
 8. Change it back to "Gary" and join
 9. Verify the updated name appears to all players
+
+Scenario 12: Game Reset with Challenge Phrase
+1. Login with 3-4 players and start a game
+2. Deal cards and progress through a few rounds
+3. One player clicks the "Reset Game" button in the header
+4. Verify a prompt appears asking for the challenge phrase
+5. Enter an incorrect phrase (e.g., "wrong phrase")
+6. Verify an error message appears: "Invalid challenge phrase"
+7. Click "Reset Game" button again
+8. Enter the correct phrase: "milliken mills posse" (test case-insensitivity)
+9. Verify a confirmation dialog appears
+10. Click "Cancel" - verify nothing happens
+11. Click "Reset Game" again, enter correct phrase, click "OK"
+12. Verify success message appears
+13. Verify all connected clients are redirected to login page
+14. Login again and verify game state is reset (no players, no cards, no dealer)
+
+Scenario 13: Game Reset via API
+1. Use curl or Postman to test the API endpoint directly
+2. Send POST request to /api/game/reset without challengePhrase
+3. Verify 400 error: "Challenge phrase is required"
+4. Send POST with incorrect phrase
+5. Verify 403 error: "Invalid challenge phrase"
+6. Send POST with correct phrase: {"challengePhrase": "Milliken Mills Posse"}
+7. Verify 200 success response
+8. Verify game state has been reset in database
 
 Scenario 8: Manual Dealer Selection
 1. Start server with `--reset` flag to ensure clean state
