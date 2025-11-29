@@ -22,7 +22,7 @@ router.post('/reset', (req, res) => {
     if (challengePhrase.trim().toLowerCase() !== RESET_CHALLENGE_PHRASE) {
         console.log('Invalid challenge phrase attempt:', challengePhrase);
         return res.status(403).json({
-            error: 'Invalid challenge phrase',
+            error: 'Incorrect challenge phrase. Please try again.',
             success: false
         });
     }
