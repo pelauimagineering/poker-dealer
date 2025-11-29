@@ -97,7 +97,7 @@ function initAuth() {
 
             // Indicate logged-in users with a visual marker
             if (loggedInUsers.includes(user.id)) {
-                option.textContent += ' ⚠️';
+                option.textContent += ' ✔︎';
             }
 
             userSelect.appendChild(option);
@@ -165,7 +165,7 @@ function initAuth() {
     }
 
     function hideWarning() {
-        if (errorMessage.textContent.includes('⚠️')) {
+        if (errorMessage.textContent.includes('✔︎')) {
             errorMessage.classList.remove('show');
         }
     }
@@ -179,20 +179,3 @@ if (document.readyState === 'loading') {
     console.log('DOM already loaded, initializing immediately');
     initAuth();
 }
-
-// Check if already logged in (not currently used to prevent infinite loop)
-// async function checkSession() {
-//     try {
-//         const response = await fetch('/api/auth/session', {
-//             credentials: 'same-origin'
-//         });
-//         const data = await response.json();
-//
-//         if (data.authenticated) {
-//             console.log('Already authenticated, redirecting to game');
-//             window.location.href = '/game';
-//         }
-//     } catch (error) {
-//         console.error('Session check error:', error);
-//     }
-// }
