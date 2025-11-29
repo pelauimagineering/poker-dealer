@@ -3,33 +3,71 @@ const router = express.Router();
 const db = require('../db');
 const auth = require('../auth');
 
+// Get all users endpoint
+router.get('/users', (req, res) => {
+    console.log('Fetching all users');
+
+    db.users.getAll((err, users) => {
+        if (err) {
+            console.error('Database error:', err);
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+
+        // Get logged in user IDs
+        db.sessions.getLoggedInUserIds((err, loggedInUserIds) => {
+            if (err) {
+                console.error('Error fetching logged in users:', err);
+                return res.status(500).json({ error: 'Internal server error' });
+            }
+
+            console.log('Users fetched:', users.length, 'Logged in:', loggedInUserIds.length);
+
+            res.json({
+                success: true,
+                users: users,
+                loggedInUsers: loggedInUserIds
+            });
+        });
+    });
+});
+
 // Login endpoint
 router.post('/login', (req, res) => {
-    console.log('Login attempt for:', req.body.email);
+    console.log('Login attempt for user ID:', req.body.userId);
 
-    const { email, password } = req.body;
+    const { userId, displayName } = req.body;
 
-    if (!email || !password) {
-        return res.status(400).json({ error: 'Email and password are required' });
+    if (!userId) {
+        return res.status(400).json({ error: 'User ID is required' });
     }
 
-    // Find user by email
-    db.users.findByEmail(email, (err, user) => {
+    if (!displayName || !displayName.trim()) {
+        return res.status(400).json({ error: 'Display name is required' });
+    }
+
+    // Find user by ID
+    db.users.findById(userId, (err, user) => {
         if (err) {
             console.error('Database error:', err);
             return res.status(500).json({ error: 'Internal server error' });
         }
 
         if (!user) {
-            return res.status(401).json({ error: 'Invalid email or password' });
+            return res.status(404).json({ error: 'User not found' });
         }
 
-        // Verify password
-        if (!auth.verifyPassword(password, user.password_hash)) {
-            return res.status(401).json({ error: 'Invalid email or password' });
+        // Update display name if changed
+        const trimmedDisplayName = displayName.trim();
+        if (user.display_name !== trimmedDisplayName) {
+            db.users.updateDisplayName(userId, trimmedDisplayName, (err) => {
+                if (err) {
+                    console.error('Error updating display name:', err);
+                    // Continue with login even if display name update fails
+                }
+            });
         }
 
-        // Create session
+        // Create session (allow multiple sessions for same user)
         const session = auth.createSession(user.id, (err) => {
             if (err) {
                 console.error('Session creation error:', err);
@@ -41,18 +79,18 @@ router.post('/login', (req, res) => {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 maxAge: 24 * 60 * 60 * 1000, // 24 hours
-                sameSite: 'lax', // Changed from 'strict' to allow cookies on navigation redirects
-                path: '/' // Ensure cookie is sent with all requests
+                sameSite: 'lax',
+                path: '/'
             });
 
-            console.log(`User ${user.name} logged in successfully with token: ${session.token.substring(0, 8)}...`);
+            console.log(`User ${trimmedDisplayName} (${user.user_name}) logged in successfully with token: ${session.token.substring(0, 8)}...`);
 
             res.json({
                 success: true,
                 user: {
                     id: user.id,
-                    name: user.name,
-                    email: user.email
+                    display_name: trimmedDisplayName,
+                    user_name: user.user_name
                 }
             });
         });
@@ -68,13 +106,13 @@ router.post('/logout', (req, res) => {
         auth.validateSession(token, (err, session) => {
             if (!err && session) {
                 const userId = session.user_id;
-                const userName = session.name;
+                const displayName = session.display_name;
 
                 // Remove player from active game
                 const { removePlayerFromGame } = require('../websocket');
-                removePlayerFromGame(userId, userName);
+                removePlayerFromGame(userId, displayName);
 
-                console.log(`User ${userName} logged out and removed from game`);
+                console.log(`User ${displayName} logged out and removed from game`);
             }
 
             // Delete session
@@ -105,14 +143,14 @@ router.get('/session', (req, res) => {
             return res.json({ authenticated: false });
         }
 
-        console.log('Session valid for user:', session.name);
+        console.log('Session valid for user:', session.display_name);
         res.json({
             authenticated: true,
-            token: token, //session.token,
+            token: token,
             user: {
                 id: session.user_id,
-                name: session.name,
-                email: session.email
+                display_name: session.display_name,
+                user_name: session.user_name
             }
         });
     });

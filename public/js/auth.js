@@ -6,14 +6,41 @@ function initAuth() {
 
     const loginForm = document.getElementById('loginForm');
     const errorMessage = document.getElementById('errorMessage');
+    const userSelect = document.getElementById('userSelect');
+    const displayNameInput = document.getElementById('displayName');
 
     console.log('loginForm element:', loginForm);
     console.log('errorMessage element:', errorMessage);
+    console.log('userSelect element:', userSelect);
 
     if (!loginForm) {
         console.error('ERROR: loginForm element not found!');
         return;
     }
+
+    // Load available users
+    loadUsers();
+
+    // Update display name when user is selected
+    userSelect.addEventListener('change', (e) => {
+        const selectedOption = e.target.options[e.target.selectedIndex];
+        const displayName = selectedOption.getAttribute('data-display-name');
+        const isLoggedIn = selectedOption.getAttribute('data-logged-in') === 'true';
+
+        console.log('User selected:', selectedOption.value, 'Display name:', displayName, 'Logged in:', isLoggedIn);
+
+        if (displayName) {
+            displayNameInput.value = displayName;
+        }
+
+        // Show warning if user is already logged in
+        if (isLoggedIn) {
+            showWarning('⚠️ This user is already logged in on another device. Logging in will create a second session.');
+        } else {
+            // Clear any previous warnings
+            hideWarning();
+        }
+    });
 
     loginForm.addEventListener('submit', (e) => {
         e.preventDefault(); // MUST be first!
@@ -27,11 +54,71 @@ function initAuth() {
         return false; // Extra safeguard
     });
 
-    async function handleLogin() {
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
+    async function loadUsers() {
+        console.log('Loading users list');
 
-        console.log('Attempting login for:', email);
+        try {
+            const response = await fetch('/api/auth/users', {
+                credentials: 'same-origin'
+            });
+
+            console.log('Users fetch complete, status:', response.status);
+            const data = await response.json();
+            console.log('Users data:', data);
+
+            if (response.ok && data.users) {
+                populateUserDropdown(data.users, data.loggedInUsers || []);
+            } else {
+                console.error('Failed to load users:', data.error);
+                showError('Failed to load users list');
+            }
+        } catch (error) {
+            console.error('Error loading users:', error);
+            showError('Network error loading users');
+        }
+    }
+
+    function populateUserDropdown(users, loggedInUsers) {
+        console.log('Populating dropdown with users:', users);
+        console.log('Logged in users:', loggedInUsers);
+
+        // Clear existing options except the first one
+        while (userSelect.options.length > 1) {
+            userSelect.remove(1);
+        }
+
+        // Add all users to dropdown
+        users.forEach(user => {
+            const option = document.createElement('option');
+            option.value = user.id;
+            option.textContent = `${user.display_name} (${user.user_name})`;
+            option.setAttribute('data-display-name', user.display_name);
+            option.setAttribute('data-logged-in', loggedInUsers.includes(user.id) ? 'true' : 'false');
+
+            // Indicate logged-in users with a visual marker
+            if (loggedInUsers.includes(user.id)) {
+                option.textContent += ' ⚠️';
+            }
+
+            userSelect.appendChild(option);
+        });
+    }
+
+    async function handleLogin() {
+        const userId = userSelect.value;
+        const displayName = displayNameInput.value.trim();
+
+        console.log('Attempting login for user ID:', userId, 'with display name:', displayName);
+
+        if (!userId) {
+            showError('Please select a user');
+            return;
+        }
+
+        if (!displayName) {
+            showError('Please enter a display name');
+            return;
+        }
 
         try {
             console.log('About to fetch /api/auth/login');
@@ -41,7 +128,7 @@ function initAuth() {
                     'Content-Type': 'application/json'
                 },
                 credentials: 'same-origin',
-                body: JSON.stringify({ email, password })
+                body: JSON.stringify({ userId, displayName })
             });
 
             console.log('Fetch complete, status:', response.status);
@@ -50,8 +137,6 @@ function initAuth() {
 
             if (response.ok) {
                 console.log('Login successful, redirecting to /game');
-                // Redirect to game page
-                //window.location.href = 'http://pelau.com'; // '/game';
                 window.location.href = '/game';
             } else {
                 console.log('Login failed:', data.error);
@@ -65,11 +150,24 @@ function initAuth() {
 
     function showError(message) {
         errorMessage.textContent = message;
+        errorMessage.style.backgroundColor = '#dc3545';
         errorMessage.classList.add('show');
 
         setTimeout(() => {
             errorMessage.classList.remove('show');
         }, 5000);
+    }
+
+    function showWarning(message) {
+        errorMessage.textContent = message;
+        errorMessage.style.backgroundColor = '#ff9800';
+        errorMessage.classList.add('show');
+    }
+
+    function hideWarning() {
+        if (errorMessage.textContent.includes('⚠️')) {
+            errorMessage.classList.remove('show');
+        }
     }
 }
 

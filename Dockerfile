@@ -1,5 +1,6 @@
 # Use Node.js 18 LTS as base image
-FROM node:18-alpine
+#FROM node:18-alpine
+FROM node:latest
 
 # Set working directory
 WORKDIR /app
@@ -30,5 +31,9 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD node -e "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
+# Load the initial data into the database
+RUN node scripts/init-db.js
+
 # Start the application
-CMD ["node", "server/index.js"]
+# CMD ["node", "server/index.js"]
+ENTRYPOINT ["node", "server/index.js"]

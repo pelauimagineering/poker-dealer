@@ -36,37 +36,34 @@ db.exec(schema, (err) => {
         process.exit(1);
     }
 
-    // Seed test users
-    console.log('Seeding test users...');
-    const SALT_ROUNDS = 10;
-    const defaultPassword = 'password123';
+    // Seed users
+    console.log('Seeding users...');
 
-    const testUsers = [
-        { name: 'Alice', email: 'alice@example.com' },
-        { name: 'Bob', email: 'bob@example.com' },
-        { name: 'Charlie', email: 'charlie@example.com' },
-        { name: 'Diana', email: 'diana@example.com' },
-        { name: 'Eve', email: 'eve@example.com' },
-        { name: 'Frank', email: 'frank@example.com' },
-        { name: 'Grace', email: 'grace@example.com' },
-        { name: 'Henry', email: 'henry@example.com' },
-        { name: 'Ivy', email: 'ivy@example.com' },
-        { name: 'Jack', email: 'jack@example.com' }
+    const allUsers = [
+        { display_name: 'Gary', user_name: 'gary' },
+        { display_name: 'Neave', user_name: 'neave' },
+        { display_name: 'Harish', user_name: 'harish' },
+        { display_name: 'Chris', user_name: 'chris' },
+        { display_name: 'Tony', user_name: 'tony' },
+        { display_name: 'Seymour', user_name: 'seymour' },
+        { display_name: 'Kerwin', user_name: 'kerwin' },
+        { display_name: 'Wayne', user_name: 'wayne' },
+        { display_name: 'Dee', user_name: 'dee' },
+        { display_name: 'Lorenzo', user_name: 'lorenzo' }
     ];
 
-    const insertUser = db.prepare('INSERT OR IGNORE INTO users (name, email, password_hash) VALUES (?, ?, ?)');
+    const insertUser = db.prepare('INSERT OR IGNORE INTO users (display_name, user_name) VALUES (?, ?)');
 
     let completed = 0;
-    const totalUsers = testUsers.length;
+    const totalUsers = allUsers.length;
 
-    testUsers.forEach((user) => {
-        const passwordHash = bcrypt.hashSync(defaultPassword, SALT_ROUNDS);
+    allUsers.forEach((user) => {
 
-        insertUser.run(user.name, user.email, passwordHash, function(err) {
+        insertUser.run(user.display_name, user.user_name, function(err) {
             if (err) {
-                console.error(`Error inserting user ${user.name}:`, err);
+                console.error(`Error inserting user ${user.display_name}:`, err);
             } else if (this.changes > 0) {
-                console.log(`  Created user: ${user.name} (${user.email})`);
+                console.log(`  Created user: ${user.display_name} (${user.user_name})`);
             }
 
             completed++;
@@ -76,7 +73,7 @@ db.exec(schema, (err) => {
 
                 console.log('Database initialization complete!');
                 console.log(`Database location: ${DB_PATH}`);
-                console.log(`Test users can login with password: ${defaultPassword}`);
+                console.log(`Users can login by seleting their name from the list (no password required).`);
 
                 db.close((err) => {
                     if (err) {

@@ -20,44 +20,30 @@
 
             <form id="loginForm" class="auth-form">
                 <div class="form-group">
-                    <label for="email">Email</label>
-                    <input
-                        type="email"
-                        id="email"
-                        name="email"
+                    <label for="userSelect">Select User</label>
+                    <select
+                        id="userSelect"
+                        name="userSelect"
                         required
-                        autocomplete="email"
-                        placeholder="Enter your email"
                     >
+                        <option value="">-- Select a user --</option>
+                    </select>
                 </div>
 
                 <div class="form-group">
-                    <label for="password">Password</label>
+                    <label for="displayName">Display Name</label>
                     <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        required
-                        autocomplete="current-password"
-                        placeholder="Enter your password"
+                        type="text"
+                        id="displayName"
+                        name="displayName"
+                        placeholder="Your display name"
+                        maxlength="50"
                     >
+                    <small class="form-help">You can update your display name before joining</small>
                 </div>
 
-                <button type="submit" class="primary">Login</button>
+                <button type="submit" class="primary">Join Game</button>
             </form>
-
-            <div class="test-accounts">
-                <h3>Test Accounts</h3>
-                <div class="test-accounts-list">
-                    <p>Use any of these test accounts:</p>
-                    <p><code>alice@example.com</code></p>
-                    <p><code>bob@example.com</code></p>
-                    <p><code>charlie@example.com</code></p>
-                    <p><code>diana@example.com</code></p>
-                    <p><code>eve@example.com</code></p>
-                    <p style="margin-top: 8px;">Password: <code>password123</code></p>
-                </div>
-            </div>
         </div>
     </div>
 

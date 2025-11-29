@@ -6,15 +6,25 @@
 -- This file serves as documentation for the default test accounts
 
 -- Default users:
--- 1. Alice (alice@example.com)
--- 2. Bob (bob@example.com)
--- 3. Charlie (charlie@example.com)
--- 4. Diana (diana@example.com)
--- 5. Eve (eve@example.com)
--- 6. Frank (frank@example.com)
--- 7. Grace (grace@example.com)
--- 8. Henry (henry@example.com)
--- 9. Ivy (ivy@example.com)
--- 10. Jack (jack@example.com)
+-- 1. Gary (gary)
+-- 2. Neave (neave)
+-- 3. Harish (harish)
+-- 4. Chris (chris)
+-- 5. Tony (tony)
+-- 6. Seymour (seymour)
+-- 7. Kerwin (kerwin)
+-- 8. Wayne (wayne)
+-- 9. Dee (dee)
+-- 10. Lorenzo (lorenzo)
 
--- All with password: password123
+INSERT INTO users (display_name, user_name) VALUES
+('Gary', 'gary'),
+('Neave', 'neave'),
+('Harish', 'harish'),
+('Chris', 'chris'),
+('Tony', 'tony'),
+('Seymour', 'seymour'),
+('Kerwin', 'kerwin'),
+('Wayne', 'wayne'),
+('Dee', 'dee'),
+('Lorenzo', 'lorenzo');

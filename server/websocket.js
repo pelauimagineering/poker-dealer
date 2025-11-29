@@ -109,7 +109,7 @@ function handleMessage(ws, data, setUser) {
             }
 
             const userId = session.user_id;
-            const userName = session.name;
+            const userName = session.display_name;
 
             setUser(userId, userName);
             clients.set(userId, ws);
@@ -121,8 +121,8 @@ function handleMessage(ws, data, setUser) {
                 type: 'authenticated',
                 user: {
                     id: userId,
-                    name: userName,
-                    email: session.email
+                    display_name: userName,
+                    user_name: session.user_name
                 }
             }));
 
@@ -148,7 +148,7 @@ function handleMessage(ws, data, setUser) {
         }
 
         const userId = session.user_id;
-        const userName = session.name;
+        const userName = session.display_name;
 
         // Handle different message types
         switch (type) {
