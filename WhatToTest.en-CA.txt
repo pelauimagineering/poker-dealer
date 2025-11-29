@@ -12,6 +12,11 @@ What's New:
 
 Latest Changes (2025-11-29):
 ----------------------------
+- **NEW: Footer Added to All Pages**
+  - Added footer "Made with 💕 in the 6ix" to login, game, and community pages
+  - Footer is centered and styled with subtle opacity for a clean look
+  - Responsive design ensures footer displays correctly on all devices
+
 - **NEW: Protected Game Reset Endpoint**
   - Added "Reset Game" button in the game page header
   - Reset requires entering the challenge phrase: "milliken mills posse" (case-insensitive)
