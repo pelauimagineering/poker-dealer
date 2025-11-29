@@ -19,7 +19,9 @@
       "Bash(xargs kill:*)",
       "Bash(curl:*)",
       "Bash(python3:*)",
-      "Bash(sqlite3:*)"
+      "Bash(sqlite3:*)",
+      "Bash(gh auth switch:*)",
+      "Bash(gh auth login:*)"
     ],
     "deny": [],
     "ask": []
