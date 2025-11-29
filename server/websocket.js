@@ -388,10 +388,36 @@ function selectRandomDealer() {
     return false;
 }
 
+function notifyGameReset() {
+    console.log('Notifying all clients that game has been reset');
+
+    // Notify all authenticated clients
+    broadcast({
+        type: 'game-reset',
+        message: 'The game has been reset. Please log in again.'
+    });
+
+    // Notify all public clients
+    for (const client of publicClients) {
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({
+                type: 'game-reset',
+                message: 'The game has been reset.'
+            }));
+        }
+    }
+
+    // Reset the game manager
+    if (gameManager) {
+        gameManager.resetGame();
+    }
+}
+
 module.exports = {
     initWebSocketServer,
     broadcastGameState,
     broadcast,
     removePlayerFromGame,
-    selectRandomDealer
+    selectRandomDealer,
+    notifyGameReset
 };

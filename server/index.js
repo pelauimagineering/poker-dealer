@@ -4,6 +4,7 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const auth = require('./auth');
 const authRoutes = require('./routes/auth');
+const gameRoutes = require('./routes/game');
 const { initWebSocketServer } = require('./websocket');
 const db = require('./db');
 
@@ -29,6 +30,7 @@ app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // API routes
 app.use('/api/auth', authRoutes);
+app.use('/api/game', gameRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
