@@ -128,3 +128,16 @@ input[type="password"]:focus {
 .hidden {
     display: none !important;
 }
+
+select {
+    width: 100%;
+    height: 60px;
+    padding: var(--spacing-md);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background-color: var(--color-bg-secondary);
+    color: var(--color-text-primary);
+    font-size: var(--font-md);
+    font-family: inherit;
+    transition: border-color var(--transition-fast);
+}
