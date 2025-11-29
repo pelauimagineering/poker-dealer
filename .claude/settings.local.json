@@ -13,7 +13,12 @@
       "Bash(gh repo view:*)",
       "Bash(git pull:*)",
       "Bash(npm start)",
-      "Bash(npm run start:reset:*)"
+      "Bash(npm run start:reset:*)",
+      "Bash(node scripts/init-db.js:*)",
+      "Bash(lsof:*)",
+      "Bash(xargs kill:*)",
+      "Bash(curl:*)",
+      "Bash(python3:*)"
     ],
     "deny": [],
     "ask": []

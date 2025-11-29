@@ -1,17 +1,7 @@
-const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
 const db = require('./db');
 
 const SESSION_DURATION_HOURS = 24;
-
-function hashPassword(password) {
-    const SALT_ROUNDS = 10;
-    return bcrypt.hashSync(password, SALT_ROUNDS);
-}
-
-function verifyPassword(password, hash) {
-    return bcrypt.compareSync(password, hash);
-}
 
 function createSession(userId, callback) {
     const token = uuidv4();
@@ -71,8 +61,8 @@ function requireAuth(req, res, next) {
 
         req.user = {
             id: session.user_id,
-            name: session.name,
-            email: session.email
+            display_name: session.display_name,
+            user_name: session.user_name
         };
 
         next();
@@ -80,8 +70,6 @@ function requireAuth(req, res, next) {
 }
 
 module.exports = {
-    hashPassword,
-    verifyPassword,
     createSession,
     validateSession,
     logout,

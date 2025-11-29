@@ -21,19 +21,29 @@ function getDb() {
 
 // User operations
 const userOps = {
-    findByEmail(email, callback) {
-        const query = 'SELECT * FROM users WHERE email = ?';
-        getDb().get(query, [email], callback);
-    },
-
     findById(id, callback) {
         const query = 'SELECT * FROM users WHERE id = ?';
         getDb().get(query, [id], callback);
     },
 
-    create(name, email, passwordHash, callback) {
-        const query = 'INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)';
-        getDb().run(query, [name, email, passwordHash], callback);
+    findByUserName(userName, callback) {
+        const query = 'SELECT * FROM users WHERE user_name = ?';
+        getDb().get(query, [userName], callback);
+    },
+
+    getAll(callback) {
+        const query = 'SELECT id, display_name, user_name FROM users ORDER BY display_name';
+        getDb().all(query, [], callback);
+    },
+
+    updateDisplayName(id, displayName, callback) {
+        const query = 'UPDATE users SET display_name = ? WHERE id = ?';
+        getDb().run(query, [displayName, id], callback);
+    },
+
+    create(displayName, userName, callback) {
+        const query = 'INSERT INTO users (display_name, user_name) VALUES (?, ?)';
+        getDb().run(query, [displayName, userName], callback);
     }
 };
 
@@ -46,12 +56,27 @@ const sessionOps = {
 
     findByToken(token, callback) {
         const query = `
-            SELECT s.*, u.id as user_id, u.name, u.email
+            SELECT s.*, u.id as user_id, u.display_name, u.user_name
             FROM sessions s
             JOIN users u ON s.user_id = u.id
             WHERE s.token = ? AND s.expires_at > datetime('now')
         `;
         getDb().get(query, [token], callback);
+    },
+
+    getLoggedInUserIds(callback) {
+        const query = `
+            SELECT DISTINCT user_id
+            FROM sessions
+            WHERE expires_at > datetime('now')
+        `;
+        getDb().all(query, [], (err, rows) => {
+            if (err) {
+                callback(err, null);
+            } else {
+                callback(null, rows.map(row => row.user_id));
+            }
+        });
     },
 
     delete(token, callback) {

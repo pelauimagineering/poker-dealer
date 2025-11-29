@@ -10,9 +10,19 @@ What's New:
 - Automatic dealer rotation after each hand
 - Public community cards display for shared screens (no authentication required)
 
-Latest Changes (2025-11-27):
+Latest Changes (2025-11-29):
 ----------------------------
-- **NEW: Video Toggle Control**
+- **NEW: Simplified Authentication Flow**
+  - Removed username/password requirement for login
+  - Users now select from a dropdown list of available players
+  - Display name field allows users to view and update their display name before joining
+  - Already logged-in users appear in the list but cannot be selected (shown in gray with "Already logged in" label)
+  - No passwords needed - the app is designed for casual, fun play with no critical resources
+  - System prevents duplicate logins for the same user
+
+Previous Changes (2025-11-27):
+------------------------------
+- **Video Toggle Control**
   - Added "Show Video" checkbox in the header to show/hide the Jitsi video conference section
   - Video section is hidden by default when the page loads for better performance
   - Toggle the checkbox to show/hide the video conference area
@@ -54,10 +64,13 @@ Key Features to Test:
 --------------------
 
 1. Authentication & Login
-   - Login with test accounts (alice@example.com through jack@example.com)
-   - Password: password123 for all test accounts
+   - Select a user from the dropdown list (Gary, Neave, Harish, Chris, Tony, Seymour, Kerwin, Wayne, Dee, Lorenzo)
+   - View and optionally update the display name before joining
+   - Verify already logged-in users are shown in gray and cannot be selected
+   - Verify error message appears if attempting to select an already logged-in user
    - Logout functionality
    - Session persistence across page refreshes
+   - Test that display name updates are saved and persist
 
 2. Game Setup
    - Join game before cards are dealt
@@ -141,9 +154,9 @@ Test Scenarios:
 --------------
 
 Scenario 1: Two-Player Quick Game
-1. Login as Alice on device 1
-2. Login as Bob on device 2
-3. Both click "Join Game"
+1. On device 1, select "Gary" from dropdown, optionally update display name, click "Join Game"
+2. On device 2, select "Neave" from dropdown, optionally update display name, click "Join Game"
+3. Both players should now be in the game
 4. Click "Choose Dealer" button to randomly select first dealer
 5. Dealer clicks "Deal Cards"
 6. Verify each player sees their own hole cards
@@ -152,7 +165,7 @@ Scenario 1: Two-Player Quick Game
 9. Deal another hand
 
 Scenario 2: Full Table (10 Players)
-1. Login with all 10 test accounts on different devices
+1. Login with all 10 available users (Gary, Neave, Harish, Chris, Tony, Seymour, Kerwin, Wayne, Dee, Lorenzo) on different devices
 2. All join game in sequence
 3. Verify player order matches join order
 4. Deal cards and complete a full hand
@@ -177,12 +190,35 @@ Scenario 5: Mobile Gameplay
 4. Verify all controls are accessible via touch
 
 Scenario 7: Player Logout During Setup
-1. Login as Alice, Bob, and Charlie
+1. Login as Gary, Neave, and Harish on three different devices
 2. All three join the game
-3. Bob logs out before dealer is selected
-4. Verify Bob is removed from player list on all devices
-5. Click "Choose Dealer" - verify only Alice or Charlie can be selected
-6. Complete the game with remaining players
+3. Neave logs out before dealer is selected
+4. Verify Neave is removed from player list on all devices
+5. On a 4th device, verify Neave now appears as available to login in the dropdown
+6. Click "Choose Dealer" - verify only Gary or Harish can be selected
+7. Complete the game with remaining players
+
+Scenario 10: Duplicate Login Prevention
+1. Login as Gary on device 1 and join the game
+2. On device 2, open the login page
+3. Verify Gary appears in the dropdown but is marked as "Already logged in" in gray
+4. Attempt to select Gary from the dropdown
+5. Verify an error message appears preventing the login
+6. Select a different user (e.g., Neave) and verify login succeeds
+7. Logout Gary on device 1
+8. Refresh the login page on device 2
+9. Verify Gary is now available for selection again
+
+Scenario 11: Display Name Updates
+1. Login as Gary on device 1
+2. Before submitting, change the display name from "Gary" to "Gary the Great"
+3. Click "Join Game"
+4. On device 2, login as Neave
+5. Verify Gary's display name shows as "Gary the Great" in the player list
+6. Gary logs out and logs back in
+7. Verify the display name field shows "Gary the Great" (persisted)
+8. Change it back to "Gary" and join
+9. Verify the updated name appears to all players
 
 Scenario 8: Manual Dealer Selection
 1. Start server with `--reset` flag to ensure clean state

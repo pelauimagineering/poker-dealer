@@ -60,7 +60,7 @@ app.get('/game', (req, res) => {
             return res.redirect('/');
         }
 
-        console.log('Session valid, serving game.html for user:', session.name);
+        console.log('Session valid, serving game.html for user:', session.display_name);
         res.sendFile(path.join(__dirname, '..', 'public', 'game.html'));
     });
 });
