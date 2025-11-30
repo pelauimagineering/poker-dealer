@@ -27,4 +27,5 @@ INSERT INTO users (display_name, user_name) VALUES
 ('Kerwin', 'kerwin'),
 ('Wayne', 'wayne'),
 ('Dee', 'dee'),
-('Lorenzo', 'lorenzo');
+('Lorenzo', 'lorenzo'),
+('JB', 'jb');
