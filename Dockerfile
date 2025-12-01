@@ -14,6 +14,7 @@ RUN npm install --only=production
 # Copy application files
 COPY server/ ./server/
 COPY public/ ./public/
+COPY views/ ./views/
 COPY database/ ./database/
 COPY scripts/ ./scripts/
 
