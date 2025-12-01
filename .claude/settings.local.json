@@ -23,7 +23,9 @@
       "Bash(gh auth switch:*)",
       "Bash(gh auth login:*)",
       "Bash(node:*)",
-      "Bash(gh pr view:*)"
+      "Bash(gh pr view:*)",
+      "Bash(git ls-tree:*)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []
