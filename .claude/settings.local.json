@@ -22,7 +22,8 @@
       "Bash(sqlite3:*)",
       "Bash(gh auth switch:*)",
       "Bash(gh auth login:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(gh pr view:*)"
     ],
     "deny": [],
     "ask": []
