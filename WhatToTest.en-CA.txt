@@ -10,8 +10,17 @@ What's New:
 - Automatic dealer rotation after each hand
 - Public community cards display for shared screens (no authentication required)
 
-Latest Changes (2025-11-30):
+Latest Changes (2025-12-01):
 ----------------------------
+- **Configurable Reset Challenge Phrase**
+  - Game reset challenge phrase is now loaded from RESET_PHRASE environment variable
+  - Maintains backward compatibility with default value "milliken mills posse" if environment variable is not set
+  - Allows production deployments to use custom reset phrase via Digital Ocean App Platform environment variables
+  - Updated server/routes/game.js to read from process.env.RESET_PHRASE
+  - Local development uses .env file for configuration
+
+Previous Changes (2025-11-30):
+------------------------------
 - **NEW: User-Specific JWT Tokens for Video Conferencing**
   - Replaced hardcoded JWT token with user-specific tokens loaded from environment variables
   - Each user (Gary, Neave, Harish, Chris, Tony, Seymour, Kerwin, Wayne, Dee, Lorenzo, JB) has their own JWT token

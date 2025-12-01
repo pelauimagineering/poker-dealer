@@ -2,8 +2,8 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 
-// Challenge phrase for reset (case-insensitive)
-const RESET_CHALLENGE_PHRASE = 'milliken mills posse';
+// Challenge phrase for reset (case-insensitive) - loaded from environment variable
+const RESET_CHALLENGE_PHRASE = process.env.RESET_PHRASE || 'milliken mills posse';
 
 // Reset game endpoint (protected by challenge phrase)
 router.post('/reset', (req, res) => {

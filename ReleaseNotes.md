@@ -1,5 +1,38 @@
 # Release Notes - Poker Dealer
 
+## 2025-12-01 - feature/reset-phrase-env-variable
+
+### Enhancement
+
+#### Configurable Reset Challenge Phrase
+- **Environment Variable Configuration**: Reset challenge phrase is now configurable via environment variable
+  - Game reset functionality previously used hardcoded challenge phrase "milliken mills posse"
+  - Now reads from `RESET_PHRASE` environment variable for flexibility
+  - Maintains backward compatibility with default value if environment variable is not set
+  - Allows production deployments to use custom reset phrase via Digital Ocean App Platform
+  - Improves security by allowing different phrases per environment
+
+### Technical Details
+
+#### Backend Changes
+- Modified `server/routes/game.js`:
+  - Line 6: Changed from hardcoded string to `process.env.RESET_PHRASE || 'milliken mills posse'`
+  - Maintains same case-insensitive validation logic
+  - No breaking changes to API endpoint behavior
+
+#### Environment Configuration
+- Updated `.env` file:
+  - Added `RESET_PHRASE` environment variable under "Game Reset Configuration" section
+  - Default value: "milliken mills posse" for local development
+  - Production deployments should set this via Digital Ocean App Platform dashboard
+
+### Usage
+- **Local Development**: Set `RESET_PHRASE` in `.env` file
+- **Production**: Configure via Digital Ocean App Platform environment variables dashboard
+- **Default Behavior**: If not configured, falls back to "milliken mills posse"
+
+---
+
 ## 2025-11-27 - feature/video-toggle-control
 
 ### New Feature
