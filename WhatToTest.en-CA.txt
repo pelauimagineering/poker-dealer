@@ -10,14 +10,28 @@ What's New:
 - Automatic dealer rotation after each hand
 - Public community cards display for shared screens (no authentication required)
 
-Latest Changes (2025-11-29):
+Latest Changes (2025-11-30):
 ----------------------------
-- **NEW: Footer Added to All Pages**
+- **NEW: User-Specific JWT Tokens for Video Conferencing**
+  - Replaced hardcoded JWT token with user-specific tokens loaded from environment variables
+  - Each user (Gary, Neave, Harish, Chris, Tony, Seymour, Kerwin, Wayne, Dee, Lorenzo, JB) has their own JWT token
+  - Community display page uses a shared JWT_COMMUNITY token
+  - Implemented server-side rendering with EJS templates to inject JWT tokens securely
+  - JWT tokens are no longer exposed in client-side HTML source code
+  - Environment variables configured via Digital Ocean App Platform dashboard for production
+  - Added dotenv support for local development environment variable loading
+  - Server validates JWT configuration on startup and warns if any tokens are missing
+  - Files created: views/game.ejs, views/community.ejs, server/jwt-config.js
+  - Dependencies added: ejs@^3.1.9, dotenv@^16.3.1
+
+Previous Changes (2025-11-29):
+------------------------------
+- **Footer Added to All Pages**
   - Added footer "Made with 💕 in the 6ix" to login, game, and community pages
   - Footer is centered and styled with subtle opacity for a clean look
   - Responsive design ensures footer displays correctly on all devices
 
-- **NEW: Protected Game Reset Endpoint**
+- **Protected Game Reset Endpoint**
   - Added "Reset Game" button in the game page header
   - Reset requires entering the challenge phrase: "milliken mills posse" (case-insensitive)
   - Confirmation dialog prevents accidental resets

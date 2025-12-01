@@ -12,7 +12,7 @@
         <style>
             html, body { width: 100%; height: 100%; margin: 0px; }
         </style>
-    
+
         <script src='https://8x8.vc/vpaas-magic-cookie-3652cf032c2e40239b1a3e773f2fafa7/external_api.js' async></script>
 		<script type="text/javascript">
 		  window.onload = () => {
@@ -21,8 +21,8 @@
 
 		  function loadTable() {
               const api = new JitsiMeetExternalAPI("8x8.vc", {
-                roomName: "vpaas-magic-cookie-3652cf032c2e40239b1a3e773f2fafa7/ChrisBoxPoker",
-				jwt: "eyJhbGciOiJSUzI1NiIsImtpZCI6InZwYWFzLW1hZ2ljLWNvb2tpZS0zNjUyY2YwMzJjMmU0MDIzOWIxYTNlNzczZjJmYWZhNy9hNjUwMzAiLCJ0eXAiOiJKV1QifQ.eyJhdWQiOiJqaXRzaSIsImNvbnRleHQiOnsidXNlciI6eyJpZCI6Im1tcC10YWJsZSIsIm5hbWUiOiJNTVAgVGFibGUiLCJhdmF0YXIiOiJodHRwczovL3BlbGF1LmNvbS9hcHBzL3Bva2VyL2FjZS5qcGciLCJlbWFpbCI6Im1tcEBwZWxhdS5jb20iLCJtb2RlcmF0b3IiOiJ0cnVlIn0sImZlYXR1cmVzIjp7ImxpdmVzdHJlYW1pbmciOiJmYWxzZSIsIm91dGJvdW5kLWNhbGwiOiJmYWxzZSIsInRyYW5zY3JpcHRpb24iOiJmYWxzZSIsInJlY29yZGluZyI6ImZhbHNlIn0sInJvb20iOnsicmVnZXgiOmZhbHNlfX0sImV4cCI6MTc3NzYwMDAzOSwiaXNzIjoiY2hhdCIsIm5iZiI6MTc0NTU0NTYzOSwicm9vbSI6IioiLCJzdWIiOiJ2cGFhcy1tYWdpYy1jb29raWUtMzY1MmNmMDMyYzJlNDAyMzliMWEzZTc3M2YyZmFmYTcifQ.NZNVLpQd-qnNqk1ii0CZ2hxeGHvkODgG0vqzX1YFF0Jo7DxGct5PGOEVfy2BPafy7rjTGHEQKMThcCfTiwehc4yaM9k192NBq0dFiJmDAFEXohFC0ENcKiYUSNXhOS-RIjz82LwhrPlknN1nynYKbF5UytC3TjOCaIELLcuYTbHQ_4yU-5fxvtNQ8O7XuNm-k7R9Mo0lE4R3MYIAxWEtdBBFBkhkDEGEdjlmLwyh7VIC2RMjjO8tXI6jAEIaRcNg2iOsCxvj7XdkTyIfFMeOXHxLJkeWsNF7LME2SdZaeUdMNDMmpljtlBzKui0Rr9uvCpjXB0Tbt0FGRZx3WdoQZA",
+                roomName: "vpaas-magic-cookie-3652cf032c2e40239b1a3e773f2fafa7/MMPPoker",
+				jwt: "<%= jwtToken %>",
                 parentNode: document.querySelector('#game-room')
               });
 		  }
