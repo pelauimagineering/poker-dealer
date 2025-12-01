@@ -21,7 +21,8 @@
       "Bash(python3:*)",
       "Bash(sqlite3:*)",
       "Bash(gh auth switch:*)",
-      "Bash(gh auth login:*)"
+      "Bash(gh auth login:*)",
+      "Bash(node:*)"
     ],
     "deny": [],
     "ask": []

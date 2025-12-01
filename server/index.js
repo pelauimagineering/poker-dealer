@@ -1,3 +1,6 @@
+// Load environment variables from .env file (for local development)
+require('dotenv').config();
+
 const express = require('express');
 const http = require('http');
 const path = require('path');
@@ -7,6 +10,7 @@ const authRoutes = require('./routes/auth');
 const gameRoutes = require('./routes/game');
 const { initWebSocketServer } = require('./websocket');
 const db = require('./db');
+const jwtConfig = require('./jwt-config');
 
 const PORT = process.env.PORT || 3000;
 const app = express();
@@ -24,6 +28,16 @@ if (resetFlag) {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+// Configure view engine
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, '..', 'views'));
+
+// Validate JWT configuration
+const jwtValidation = jwtConfig.validateJwtConfig();
+if (!jwtValidation.valid) {
+    console.warn('⚠️  WARNING: Missing JWT env vars:', jwtValidation.missing.join(', '));
+}
 
 // Serve static files
 app.use(express.static(path.join(__dirname, '..', 'public')));
@@ -62,14 +76,33 @@ app.get('/game', (req, res) => {
             return res.redirect('/');
         }
 
-        console.log('Session valid, serving game.html for user:', session.display_name);
-        res.sendFile(path.join(__dirname, '..', 'public', 'game.html'));
+        console.log('Session valid, rendering game.ejs for user:', session.display_name);
+
+        const jwtToken = jwtConfig.getJwtForUser(session.user_name);
+
+        if (!jwtToken) {
+            console.error('No JWT configured for user:', session.user_name);
+            return res.status(500).send('Video conferencing not configured for your account. Please contact support.');
+        }
+
+        res.render('game', {
+            jwtToken: jwtToken,
+            userName: session.display_name,
+            userId: session.user_id
+        });
     });
 });
 
 // Serve public community cards display (no authentication required)
 app.get('/community', (req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'public', 'community.html'));
+    const jwtToken = jwtConfig.getCommunityJwt();
+
+    if (!jwtToken) {
+        console.error('No JWT_COMMUNITY environment variable configured');
+        return res.status(500).send('Video conferencing not configured. Please contact support.');
+    }
+
+    res.render('community', { jwtToken: jwtToken });
 });
 
 // Create HTTP server
