@@ -85,23 +85,6 @@ A digital card dealer for in-person sessions of Texas Hold'em poker games. Playe
    Navigate to http://localhost:3000
    ```
 
-## Test Accounts
-
-The application comes with pre-configured test accounts:
-
-| Email | Password |
-|-------|----------|
-| alice@example.com | password123 |
-| bob@example.com | password123 |
-| charlie@example.com | password123 |
-| diana@example.com | password123 |
-| eve@example.com | password123 |
-| frank@example.com | password123 |
-| grace@example.com | password123 |
-| henry@example.com | password123 |
-| ivy@example.com | password123 |
-| jack@example.com | password123 |
-
 ## How to Play
 
 1. **Login**: Each player logs in with their own credentials on their device
@@ -174,6 +157,12 @@ poker-dealer/
 - `POST /api/auth/logout` - Logout current session
 - `GET /api/auth/session` - Check current session status
 
+### Game Management
+- `POST /api/game/reset` - Reset game state and log out all users (requires reset phrase authentication)
+  - **Request Body**: `{ "phrase": "your-reset-phrase" }`
+  - **Response**: `{ "success": true, "message": "Game reset successfully" }`
+  - **Configuration**: Set `RESET_CHALLENGE_PHRASE` environment variable (default: "reset game now")
+
 ### Health Check
 - `GET /api/health` - Server health check
 
@@ -204,7 +193,14 @@ PORT=3000
 NODE_ENV=development
 SESSION_SECRET=your-random-secret-here
 DATABASE_PATH=./database/poker-dealer.db
+RESET_CHALLENGE_PHRASE=your-custom-reset-phrase
 ```
+
+- `PORT` - Server port (default: 3000)
+- `NODE_ENV` - Environment mode (development/production)
+- `SESSION_SECRET` - Secret for session encryption (change in production)
+- `DATABASE_PATH` - Path to SQLite database file
+- `RESET_CHALLENGE_PHRASE` - Required phrase for game reset API endpoint (default: "reset game now")
 
 ## Deployment
 
@@ -212,7 +208,6 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions for Digi
 
 ## Security Considerations
 
-- Passwords are hashed using bcrypt
 - Sessions expire after 24 hours
 - WebSocket connections are authenticated
 - HTTPS/WSS should be used in production (via reverse proxy)
