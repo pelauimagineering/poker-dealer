@@ -25,7 +25,8 @@
       "Bash(node:*)",
       "Bash(gh pr view:*)",
       "Bash(git ls-tree:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(echo $NODE_ENV)"
     ],
     "deny": [],
     "ask": []

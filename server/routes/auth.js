@@ -118,7 +118,13 @@ router.post('/logout', (req, res) => {
         });
     }
 
-    res.clearCookie('sessionToken', { path: '/' });
+    // Safari requires clearCookie to use the same options as the cookie was set with
+    res.clearCookie('sessionToken', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        path: '/'
+    });
     res.json({ success: true });
 });
 
@@ -135,7 +141,13 @@ router.get('/session', (req, res) => {
     auth.validateSession(token, (err, session) => {
         if (err || !session) {
             console.log('Session validation failed:', err?.message || 'Session not found');
-            res.clearCookie('sessionToken', { path: '/' });
+            // Safari requires clearCookie to use the same options as the cookie was set with
+            res.clearCookie('sessionToken', {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'strict',
+                path: '/'
+            });
             return res.json({ authenticated: false });
         }
 

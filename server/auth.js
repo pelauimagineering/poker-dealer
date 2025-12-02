@@ -55,7 +55,13 @@ function requireAuth(req, res, next) {
 
     validateSession(token, (err, session) => {
         if (err || !session) {
-            res.clearCookie('sessionToken');
+            // Safari requires clearCookie to use the same options as the cookie was set with
+            res.clearCookie('sessionToken', {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'strict',
+                path: '/'
+            });
             return res.status(401).json({ error: 'Invalid or expired session' });
         }
 
