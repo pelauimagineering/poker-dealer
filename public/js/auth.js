@@ -42,14 +42,49 @@ function initAuth() {
         }
     });
 
-    loginForm.addEventListener('submit', (e) => {
+    loginForm.addEventListener('submit', async (e) => {
         e.preventDefault(); // MUST be first!
         e.stopPropagation();
         console.log('Form submit event fired');
         console.log('Default prevented and propagation stopped');
 
-        // Call async login function
-        handleLogin();
+        const userId = userSelect.value;
+        const displayName = displayNameInput.value.trim();
+
+        console.log('Attempting login for user ID:', userId, 'with display name:', displayName);
+
+        if (!userId) {
+            showError('Please select a user');
+            return false;
+        }
+
+        if (!displayName) {
+            showError('Please enter a display name');
+            return false;
+        }
+
+        // Create a hidden form to submit the data and allow server redirect
+        // This ensures Safari properly receives and stores the session cookie
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/api/auth/login';
+
+        const userIdInput = document.createElement('input');
+        userIdInput.type = 'hidden';
+        userIdInput.name = 'userId';
+        userIdInput.value = userId;
+
+        const displayNameHidden = document.createElement('input');
+        displayNameHidden.type = 'hidden';
+        displayNameHidden.name = 'displayName';
+        displayNameHidden.value = displayName;
+
+        form.appendChild(userIdInput);
+        form.appendChild(displayNameHidden);
+        document.body.appendChild(form);
+
+        console.log('Submitting form to /api/auth/login');
+        form.submit();
 
         return false; // Extra safeguard
     });
@@ -102,50 +137,6 @@ function initAuth() {
 
             userSelect.appendChild(option);
         });
-    }
-
-    async function handleLogin() {
-        const userId = userSelect.value;
-        const displayName = displayNameInput.value.trim();
-
-        console.log('Attempting login for user ID:', userId, 'with display name:', displayName);
-
-        if (!userId) {
-            showError('Please select a user');
-            return;
-        }
-
-        if (!displayName) {
-            showError('Please enter a display name');
-            return;
-        }
-
-        try {
-            console.log('About to fetch /api/auth/login');
-            const response = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                credentials: 'same-origin',
-                body: JSON.stringify({ userId, displayName })
-            });
-
-            console.log('Fetch complete, status:', response.status);
-            const data = await response.json();
-            console.log('Response data:', data);
-
-            if (response.ok) {
-                console.log('Login successful, redirecting to /game');
-                window.location.href = '/game';
-            } else {
-                console.log('Login failed:', data.error);
-                showError(data.error || 'Login failed');
-            }
-        } catch (error) {
-            console.error('Login error:', error);
-            showError('Network error. Please try again.');
-        }
     }
 
     function showError(message) {

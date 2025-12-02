@@ -74,25 +74,21 @@ router.post('/login', (req, res) => {
                 return res.status(500).json({ error: 'Failed to create session' });
             }
 
-            // Set cookie
+            // Set cookie - Safari requires sameSite: 'strict' or no sameSite for same-origin requests
+            // to work properly with redirects
             res.cookie('sessionToken', session.token, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 maxAge: 24 * 60 * 60 * 1000, // 24 hours
-                sameSite: 'lax',
+                sameSite: 'strict', // Changed from 'lax' to 'strict' for Safari compatibility
                 path: '/'
             });
 
             console.log(`User ${trimmedDisplayName} (${user.user_name}) logged in successfully with token: ${session.token.substring(0, 8)}...`);
 
-            res.json({
-                success: true,
-                user: {
-                    id: user.id,
-                    display_name: trimmedDisplayName,
-                    user_name: user.user_name
-                }
-            });
+            // Redirect to /game instead of sending JSON response
+            // This ensures Safari properly receives and stores the session cookie
+            res.redirect('/game');
         });
     });
 });
