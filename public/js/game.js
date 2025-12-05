@@ -20,9 +20,9 @@ async function init() {
 
         currentUser = data.user;
         const token = data.token;  // Get token from response instead of cookie
-        document.getElementById('userName').textContent = currentUser.name;
+        document.getElementById('userName').textContent = currentUser.display_name;
 
-        console.log('User authenticated:', currentUser.name);
+        console.log('User authenticated:', currentUser.display_name);
 
         // Connect WebSocket
         if (token) {

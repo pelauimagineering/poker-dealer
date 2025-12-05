@@ -12,6 +12,11 @@ What's New:
 
 Latest Changes (2025-12-05):
 ----------------------------
+- **Fixed Logout Button Display Name**
+  - Logout button now correctly displays the user's display name
+  - Fixed bug where button showed "Logout ..." instead of "Logout [DisplayName]"
+  - Updated game.js to use correct property name (display_name) from server response
+
 - **Community Display Optimizations for Revealed Hands**
   - Phase indicator now automatically hides when revealed hands are displayed, freeing up screen space
   - Revealed hands layout improved: player names now appear centered above cards instead of beside them
