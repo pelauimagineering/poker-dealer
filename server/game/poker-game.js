@@ -71,6 +71,7 @@ class PokerGame {
 
     reorderPlayers(playerIds) {
         console.log('Reordering players with IDs:', playerIds);
+        console.log('Current player order:', this.players.map(p => `${p.name}(${p.id})`));
 
         if (this.cardsDealt) {
             throw new Error('Cannot reorder players once cards have been dealt');
@@ -94,6 +95,7 @@ class PokerGame {
 
         // Store the current dealer's ID
         const currentDealerId = this.players[this.dealerIndex].id;
+        console.log(`Current dealer: ${this.players[this.dealerIndex].name} (${currentDealerId}) at index ${this.dealerIndex}`);
 
         // Reorder players array based on provided IDs
         const reorderedPlayers = playerIds.map(id => {
@@ -105,7 +107,8 @@ class PokerGame {
         // Update dealer index to match the reordered array
         this.dealerIndex = this.players.findIndex(p => p.id === currentDealerId);
 
-        console.log(`Players reordered. New dealer index: ${this.dealerIndex}`);
+        console.log(`Players reordered successfully. New order:`, this.players.map(p => `${p.name}(${p.id})`));
+        console.log(`New dealer index: ${this.dealerIndex} (${this.players[this.dealerIndex].name})`);
     }
 
     rotateDealer() {

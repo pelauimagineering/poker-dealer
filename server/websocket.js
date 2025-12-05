@@ -334,9 +334,11 @@ function handleChooseDealer(userId, ws) {
 
 function handleReorderPlayers(userId, playerIds, ws) {
     console.log(`User ${userId} attempting to reorder players`);
+    console.log('Received playerIds:', playerIds);
 
     // Check if current user is the dealer
     if (!gameManager.isDealer(userId)) {
+        console.log('User is not the dealer, rejecting request');
         ws.send(JSON.stringify({
             type: 'error',
             message: 'Only the dealer can reorder players'
@@ -345,10 +347,13 @@ function handleReorderPlayers(userId, playerIds, ws) {
     }
 
     try {
+        console.log('User is dealer, proceeding with reorder');
         gameManager.game.reorderPlayers(playerIds);
+
+        console.log('Saving game state to database...');
         gameManager.saveGameState();
 
-        console.log('Players reordered successfully');
+        console.log('Players reordered successfully, broadcasting to all clients');
 
         // Broadcast updated game state to all clients
         broadcastGameState();
@@ -358,6 +363,7 @@ function handleReorderPlayers(userId, playerIds, ws) {
             message: 'Players reordered successfully'
         }));
     } catch (error) {
+        console.error('Error reordering players:', error);
         ws.send(JSON.stringify({
             type: 'error',
             message: error.message
