@@ -26,24 +26,39 @@ function updateDealerUI(state) {
     const dealBtn = document.getElementById('dealBtn');
     const flipBtn = document.getElementById('flipBtn');
 
+    console.log('updateDealerUI called - state:', state);
+    console.log('currentUser:', currentUser);
+    console.log('dealerControlsSection exists:', !!dealerControlsSection);
+
     if (!state || !state.players) {
-        dealerControlsSection.classList.add('hidden');
+        console.log('No state or players - hiding controls');
+        if (dealerControlsSection) {
+            dealerControlsSection.classList.add('hidden');
+        }
         return;
     }
 
     // Check if current user is the dealer
     const currentDealer = state.players.find(p => p.isDealer);
-    isDealerNow = currentDealer && currentDealer.id === currentUser.id;
+    console.log('Current dealer from state:', currentDealer);
 
-    console.log('Is dealer:', isDealerNow);
+    isDealerNow = currentDealer && currentUser && currentDealer.id === currentUser.id;
+
+    console.log('Is dealer:', isDealerNow, '- currentDealer.id:', currentDealer?.id, 'currentUser.id:', currentUser?.id);
 
     if (isDealerNow) {
-        dealerControlsSection.classList.remove('hidden');
+        console.log('User IS dealer - showing controls');
+        if (dealerControlsSection) {
+            dealerControlsSection.classList.remove('hidden');
+        }
 
         // Update button states based on game phase
         updateButtonStates(state.phase, state.cardsDealt);
     } else {
-        dealerControlsSection.classList.add('hidden');
+        console.log('User is NOT dealer - hiding controls');
+        if (dealerControlsSection) {
+            dealerControlsSection.classList.add('hidden');
+        }
     }
 }
 
