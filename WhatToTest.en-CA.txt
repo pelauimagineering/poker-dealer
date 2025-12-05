@@ -30,7 +30,7 @@ Latest Changes (2025-12-04):
   - Cards automatically hide again when the user releases their finger/mouse
   - Subtle visual feedback when peeking (green glow effect and slight scale)
   - Works on both desktop (mouse events) and mobile (touch events)
-  - Helpful hint text: "👆 Tap or hold to peek at your cards"
+  - Helpful hint text: "👆 Tap + hold to peek at your cards"
   - Prevents accidental card reveals to other players
   - Smooth transitions when revealing and hiding cards
 
@@ -405,7 +405,7 @@ Scenario 20: Show My Cards - Slide-to-Action (Desktop)
 2. Select dealer and deal cards
 3. Verify slide-to-show control appears below hole cards
 4. Verify slide track has gradient purple background
-5. Verify text reads "Slide to Show My Cards →"
+5. Verify text reads "Slide to Show →"
 6. Verify white circular button with "👉" icon on left
 7. Click and drag button partway across track
 8. Release before reaching 70% - verify button slides back to start
@@ -424,7 +424,7 @@ Scenario 21: Show My Cards - Slide-to-Action (Mobile)
 4. Verify smooth sliding animation
 5. Lift finger before 70% threshold
 6. Verify button returns to start
-7. Touch and drag past 70% threshold
+7. Touch and drag past 90% threshold
 8. Verify cards are revealed with visual confirmation
 9. Test in portrait and landscape orientations
 10. Verify no accidental scrolling while sliding

@@ -725,8 +725,8 @@ function doSlide(e) {
 
     slideButton.style.left = slideCurrentX + 'px';
 
-    // Check if slid far enough (70% of track width)
-    if (slideCurrentX >= maxSlide * 0.7 && !cardsAlreadyRevealed) {
+    // Check if slid far enough (90% of track width)
+    if (slideCurrentX >= maxSlide * 0.9 && !cardsAlreadyRevealed) {
         cardsAlreadyRevealed = true;
         revealMyCards();
     }
