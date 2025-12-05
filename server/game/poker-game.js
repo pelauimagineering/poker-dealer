@@ -69,6 +69,45 @@ class PokerGame {
         console.log(`Random dealer selected: ${this.players[this.dealerIndex].name} (index ${this.dealerIndex})`);
     }
 
+    reorderPlayers(playerIds) {
+        console.log('Reordering players with IDs:', playerIds);
+
+        if (this.cardsDealt) {
+            throw new Error('Cannot reorder players once cards have been dealt');
+        }
+
+        if (this.dealerIndex === -1) {
+            throw new Error('Cannot reorder players before dealer is selected');
+        }
+
+        // Validate that all player IDs match current players
+        if (playerIds.length !== this.players.length) {
+            throw new Error('Player count mismatch');
+        }
+
+        const currentPlayerIds = this.players.map(p => p.id);
+        const hasAllPlayers = playerIds.every(id => currentPlayerIds.includes(id));
+
+        if (!hasAllPlayers) {
+            throw new Error('Invalid player IDs provided');
+        }
+
+        // Store the current dealer's ID
+        const currentDealerId = this.players[this.dealerIndex].id;
+
+        // Reorder players array based on provided IDs
+        const reorderedPlayers = playerIds.map(id => {
+            return this.players.find(p => p.id === id);
+        });
+
+        this.players = reorderedPlayers;
+
+        // Update dealer index to match the reordered array
+        this.dealerIndex = this.players.findIndex(p => p.id === currentDealerId);
+
+        console.log(`Players reordered. New dealer index: ${this.dealerIndex}`);
+    }
+
     rotateDealer() {
         if (this.players.length === 0) {
             this.dealerIndex = -1;

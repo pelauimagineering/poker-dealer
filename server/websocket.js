@@ -168,6 +168,10 @@ function handleMessage(ws, data, setUser) {
                 handleChooseDealer(userId, ws);
                 break;
 
+            case 'reorder-players':
+                handleReorderPlayers(userId, data.playerIds, ws);
+                break;
+
             case 'get-state':
                 const gameState = gameManager.getGameState(userId);
                 ws.send(JSON.stringify({
@@ -320,6 +324,39 @@ function handleChooseDealer(userId, ws) {
                 name: dealer.name
             }
         });
+    } catch (error) {
+        ws.send(JSON.stringify({
+            type: 'error',
+            message: error.message
+        }));
+    }
+}
+
+function handleReorderPlayers(userId, playerIds, ws) {
+    console.log(`User ${userId} attempting to reorder players`);
+
+    // Check if current user is the dealer
+    if (!gameManager.isDealer(userId)) {
+        ws.send(JSON.stringify({
+            type: 'error',
+            message: 'Only the dealer can reorder players'
+        }));
+        return;
+    }
+
+    try {
+        gameManager.game.reorderPlayers(playerIds);
+        gameManager.saveGameState();
+
+        console.log('Players reordered successfully');
+
+        // Broadcast updated game state to all clients
+        broadcastGameState();
+
+        ws.send(JSON.stringify({
+            type: 'players-reordered',
+            message: 'Players reordered successfully'
+        }));
     } catch (error) {
         ws.send(JSON.stringify({
             type: 'error',
