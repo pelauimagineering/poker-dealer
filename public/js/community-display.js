@@ -176,22 +176,29 @@ function updateRevealedHands(revealedHands) {
 
     const revealedSection = document.getElementById('revealedHandsSection');
     const revealedContainer = document.getElementById('revealedHandsContainer');
+    const phaseIndicator = document.getElementById('phaseIndicator');
 
     if (!revealedSection || !revealedContainer) {
         console.warn('Revealed hands elements not found');
         return;
     }
 
-    // If no revealed hands, hide the section
+    // If no revealed hands, hide the section and show phase indicator
     if (!revealedHands || revealedHands.length === 0) {
         revealedSection.classList.add('hidden');
         revealedContainer.innerHTML = '';
+        if (phaseIndicator) {
+            phaseIndicator.classList.remove('hidden');
+        }
         return;
     }
 
-    // Show the section and populate with revealed hands
+    // Show the section and populate with revealed hands, hide phase indicator
     revealedSection.classList.remove('hidden');
     revealedContainer.innerHTML = '';
+    if (phaseIndicator) {
+        phaseIndicator.classList.add('hidden');
+    }
 
     revealedHands.forEach(hand => {
         const handDiv = document.createElement('div');

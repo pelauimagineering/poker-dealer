@@ -12,10 +12,17 @@ What's New:
 
 Latest Changes (2025-12-05):
 ----------------------------
+- **Community Display Optimizations for Revealed Hands**
+  - Phase indicator now automatically hides when revealed hands are displayed, freeing up screen space
+  - Revealed hands layout improved: player names now appear centered above cards instead of beside them
+  - Revealed hands arranged horizontally side-by-side with automatic wrapping to support 5+ simultaneous reveals
+  - Each player's cards and name form a compact vertical unit for better space utilization
+  - Responsive layout adjusts gracefully to accommodate multiple revealed hands on various screen sizes
+
 - **Community Display Shows Revealed Hands**
   - When players reveal their hole cards using "Show My Cards", those cards now appear on the public community display (/community page)
   - Revealed hands section appears below community cards with title "Revealed Hands"
-  - Each revealed hand shows player name and their two hole cards in a compact, single-row layout
+  - Each revealed hand shows player name and their two hole cards in a compact layout
   - Cards are sized smaller (50px width) to fit multiple revealed hands on one screen
   - Multiple players can reveal simultaneously - all appear in the revealed hands section
   - Responsive design scales cards down further on mobile devices (40px on tablets, 35px on phones)

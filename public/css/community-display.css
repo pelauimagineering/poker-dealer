@@ -215,20 +215,21 @@
 
 .revealed-hands-container-community {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    flex-wrap: wrap;
     gap: var(--spacing-sm);
-    align-items: center;
+    justify-content: center;
 }
 
 .revealed-hand-compact {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
-    gap: var(--spacing-sm);
+    gap: var(--spacing-xs);
     padding: var(--spacing-xs);
     background-color: var(--color-bg-tertiary);
     border-radius: var(--radius-md);
-    width: 100%;
+    width: auto;
     max-width: 600px;
 }
 
@@ -236,9 +237,7 @@
     font-size: var(--font-md);
     font-weight: bold;
     color: var(--color-text-primary);
-    min-width: 100px;
-    text-align: left;
-    padding-left: var(--spacing-sm);
+    text-align: center;
 }
 
 .revealed-cards-compact {
