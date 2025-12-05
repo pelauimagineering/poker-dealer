@@ -327,20 +327,128 @@ function updateCommunityCards() {
     });
 }
 
+let isViewingHoleCards = false;
+
 function updateHoleCards() {
-    const holeCards = document.getElementById('holeCards');
+    const holeCardsContainer = document.getElementById('holeCards');
 
     if (!gameState.holeCards || gameState.holeCards.length === 0) {
-        holeCards.innerHTML = '<div class="no-cards-message">No cards yet</div>';
+        holeCardsContainer.innerHTML = '<div class="no-cards-message">No cards yet</div>';
         return;
     }
 
-    holeCards.innerHTML = '';
+    holeCardsContainer.innerHTML = '';
 
+    // Create cards (they will be shown as card-backs initially)
     gameState.holeCards.forEach(card => {
-        const cardElement = createCardElement(card);
-        holeCards.appendChild(cardElement);
+        const cardElement = createHoleCardElement(card);
+        holeCardsContainer.appendChild(cardElement);
     });
+
+    // Setup peek functionality
+    setupHoleCardsPeek();
+}
+
+function createHoleCardElement(card) {
+    const cardDiv = document.createElement('div');
+    cardDiv.className = 'card hole-card';
+
+    // Store the card data for peeking
+    cardDiv.dataset.suit = card.suit;
+    cardDiv.dataset.rank = card.rank;
+
+    // Initially show as card back
+    cardDiv.classList.add('card-back');
+
+    return cardDiv;
+}
+
+function setupHoleCardsPeek() {
+    const holeCardsContainer = document.getElementById('holeCards');
+
+    // Remove any existing event listeners
+    const newContainer = holeCardsContainer.cloneNode(true);
+    holeCardsContainer.parentNode.replaceChild(newContainer, holeCardsContainer);
+
+    const holeCards = document.getElementById('holeCards');
+
+    // Mouse events for desktop
+    holeCards.addEventListener('mousedown', startPeekingHoleCards);
+    holeCards.addEventListener('mouseup', stopPeekingHoleCards);
+    holeCards.addEventListener('mouseleave', stopPeekingHoleCards);
+
+    // Touch events for mobile
+    holeCards.addEventListener('touchstart', startPeekingHoleCards);
+    holeCards.addEventListener('touchend', stopPeekingHoleCards);
+    holeCards.addEventListener('touchcancel', stopPeekingHoleCards);
+}
+
+function startPeekingHoleCards(e) {
+    e.preventDefault();
+    if (isViewingHoleCards) return;
+
+    isViewingHoleCards = true;
+    const holeCardsContainer = document.getElementById('holeCards');
+    holeCardsContainer.classList.add('peeking');
+
+    // Reveal all hole cards
+    const cards = holeCardsContainer.querySelectorAll('.hole-card');
+    cards.forEach(card => {
+        revealHoleCard(card);
+    });
+
+    console.log('Peeking at hole cards');
+}
+
+function stopPeekingHoleCards(e) {
+    if (!isViewingHoleCards) return;
+
+    isViewingHoleCards = false;
+    const holeCardsContainer = document.getElementById('holeCards');
+    holeCardsContainer.classList.remove('peeking');
+
+    // Hide all hole cards
+    const cards = holeCardsContainer.querySelectorAll('.hole-card');
+    cards.forEach(card => {
+        hideHoleCard(card);
+    });
+
+    console.log('Stopped peeking at hole cards');
+}
+
+function revealHoleCard(cardDiv) {
+    // Remove card back styling
+    cardDiv.classList.remove('card-back');
+
+    // Add suit class for coloring
+    cardDiv.classList.add(cardDiv.dataset.suit);
+
+    // Create and add card content
+    const cardContent = document.createElement('div');
+    cardContent.className = 'card-content';
+
+    const rankSpan = document.createElement('span');
+    rankSpan.className = 'card-rank';
+    rankSpan.textContent = cardDiv.dataset.rank;
+
+    const suitSpan = document.createElement('span');
+    suitSpan.className = 'card-suit';
+    suitSpan.textContent = getSuitSymbol(cardDiv.dataset.suit);
+
+    cardContent.appendChild(rankSpan);
+    cardContent.appendChild(suitSpan);
+    cardDiv.appendChild(cardContent);
+}
+
+function hideHoleCard(cardDiv) {
+    // Remove card content
+    cardDiv.innerHTML = '';
+
+    // Remove suit class
+    cardDiv.classList.remove(cardDiv.dataset.suit);
+
+    // Add card back styling
+    cardDiv.classList.add('card-back');
 }
 
 function updatePhaseIndicator() {

@@ -12,6 +12,16 @@ What's New:
 
 Latest Changes (2025-12-04):
 ----------------------------
+- **Peek at Hole Cards Feature**
+  - Hole cards are now hidden by default, showing only card backs
+  - Players can tap/click and hold anywhere in the hole cards area to temporarily reveal their cards
+  - Cards automatically hide again when the user releases their finger/mouse
+  - Subtle visual feedback when peeking (green glow effect and slight scale)
+  - Works on both desktop (mouse events) and mobile (touch events)
+  - Helpful hint text: "👆 Tap or hold to peek at your cards"
+  - Prevents accidental card reveals to other players
+  - Smooth transitions when revealing and hiding cards
+
 - **Dealer Can Reorder Players**
   - After the dealer is randomly selected, the dealer can now drag and drop players to reorder the player list
   - Drag handle (☰) appears on each player item when reordering is available
@@ -326,6 +336,57 @@ Scenario 15: Non-Dealer Cannot Reorder
 5. On Neave's device, verify no drag handles appear
 6. Attempt to drag a player on Neave's device (should not work)
 7. Verify Neave cannot reorder players even if they try to manipulate the UI
+
+Scenario 16: Peek at Hole Cards - Desktop
+1. Login with 2-3 players and join the game
+2. Select dealer and deal cards
+3. Verify hole cards section shows card backs (hidden cards)
+4. Verify hint text appears: "👆 Tap or hold to peek at your cards"
+5. Click and hold (mousedown) anywhere in the hole cards area
+6. Verify cards flip to show face values and suits
+7. Verify subtle green glow effect appears around the cards area
+8. Verify cards scale up slightly (1.02x)
+9. Release mouse button (mouseup)
+10. Verify cards immediately flip back to card backs
+11. Verify glow effect disappears
+12. Move mouse over cards area, then move away (mouseleave) while holding
+13. Verify cards hide when mouse leaves the area
+14. Repeat peek multiple times to ensure it works consistently
+
+Scenario 17: Peek at Hole Cards - Mobile/Touch
+1. Login on mobile device (iOS or Android)
+2. Join game, select dealer, and deal cards
+3. Verify hole cards show as card backs
+4. Verify hint text is visible and readable on mobile
+5. Tap and hold (touchstart) on the hole cards area
+6. Verify cards reveal with smooth transition
+7. Verify visual feedback (glow, scale) appears
+8. Lift finger (touchend)
+9. Verify cards immediately hide
+10. Touch and drag finger away from cards area while holding
+11. Verify cards hide when touch moves outside area (touchcancel)
+12. Test with different orientations (portrait and landscape)
+13. Verify no text selection occurs during peek interaction
+
+Scenario 18: Peek at Hole Cards - Privacy
+1. Login with 3 players on separate devices
+2. Deal cards to all players
+3. On Player 1's device, peek at cards
+4. On Player 2's and Player 3's devices, verify their cards remain hidden
+5. Verify each player can only see their own cards when peeking
+6. Verify cards are hidden by default on all devices
+7. Have multiple players peek simultaneously
+8. Verify each device only shows its own player's cards
+
+Scenario 19: Peek at Hole Cards - Game Phases
+1. Login and join game with multiple players
+2. Deal cards and verify peek works in pre-flop phase
+3. Reveal flop and verify peek still works
+4. Reveal turn and verify peek still works
+5. Reveal river and verify peek still works
+6. Complete hand and deal new cards
+7. Verify peek works for new hand
+8. Verify cards reset properly between hands
 
 Scenario 8: Manual Dealer Selection
 1. Start server with `--reset` flag to ensure clean state
