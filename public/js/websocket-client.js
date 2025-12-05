@@ -73,7 +73,7 @@ class WebSocketClient {
             ...data
         };
 
-        console.log('Sending WebSocket message:', message.type);
+        console.log('Sending WebSocket message:', message.type, 'with data:', data);
         this.ws.send(JSON.stringify(message));
         return true;
     }
