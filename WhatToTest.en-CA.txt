@@ -10,8 +10,22 @@ What's New:
 - Automatic dealer rotation after each hand
 - Public community cards display for shared screens (no authentication required)
 
-Latest Changes (2025-12-04):
+Latest Changes (2025-12-05):
 ----------------------------
+- **Community Display Shows Revealed Hands**
+  - When players reveal their hole cards using "Show My Cards", those cards now appear on the public community display (/community page)
+  - Revealed hands section appears below community cards with title "Revealed Hands"
+  - Each revealed hand shows player name and their two hole cards in a compact, single-row layout
+  - Cards are sized smaller (50px width) to fit multiple revealed hands on one screen
+  - Multiple players can reveal simultaneously - all appear in the revealed hands section
+  - Responsive design scales cards down further on mobile devices (40px on tablets, 35px on phones)
+  - Section automatically hides when no hands are revealed
+  - Revealed hands persist through all game phases until hand completes
+  - Real-time updates via WebSocket ensure community display stays synchronized
+  - Compact styling with reduced padding optimized specifically for community display
+
+Previous Changes (2025-12-04):
+------------------------------
 - **Show My Cards Feature (Slide-to-Action)**
   - Players can deliberately reveal their hole cards to all other players
   - Slide-to-action control prevents accidental reveals (must slide 70% across)
@@ -488,6 +502,39 @@ Scenario 6: Public Community Display
 7. Verify public display updates in real-time
 8. Check that public display does NOT show hole cards
 9. Test display on different screen sizes (phone, tablet, TV)
+
+Scenario 24: Community Display - Revealed Hands
+1. On a shared screen/TV, navigate to `/community` page
+2. On 4 separate player devices, login as Gary, Neave, Harish, and Chris
+3. All players join game, select dealer, and deal cards
+4. On community display, verify only community cards are shown (no revealed hands section)
+5. On Gary's device, use slide-to-action to reveal cards
+6. On community display, verify "Revealed Hands" section appears below community cards
+7. Verify Gary's name and two hole cards appear in compact format
+8. Verify cards are small enough to fit in single row (50px width)
+9. On Harish's device, also reveal cards
+10. On community display, verify both Gary's and Harish's revealed hands appear
+11. Verify both hands fit comfortably in the display without scrolling
+12. Verify each hand shows player name clearly
+13. Dealer flips through game phases (Flop, Turn, River)
+14. Verify revealed hands persist and remain visible throughout all phases
+15. Complete the hand
+16. Verify revealed hands section disappears when hand completes
+17. Deal new hand and verify section remains hidden until players reveal again
+
+Scenario 25: Community Display - Responsive Revealed Hands
+1. On tablet device, navigate to `/community` page
+2. Setup game with 3 players and have 2 players reveal their cards
+3. Verify revealed hands display correctly with 40px card width
+4. Verify player names and cards are clearly readable
+5. On phone device, navigate to `/community` page
+6. Verify revealed hands scale down to 35px card width
+7. Verify cards remain readable and properly formatted
+8. Rotate phone to landscape orientation
+9. Verify revealed hands adjust and display correctly
+10. Test with 4-5 players all revealing cards
+11. Verify all revealed hands fit within viewport without horizontal scroll
+12. Check that card size automatically adjusts for number of revealed hands
 
 Important Notes:
 ---------------
