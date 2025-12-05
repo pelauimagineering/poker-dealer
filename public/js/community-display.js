@@ -106,6 +106,9 @@ function updateCommunityCards(state) {
 
     // Update phase indicator
     updatePhaseIndicator(state.phase || 'waiting');
+
+    // Update revealed hands
+    updateRevealedHands(state.revealedHands || []);
 }
 
 function updatePhaseIndicator(phase) {
@@ -166,6 +169,60 @@ function getSuitSymbol(suit) {
         'spades': '♠'
     };
     return symbols[suit] || suit;
+}
+
+function updateRevealedHands(revealedHands) {
+    console.log('Updating revealed hands:', revealedHands);
+
+    const revealedSection = document.getElementById('revealedHandsSection');
+    const revealedContainer = document.getElementById('revealedHandsContainer');
+    const phaseIndicator = document.getElementById('phaseIndicator');
+
+    if (!revealedSection || !revealedContainer) {
+        console.warn('Revealed hands elements not found');
+        return;
+    }
+
+    // If no revealed hands, hide the section and show phase indicator
+    if (!revealedHands || revealedHands.length === 0) {
+        revealedSection.classList.add('hidden');
+        revealedContainer.innerHTML = '';
+        if (phaseIndicator) {
+            phaseIndicator.classList.remove('hidden');
+        }
+        return;
+    }
+
+    // Show the section and populate with revealed hands, hide phase indicator
+    revealedSection.classList.remove('hidden');
+    revealedContainer.innerHTML = '';
+    if (phaseIndicator) {
+        phaseIndicator.classList.add('hidden');
+    }
+
+    revealedHands.forEach(hand => {
+        const handDiv = document.createElement('div');
+        handDiv.className = 'revealed-hand-compact';
+
+        // Player name label
+        const nameLabel = document.createElement('div');
+        nameLabel.className = 'player-name-compact';
+        nameLabel.textContent = hand.playerName;
+        handDiv.appendChild(nameLabel);
+
+        // Cards container
+        const cardsDiv = document.createElement('div');
+        cardsDiv.className = 'revealed-cards-compact';
+
+        hand.cards.forEach(card => {
+            const cardElement = createCardElement(card);
+            cardElement.classList.add('card-compact'); // Add compact styling
+            cardsDiv.appendChild(cardElement);
+        });
+
+        handDiv.appendChild(cardsDiv);
+        revealedContainer.appendChild(handDiv);
+    });
 }
 
 function updateConnectionStatus(connected) {

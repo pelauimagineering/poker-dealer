@@ -190,3 +190,126 @@
 .status-indicator.connected {
     background-color: var(--color-success);
 }
+
+/* Revealed Hands Section - Community Display ONLY */
+.revealed-hands-section {
+    background-color: var(--color-surface);
+    padding: var(--spacing-lg) var(--spacing-md);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl);
+    min-width: 80%;
+    margin-top: var(--spacing-xl);
+    text-align: center;
+}
+
+.revealed-hands-section.hidden {
+    display: none;
+}
+
+.revealed-hands-container-community {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    justify-content: center;
+}
+
+.revealed-hand-compact {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs);
+    background-color: var(--color-bg-tertiary);
+    border-radius: var(--radius-md);
+    width: auto;
+    max-width: 600px;
+}
+
+.player-name-compact {
+    font-size: var(--font-md);
+    font-weight: bold;
+    color: var(--color-text-primary);
+    text-align: center;
+}
+
+.revealed-cards-compact {
+    display: flex;
+    gap: var(--spacing-xs);
+    flex: 1;
+    justify-content: flex-start;
+}
+
+/* Compact card sizing - Single row layout */
+.card-compact {
+    width: 50px !important;
+    height: 70px !important;
+}
+
+.card-compact .card-rank {
+    font-size: var(--font-lg) !important;
+}
+
+.card-compact .card-suit {
+    font-size: var(--font-xl) !important;
+}
+
+/* Responsive adjustments for revealed hands */
+@media (max-width: 768px) {
+    .revealed-hands-title {
+        font-size: var(--font-lg);
+    }
+
+    .player-name-compact {
+        font-size: var(--font-sm);
+        min-width: 80px;
+    }
+
+    .card-compact {
+        width: 40px !important;
+        height: 56px !important;
+    }
+
+    .card-compact .card-rank {
+        font-size: var(--font-md) !important;
+    }
+
+    .card-compact .card-suit {
+        font-size: var(--font-lg) !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .revealed-hands-section {
+        padding: var(--spacing-md) var(--spacing-sm);
+        min-width: 100%;
+    }
+
+    .revealed-hand-compact {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-xs);
+    }
+
+    .player-name-compact {
+        font-size: var(--font-xs);
+        min-width: auto;
+    }
+
+    .card-compact {
+        width: 35px !important;
+        height: 49px !important;
+    }
+
+    .card-compact .card-rank {
+        font-size: var(--font-sm) !important;
+    }
+
+    .card-compact .card-suit {
+        font-size: var(--font-md) !important;
+    }
+
+    .revealed-cards-compact {
+        gap: 2px;
+    }
+}

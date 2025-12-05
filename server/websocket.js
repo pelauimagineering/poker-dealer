@@ -66,11 +66,13 @@ function handleMessage(ws, data, setUser) {
         console.log('Public WebSocket connection established');
         publicClients.add(ws);
 
-        // Send initial community state
+        // Send initial community state including revealed hands
+        const gameState = gameManager.getGameState(); // Get full state including revealed hands
         const communityState = {
-            communityCards: gameManager.game.communityCards.map(card => card.toJSON()),
-            phase: gameManager.game.phase,
-            cardsDealt: gameManager.game.cardsDealt
+            communityCards: gameState.communityCards,
+            phase: gameState.phase,
+            cardsDealt: gameState.cardsDealt,
+            revealedHands: gameState.revealedHands
         };
 
         ws.send(JSON.stringify({
@@ -83,10 +85,12 @@ function handleMessage(ws, data, setUser) {
 
     // Handle public community state request
     if (type === 'get-community-state') {
+        const gameState = gameManager.getGameState(); // Get full state including revealed hands
         const communityState = {
-            communityCards: gameManager.game.communityCards.map(card => card.toJSON()),
-            phase: gameManager.game.phase,
-            cardsDealt: gameManager.game.cardsDealt
+            communityCards: gameState.communityCards,
+            phase: gameState.phase,
+            cardsDealt: gameState.cardsDealt,
+            revealedHands: gameState.revealedHands
         };
 
         ws.send(JSON.stringify({
@@ -421,11 +425,13 @@ function broadcastGameState() {
         }
     }
 
-    // Broadcast community cards to public clients
+    // Broadcast community cards and revealed hands to public clients
+    const gameState = gameManager.getGameState(); // Get full state including revealed hands
     const communityState = {
-        communityCards: gameManager.game.communityCards.map(card => card.toJSON()),
-        phase: gameManager.game.phase,
-        cardsDealt: gameManager.game.cardsDealt
+        communityCards: gameState.communityCards,
+        phase: gameState.phase,
+        cardsDealt: gameState.cardsDealt,
+        revealedHands: gameState.revealedHands
     };
 
     for (const client of publicClients) {
