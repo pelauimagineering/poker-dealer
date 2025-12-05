@@ -651,6 +651,11 @@ let cardsAlreadyRevealed = false;
 function updateSlideToShowControl() {
     const slideContainer = document.getElementById('slideToShowContainer');
 
+    if (!slideContainer) {
+        console.warn('slideToShowContainer element not found');
+        return;
+    }
+
     // Check if cards are dealt and user is in game
     const isInGame = gameState && gameState.players && gameState.players.some(p => p.id === currentUser.id);
     const cardsDealt = gameState && gameState.cardsDealt;
@@ -747,6 +752,11 @@ function revealMyCards() {
 
 function updateRevealedHands() {
     const revealedContainer = document.getElementById('revealedHandsContainer');
+
+    if (!revealedContainer) {
+        console.warn('revealedHandsContainer element not found');
+        return;
+    }
 
     if (!gameState || !gameState.revealedHands || gameState.revealedHands.length === 0) {
         revealedContainer.innerHTML = '';
