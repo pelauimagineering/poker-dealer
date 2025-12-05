@@ -109,6 +109,34 @@
     justify-content: center;
     gap: var(--spacing-md);
     min-height: 120px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    position: relative;
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    transition: all 0.2s ease;
+}
+
+.hole-cards.peeking {
+    background-color: rgba(46, 204, 113, 0.1);
+    box-shadow: 0 0 20px rgba(46, 204, 113, 0.3);
+    transform: scale(1.02);
+}
+
+.hole-cards .hole-card {
+    transition: all 0.3s ease;
+}
+
+.peek-hint {
+    text-align: center;
+    margin-top: var(--spacing-sm);
+    color: var(--color-text-muted);
+    font-size: var(--font-sm);
+    font-style: italic;
+    opacity: 0.8;
 }
 
 .no-cards-message {
