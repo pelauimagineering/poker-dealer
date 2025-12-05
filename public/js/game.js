@@ -161,6 +161,12 @@ function updateUI() {
 
     // Update choose dealer button state
     updateChooseDealerButton();
+
+    // Update revealed hands display
+    updateRevealedHands();
+
+    // Update slide-to-show control visibility
+    updateSlideToShowControl();
 }
 
 function updatePlayersList() {
@@ -634,6 +640,160 @@ function showSuccess(message) {
     setTimeout(() => {
         successDiv.classList.remove('show');
     }, 3000);
+}
+
+// Slide-to-Show functionality
+let slideStartX = 0;
+let slideCurrentX = 0;
+let isSliding = false;
+let cardsAlreadyRevealed = false;
+
+function updateSlideToShowControl() {
+    const slideContainer = document.getElementById('slideToShowContainer');
+
+    if (!slideContainer) {
+        console.warn('slideToShowContainer element not found');
+        return;
+    }
+
+    // Check if cards are dealt and user is in game
+    const isInGame = gameState && gameState.players && gameState.players.some(p => p.id === currentUser.id);
+    const cardsDealt = gameState && gameState.cardsDealt;
+
+    // Check if current user has already revealed their cards
+    const hasRevealed = gameState && gameState.revealedHands &&
+                        gameState.revealedHands.some(rh => rh.userId === currentUser.id);
+
+    console.log('updateSlideToShowControl - isInGame:', isInGame, 'cardsDealt:', cardsDealt, 'hasRevealed:', hasRevealed);
+    console.log('currentUser:', currentUser);
+    console.log('gameState.players:', gameState?.players);
+    console.log('gameState.revealedHands:', gameState?.revealedHands);
+
+    if (isInGame && cardsDealt && !hasRevealed) {
+        console.log('SHOWING slide control - removing hidden class');
+        slideContainer.classList.remove('hidden');
+        setupSlideToShow();
+    } else {
+        console.log('HIDING slide control - adding hidden class. Reason: isInGame=' + isInGame + ', cardsDealt=' + cardsDealt + ', hasRevealed=' + hasRevealed);
+        slideContainer.classList.add('hidden');
+    }
+}
+
+function setupSlideToShow() {
+    const slideButton = document.getElementById('slideButton');
+    const slideTrack = slideButton.parentElement;
+
+    // Remove existing listeners
+    slideButton.replaceWith(slideButton.cloneNode(true));
+    const newSlideButton = document.getElementById('slideButton');
+
+    // Mouse events
+    newSlideButton.addEventListener('mousedown', startSlide);
+    document.addEventListener('mousemove', doSlide);
+    document.addEventListener('mouseup', endSlide);
+
+    // Touch events
+    newSlideButton.addEventListener('touchstart', startSlide);
+    document.addEventListener('touchmove', doSlide);
+    document.addEventListener('touchend', endSlide);
+}
+
+function startSlide(e) {
+    e.preventDefault();
+    isSliding = true;
+
+    const slideButton = document.getElementById('slideButton');
+    const touch = e.touches ? e.touches[0] : e;
+    slideStartX = touch.clientX - slideButton.offsetLeft;
+
+    console.log('Started sliding to show cards');
+}
+
+function doSlide(e) {
+    if (!isSliding) return;
+
+    const touch = e.touches ? e.touches[0] : e;
+    const slideButton = document.getElementById('slideButton');
+    const slideTrack = slideButton.parentElement;
+    const maxSlide = slideTrack.offsetWidth - slideButton.offsetWidth - 10;
+
+    slideCurrentX = touch.clientX - slideStartX;
+
+    // Constrain to track bounds
+    if (slideCurrentX < 0) slideCurrentX = 0;
+    if (slideCurrentX > maxSlide) slideCurrentX = maxSlide;
+
+    slideButton.style.left = slideCurrentX + 'px';
+
+    // Check if slid far enough (90% of track width)
+    if (slideCurrentX >= maxSlide * 0.9 && !cardsAlreadyRevealed) {
+        cardsAlreadyRevealed = true;
+        revealMyCards();
+    }
+}
+
+function endSlide(e) {
+    if (!isSliding) return;
+
+    isSliding = false;
+    const slideButton = document.getElementById('slideButton');
+
+    // Reset button position if not completed
+    if (!cardsAlreadyRevealed) {
+        slideButton.style.left = '0px';
+    }
+}
+
+function revealMyCards() {
+    console.log('Revealing my cards to all players');
+
+    // Send WebSocket message to reveal cards
+    wsClient.send('show-my-cards');
+
+    // Hide the slide control
+    const slideContainer = document.getElementById('slideToShowContainer');
+    slideContainer.classList.add('hidden');
+
+    showSuccess('Your cards have been revealed to all players!');
+}
+
+function updateRevealedHands() {
+    const revealedContainer = document.getElementById('revealedHandsContainer');
+
+    if (!revealedContainer) {
+        console.warn('revealedHandsContainer element not found');
+        return;
+    }
+
+    if (!gameState || !gameState.revealedHands || gameState.revealedHands.length === 0) {
+        revealedContainer.innerHTML = '';
+        return;
+    }
+
+    revealedContainer.innerHTML = '';
+
+    gameState.revealedHands.forEach(revealedHand => {
+        const playerHandDiv = document.createElement('div');
+        playerHandDiv.className = 'revealed-player-hand';
+
+        const playerNameDiv = document.createElement('div');
+        playerNameDiv.className = 'revealed-player-name';
+        playerNameDiv.textContent = revealedHand.playerName;
+
+        const cardsDiv = document.createElement('div');
+        cardsDiv.className = 'revealed-cards';
+
+        revealedHand.cards.forEach(card => {
+            const cardElement = createCardElement(card);
+            cardsDiv.appendChild(cardElement);
+        });
+
+        playerHandDiv.appendChild(playerNameDiv);
+        playerHandDiv.appendChild(cardsDiv);
+        revealedContainer.appendChild(playerHandDiv);
+    });
+
+    console.log(`Displaying ${gameState.revealedHands.length} revealed hands`);
 }
 
 // Initialize when page loads

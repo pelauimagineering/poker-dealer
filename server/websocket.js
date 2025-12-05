@@ -172,6 +172,10 @@ function handleMessage(ws, data, setUser) {
                 handleReorderPlayers(userId, data.playerIds, ws);
                 break;
 
+            case 'show-my-cards':
+                handleShowMyCards(userId, ws);
+                break;
+
             case 'get-state':
                 const gameState = gameManager.getGameState(userId);
                 ws.send(JSON.stringify({
@@ -364,6 +368,38 @@ function handleReorderPlayers(userId, playerIds, ws) {
         }));
     } catch (error) {
         console.error('Error reordering players:', error);
+        ws.send(JSON.stringify({
+            type: 'error',
+            message: error.message
+        }));
+    }
+}
+
+function handleShowMyCards(userId, ws) {
+    console.log(`User ${userId} attempting to show their cards`);
+
+    try {
+        const revealed = gameManager.game.revealPlayerCards(userId);
+
+        if (revealed) {
+            console.log(`Player ${userId} revealed their cards successfully`);
+            gameManager.saveGameState();
+
+            // Broadcast updated game state to all clients
+            broadcastGameState();
+
+            ws.send(JSON.stringify({
+                type: 'cards-revealed',
+                message: 'Your cards have been revealed to all players'
+            }));
+        } else {
+            ws.send(JSON.stringify({
+                type: 'error',
+                message: 'Your cards are already revealed'
+            }));
+        }
+    } catch (error) {
+        console.error('Error revealing cards:', error);
         ws.send(JSON.stringify({
             type: 'error',
             message: error.message

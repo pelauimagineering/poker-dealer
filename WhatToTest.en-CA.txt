@@ -12,13 +12,25 @@ What's New:
 
 Latest Changes (2025-12-04):
 ----------------------------
+- **Show My Cards Feature (Slide-to-Action)**
+  - Players can deliberately reveal their hole cards to all other players
+  - Slide-to-action control prevents accidental reveals (must slide 70% across)
+  - Beautiful gradient purple slide track with "👉" hand icon button
+  - Text instruction: "Slide to Show My Cards →"
+  - Only appears after cards are dealt and before player has revealed
+  - Revealed cards display in community cards section with player name
+  - Multiple players can reveal cards simultaneously
+  - Revealed cards persist until hand completes
+  - Smooth slide animation works on desktop (mouse) and mobile (touch)
+  - Server validates and broadcasts revealed cards to all clients
+
 - **Peek at Hole Cards Feature**
   - Hole cards are now hidden by default, showing only card backs
   - Players can tap/click and hold anywhere in the hole cards area to temporarily reveal their cards
   - Cards automatically hide again when the user releases their finger/mouse
   - Subtle visual feedback when peeking (green glow effect and slight scale)
   - Works on both desktop (mouse events) and mobile (touch events)
-  - Helpful hint text: "👆 Tap or hold to peek at your cards"
+  - Helpful hint text: "👆 Tap + hold to peek at your cards"
   - Prevents accidental card reveals to other players
   - Smooth transitions when revealing and hiding cards
 
@@ -387,6 +399,62 @@ Scenario 19: Peek at Hole Cards - Game Phases
 6. Complete hand and deal new cards
 7. Verify peek works for new hand
 8. Verify cards reset properly between hands
+
+Scenario 20: Show My Cards - Slide-to-Action (Desktop)
+1. Login with 3-4 players and join game
+2. Select dealer and deal cards
+3. Verify slide-to-show control appears below hole cards
+4. Verify slide track has gradient purple background
+5. Verify text reads "Slide to Show →"
+6. Verify white circular button with "👉" icon on left
+7. Click and drag button partway across track
+8. Release before reaching 70% - verify button slides back to start
+9. Verify cards are NOT revealed
+10. Click and drag button past 70% of track width
+11. Verify cards are revealed and slide control disappears
+12. Verify player's cards appear in community cards section with player name
+13. Verify success message appears
+14. Verify slide control does not reappear for that player
+15. Verify revealed cards remain visible through all game phases
+
+Scenario 21: Show My Cards - Slide-to-Action (Mobile)
+1. Login on mobile device and join game
+2. Deal cards and verify slide control appears
+3. Touch and drag button slowly across track
+4. Verify smooth sliding animation
+5. Lift finger before 70% threshold
+6. Verify button returns to start
+7. Touch and drag past 90% threshold
+8. Verify cards are revealed with visual confirmation
+9. Test in portrait and landscape orientations
+10. Verify no accidental scrolling while sliding
+11. Verify touch events don't interfere with other controls
+
+Scenario 22: Show My Cards - Multiple Players
+1. Login with 4 players (Gary, Neave, Harish, Chris) on separate devices
+2. All join game and deal cards
+3. On Gary's device, slide to reveal cards
+4. On Neave's device, verify Gary's cards appear in community section
+5. On Harish's device, also slide to reveal cards
+6. On all devices, verify both Gary's and Harish's cards are visible
+7. Verify each player's name appears above their revealed cards
+8. On Chris's device, choose not to reveal
+9. Verify Chris's slide control still available
+10. Complete hand and verify all revealed cards disappear
+11. Deal new hand and verify all slide controls reappear
+
+Scenario 23: Show My Cards - Edge Cases
+1. Login and join game, but don't deal cards yet
+2. Verify slide control does NOT appear before cards are dealt
+3. Deal cards and verify slide control appears
+4. Player 1 reveals their cards
+5. Verify Player 1's slide control disappears and doesn't reappear
+6. Try refreshing Player 1's browser
+7. Verify revealed state persists (cards still shown, no slide control)
+8. Complete hand and start new hand
+9. Verify Player 1's slide control reappears for new hand
+10. Test revealing cards during different phases (pre-flop, flop, turn, river)
+11. Verify revealed cards persist through phase transitions
 
 Scenario 8: Manual Dealer Selection
 1. Start server with `--reset` flag to ensure clean state

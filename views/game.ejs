@@ -58,9 +58,17 @@
                     <!-- Community Cards Section -->
                     <section class="community-section">
                         <h2 class="section-header">Community Cards</h2>
-                        <div id="communityCards" class="community-cards">
-                            <div class="no-cards-message">Waiting for cards to be dealt...</div>
+
+                        <!-- Container for Community Cards and Revealed Hands -->
+                        <div class="cards-display-container">
+                            <div id="communityCards" class="community-cards">
+                                <div class="no-cards-message">Waiting for cards to be dealt...</div>
+                            </div>
+
+                            <!-- Revealed Hands Display -->
+                            <div id="revealedHandsContainer" class="revealed-hands-container"></div>
                         </div>
+
                         <div id="phaseIndicator" class="phase-indicator">Phase: Waiting</div>
                     </section>
 
@@ -69,6 +77,17 @@
                         <h2 class="section-header">Your Hole Cards</h2>
                         <div id="holeCards" class="hole-cards">
                             <div class="no-cards-message">No cards yet</div>
+                        </div>
+                        <p class="peek-hint">👆 Tap + hold to peek at your cards</p>
+
+                        <!-- Slide to Show Cards Control -->
+                        <div id="slideToShowContainer" class="slide-to-show-container hidden">
+                            <div class="slide-track">
+                                <div class="slide-instruction">Slide to Show →</div>
+                                <div id="slideButton" class="slide-button">
+                                    <span class="slide-icon">👉</span>
+                                </div>
+                            </div>
                         </div>
                     </section>
 
