@@ -81,13 +81,18 @@ class PokerGame {
             throw new Error('Cannot reorder players before dealer is selected');
         }
 
+        // Convert playerIds to numbers if they're strings (they come from HTML dataset as strings)
+        const normalizedPlayerIds = playerIds.map(id => typeof id === 'string' ? parseInt(id, 10) : id);
+        console.log('Normalized player IDs:', normalizedPlayerIds);
+
         // Validate that all player IDs match current players
-        if (playerIds.length !== this.players.length) {
+        if (normalizedPlayerIds.length !== this.players.length) {
             throw new Error('Player count mismatch');
         }
 
         const currentPlayerIds = this.players.map(p => p.id);
-        const hasAllPlayers = playerIds.every(id => currentPlayerIds.includes(id));
+        console.log('Current player IDs in game:', currentPlayerIds);
+        const hasAllPlayers = normalizedPlayerIds.every(id => currentPlayerIds.includes(id));
 
         if (!hasAllPlayers) {
             throw new Error('Invalid player IDs provided');
@@ -98,7 +103,7 @@ class PokerGame {
         console.log(`Current dealer: ${this.players[this.dealerIndex].name} (${currentDealerId}) at index ${this.dealerIndex}`);
 
         // Reorder players array based on provided IDs
-        const reorderedPlayers = playerIds.map(id => {
+        const reorderedPlayers = normalizedPlayerIds.map(id => {
             return this.players.find(p => p.id === id);
         });
 
