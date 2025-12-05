@@ -7,6 +7,7 @@ class PokerGame {
         this.deck = new Deck();
         this.communityCards = [];
         this.playerHands = new Map(); // userId -> [card1, card2]
+        this.revealedHands = new Set(); // Set of userIds who have revealed their cards
         this.phase = 'waiting'; // waiting, pre-flop, flop, turn, river, complete
         this.cardsDealt = false;
     }
@@ -216,8 +217,30 @@ class PokerGame {
         this.cardsDealt = false;
         this.playerHands.clear();
         this.communityCards = [];
+        this.revealedHands.clear(); // Clear revealed cards when hand completes
         this.rotateDealer();
         this.phase = 'waiting';
+    }
+
+    revealPlayerCards(userId) {
+        console.log(`Player ${userId} revealing their cards`);
+
+        if (!this.cardsDealt) {
+            throw new Error('Cannot reveal cards before they are dealt');
+        }
+
+        if (!this.playerHands.has(userId)) {
+            throw new Error('Player does not have cards to reveal');
+        }
+
+        if (this.revealedHands.has(userId)) {
+            console.log(`Player ${userId} cards already revealed`);
+            return false; // Already revealed
+        }
+
+        this.revealedHands.add(userId);
+        console.log(`Player ${userId} cards revealed successfully. Total revealed: ${this.revealedHands.size}`);
+        return true;
     }
 
     getPlayerHand(userId) {
@@ -250,6 +273,20 @@ class PokerGame {
             state.holeCards = holeCards.map(card => card.toJSON());
         }
 
+        // Include revealed hands for all players
+        state.revealedHands = [];
+        for (const userId of this.revealedHands) {
+            const player = this.players.find(p => p.id === userId);
+            const cards = this.getPlayerHand(userId);
+            if (player && cards.length > 0) {
+                state.revealedHands.push({
+                    userId: userId,
+                    playerName: player.name,
+                    cards: cards.map(card => card.toJSON())
+                });
+            }
+        }
+
         return state;
     }
 
@@ -263,6 +300,7 @@ class PokerGame {
                 userId,
                 cards: cards.map(card => card.toJSON())
             })),
+            revealedHands: Array.from(this.revealedHands),
             phase: this.phase,
             cardsDealt: this.cardsDealt
         };
@@ -302,6 +340,14 @@ class PokerGame {
                     return card;
                 });
                 game.playerHands.set(handData.userId, cards);
+            }
+        }
+
+        // Restore revealed hands
+        if (data.revealedHands) {
+            game.revealedHands.clear();
+            for (const userId of data.revealedHands) {
+                game.revealedHands.add(userId);
             }
         }
 
