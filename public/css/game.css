@@ -170,11 +170,39 @@
     padding: var(--spacing-md);
     background-color: var(--color-bg-tertiary);
     border-radius: var(--radius-md);
+    transition: all 0.2s ease;
 }
 
 .player-item.is-dealer {
     border: 2px solid var(--color-primary);
     background-color: rgba(46, 204, 113, 0.1);
+}
+
+/* Drag and Drop Styles */
+.player-item.draggable {
+    cursor: move;
+}
+
+.player-item.dragging {
+    opacity: 0.5;
+    background-color: var(--color-primary);
+    color: white;
+}
+
+.player-item.drag-over {
+    border-top: 3px solid var(--color-primary);
+    margin-top: 5px;
+}
+
+.drag-handle {
+    font-size: var(--font-xl);
+    color: var(--color-text-muted);
+    cursor: grab;
+    user-select: none;
+}
+
+.player-item.dragging .drag-handle {
+    cursor: grabbing;
 }
 
 .player-name {

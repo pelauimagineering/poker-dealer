@@ -173,12 +173,28 @@ function updatePlayersList() {
 
     playersList.innerHTML = '';
 
-    gameState.players.forEach(player => {
+    // Check if current user is the dealer and cards haven't been dealt
+    const currentDealer = gameState.players.find(p => p.isDealer);
+    const isCurrentUserDealer = currentDealer && currentDealer.id === currentUser.id;
+    const canReorder = isCurrentUserDealer && !gameState.cardsDealt;
+
+    console.log('updatePlayersList - Can reorder:', canReorder, 'isDealer:', isCurrentUserDealer, 'cardsDealt:', gameState.cardsDealt);
+
+    gameState.players.forEach((player, index) => {
         const playerItem = document.createElement('div');
         playerItem.className = 'player-item';
+        playerItem.dataset.playerId = player.id;
+        playerItem.dataset.playerIndex = index;
 
         if (player.isDealer) {
             playerItem.classList.add('is-dealer');
+        }
+
+        // Make draggable only if dealer and cards haven't been dealt
+        if (canReorder) {
+            playerItem.setAttribute('draggable', 'true');
+            playerItem.classList.add('draggable');
+            setupDragAndDrop(playerItem);
         }
 
         const playerName = document.createElement('span');
@@ -194,8 +210,105 @@ function updatePlayersList() {
             playerItem.appendChild(badge);
         }
 
+        // Add drag handle indicator if draggable
+        if (canReorder) {
+            const dragHandle = document.createElement('span');
+            dragHandle.className = 'drag-handle';
+            dragHandle.textContent = '☰';
+            playerItem.insertBefore(dragHandle, playerItem.firstChild);
+        }
+
         playersList.appendChild(playerItem);
     });
+}
+
+let draggedElement = null;
+
+function setupDragAndDrop(element) {
+    element.addEventListener('dragstart', handleDragStart);
+    element.addEventListener('dragover', handleDragOver);
+    element.addEventListener('drop', handleDrop);
+    element.addEventListener('dragend', handleDragEnd);
+    element.addEventListener('dragenter', handleDragEnter);
+    element.addEventListener('dragleave', handleDragLeave);
+}
+
+function handleDragStart(e) {
+    draggedElement = this;
+    this.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', this.innerHTML);
+    console.log('Drag started for player:', this.dataset.playerId);
+}
+
+function handleDragOver(e) {
+    if (e.preventDefault) {
+        e.preventDefault();
+    }
+    e.dataTransfer.dropEffect = 'move';
+    return false;
+}
+
+function handleDragEnter(e) {
+    if (this !== draggedElement) {
+        this.classList.add('drag-over');
+    }
+}
+
+function handleDragLeave(e) {
+    this.classList.remove('drag-over');
+}
+
+function handleDrop(e) {
+    if (e.stopPropagation) {
+        e.stopPropagation();
+    }
+
+    if (draggedElement !== this) {
+        const playersList = document.getElementById('playersList');
+        const allItems = Array.from(playersList.querySelectorAll('.player-item'));
+
+        const draggedIndex = allItems.indexOf(draggedElement);
+        const targetIndex = allItems.indexOf(this);
+
+        console.log('Drop - moving from index', draggedIndex, 'to', targetIndex);
+
+        // Reorder DOM elements
+        if (draggedIndex < targetIndex) {
+            this.parentNode.insertBefore(draggedElement, this.nextSibling);
+        } else {
+            this.parentNode.insertBefore(draggedElement, this);
+        }
+
+        // Send new order to server
+        sendPlayerOrder();
+    }
+
+    this.classList.remove('drag-over');
+    return false;
+}
+
+function handleDragEnd(e) {
+    this.classList.remove('dragging');
+
+    // Remove all drag-over classes
+    const playersList = document.getElementById('playersList');
+    const allItems = playersList.querySelectorAll('.player-item');
+    allItems.forEach(item => {
+        item.classList.remove('drag-over');
+    });
+
+    draggedElement = null;
+}
+
+function sendPlayerOrder() {
+    const playersList = document.getElementById('playersList');
+    const allItems = Array.from(playersList.querySelectorAll('.player-item'));
+    const playerIds = allItems.map(item => item.dataset.playerId);
+
+    console.log('Sending new player order to server:', playerIds);
+
+    wsClient.send('reorder-players', { playerIds: playerIds });
 }
 
 function updateCommunityCards() {

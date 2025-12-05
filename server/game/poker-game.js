@@ -69,6 +69,53 @@ class PokerGame {
         console.log(`Random dealer selected: ${this.players[this.dealerIndex].name} (index ${this.dealerIndex})`);
     }
 
+    reorderPlayers(playerIds) {
+        console.log('Reordering players with IDs:', playerIds);
+        console.log('Current player order:', this.players.map(p => `${p.name}(${p.id})`));
+
+        if (this.cardsDealt) {
+            throw new Error('Cannot reorder players once cards have been dealt');
+        }
+
+        if (this.dealerIndex === -1) {
+            throw new Error('Cannot reorder players before dealer is selected');
+        }
+
+        // Convert playerIds to numbers if they're strings (they come from HTML dataset as strings)
+        const normalizedPlayerIds = playerIds.map(id => typeof id === 'string' ? parseInt(id, 10) : id);
+        console.log('Normalized player IDs:', normalizedPlayerIds);
+
+        // Validate that all player IDs match current players
+        if (normalizedPlayerIds.length !== this.players.length) {
+            throw new Error('Player count mismatch');
+        }
+
+        const currentPlayerIds = this.players.map(p => p.id);
+        console.log('Current player IDs in game:', currentPlayerIds);
+        const hasAllPlayers = normalizedPlayerIds.every(id => currentPlayerIds.includes(id));
+
+        if (!hasAllPlayers) {
+            throw new Error('Invalid player IDs provided');
+        }
+
+        // Store the current dealer's ID
+        const currentDealerId = this.players[this.dealerIndex].id;
+        console.log(`Current dealer: ${this.players[this.dealerIndex].name} (${currentDealerId}) at index ${this.dealerIndex}`);
+
+        // Reorder players array based on provided IDs
+        const reorderedPlayers = normalizedPlayerIds.map(id => {
+            return this.players.find(p => p.id === id);
+        });
+
+        this.players = reorderedPlayers;
+
+        // Update dealer index to match the reordered array
+        this.dealerIndex = this.players.findIndex(p => p.id === currentDealerId);
+
+        console.log(`Players reordered successfully. New order:`, this.players.map(p => `${p.name}(${p.id})`));
+        console.log(`New dealer index: ${this.dealerIndex} (${this.players[this.dealerIndex].name})`);
+    }
+
     rotateDealer() {
         if (this.players.length === 0) {
             this.dealerIndex = -1;

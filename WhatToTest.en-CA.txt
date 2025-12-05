@@ -10,7 +10,20 @@ What's New:
 - Automatic dealer rotation after each hand
 - Public community cards display for shared screens (no authentication required)
 
-Latest Changes (2025-12-01):
+Latest Changes (2025-12-04):
+----------------------------
+- **Dealer Can Reorder Players**
+  - After the dealer is randomly selected, the dealer can now drag and drop players to reorder the player list
+  - Drag handle (☰) appears on each player item when reordering is available
+  - Only the dealer can reorder players (other players see a static list)
+  - Reordering is only available after dealer selection and before cards are dealt
+  - Once cards are dealt, the player order becomes locked in place
+  - Player order is preserved across all game phases and hands
+  - Visual feedback during drag operations (opacity changes, border highlights)
+  - Real-time updates broadcast to all connected clients when order changes
+  - Server validates reorder requests to ensure only dealer can perform this action
+
+Previous Changes (2025-12-01):
 ----------------------------
 - **Configurable Reset Challenge Phrase**
   - Game reset challenge phrase is now loaded from RESET_PHRASE environment variable
@@ -284,6 +297,35 @@ Scenario 13: Game Reset via API
 6. Send POST with correct phrase: {"challengePhrase": "Milliken Mills Posse"}
 7. Verify 200 success response
 8. Verify game state has been reset in database
+
+Scenario 14: Dealer Player Reordering
+1. Login with 4-5 players (Gary, Neave, Harish, Chris, Tony)
+2. All players join the game in that order
+3. Verify player list shows players in join order on all devices
+4. Click "Choose Dealer" button to randomly select a dealer (e.g., Harish)
+5. On Harish's device (dealer), verify drag handles (☰) appear next to each player name
+6. On other devices (non-dealers), verify no drag handles appear
+7. On Harish's device, drag Gary's name to a different position in the list
+8. Verify visual feedback during drag (opacity change, border highlight)
+9. Drop Gary in the new position
+10. Verify all connected clients see the updated player order immediately
+11. On Harish's device, drag multiple players to create desired seating order
+12. Verify order updates are reflected on all devices in real-time
+13. Dealer clicks "Deal Cards"
+14. Verify drag handles disappear (reordering is now locked)
+15. Try to drag a player - verify dragging no longer works
+16. Complete the hand and rotate to next dealer
+17. On new dealer's device, verify drag handles do NOT reappear (order stays locked)
+18. Verify player order remains consistent throughout multiple hands
+
+Scenario 15: Non-Dealer Cannot Reorder
+1. Login with 3 players (Gary, Neave, Harish)
+2. All join the game
+3. Click "Choose Dealer" - Gary is selected as dealer
+4. On Gary's device, verify drag handles appear
+5. On Neave's device, verify no drag handles appear
+6. Attempt to drag a player on Neave's device (should not work)
+7. Verify Neave cannot reorder players even if they try to manipulate the UI
 
 Scenario 8: Manual Dealer Selection
 1. Start server with `--reset` flag to ensure clean state
