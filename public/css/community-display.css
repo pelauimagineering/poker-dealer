@@ -206,13 +206,6 @@
     display: none;
 }
 
-.revealed-hands-title {
-    font-size: var(--font-xl);
-    color: var(--color-text-primary);
-    margin: 0 0 var(--spacing-md) 0;
-    font-weight: bold;
-}
-
 .revealed-hands-container-community {
     display: flex;
     flex-direction: row;
