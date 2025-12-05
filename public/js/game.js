@@ -664,10 +664,17 @@ function updateSlideToShowControl() {
     const hasRevealed = gameState && gameState.revealedHands &&
                         gameState.revealedHands.some(rh => rh.userId === currentUser.id);
 
+    console.log('updateSlideToShowControl - isInGame:', isInGame, 'cardsDealt:', cardsDealt, 'hasRevealed:', hasRevealed);
+    console.log('currentUser:', currentUser);
+    console.log('gameState.players:', gameState?.players);
+    console.log('gameState.revealedHands:', gameState?.revealedHands);
+
     if (isInGame && cardsDealt && !hasRevealed) {
+        console.log('SHOWING slide control - removing hidden class');
         slideContainer.classList.remove('hidden');
         setupSlideToShow();
     } else {
+        console.log('HIDING slide control - adding hidden class. Reason: isInGame=' + isInGame + ', cardsDealt=' + cardsDealt + ', hasRevealed=' + hasRevealed);
         slideContainer.classList.add('hidden');
     }
 }
