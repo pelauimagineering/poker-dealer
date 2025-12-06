@@ -74,7 +74,7 @@ db.exec(schema, (err) => {
 
                 console.log('Database initialization complete!');
                 console.log(`Database location: ${DB_PATH}`);
-                console.log(`Users can login by seleting their name from the list (no password required).`);
+                console.log(`Users can login by selecting their name from the list (no password required).`);
 
                 db.close((err) => {
                     if (err) {
