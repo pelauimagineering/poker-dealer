@@ -15,7 +15,11 @@ CREATE TABLE IF NOT EXISTS game_state (
     community_cards TEXT DEFAULT '[]',
     phase TEXT DEFAULT 'waiting',
     cards_dealt BOOLEAN DEFAULT 0,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    -- Timer fields for blind level tracking
+    timer_start_time TEXT DEFAULT NULL,
+    timer_duration_seconds INTEGER DEFAULT 420,
+    blinds_will_increase INTEGER DEFAULT 0
 );
 
 -- Sessions table

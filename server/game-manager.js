@@ -1,9 +1,14 @@
 const { PokerGame } = require('./game/poker-game');
 const db = require('./db');
 
+const TIMER_DURATION_SECONDS = 420; // 7 minutes
+
 class GameManager {
     constructor() {
         this.game = new PokerGame();
+        this.timerStartTime = null;
+        this.timerDurationSeconds = TIMER_DURATION_SECONDS;
+        this.blindsWillIncrease = false;
         this.loadGameState();
     }
 
@@ -19,6 +24,12 @@ class GameManager {
             if (gameState && gameState.deck_state) {
                 this.game = PokerGame.fromJSON(gameState.deck_state);
                 console.log(`Loaded game state: ${this.game.players.length} players, phase: ${this.game.phase}`);
+
+                // Load timer state
+                this.timerStartTime = gameState.timer_start_time || null;
+                this.timerDurationSeconds = gameState.timer_duration_seconds || TIMER_DURATION_SECONDS;
+                this.blindsWillIncrease = gameState.blinds_will_increase || false;
+                console.log(`Timer state: startTime=${this.timerStartTime}, blindsWillIncrease=${this.blindsWillIncrease}`);
             } else {
                 console.log('No saved game state, starting fresh');
             }
@@ -34,7 +45,10 @@ class GameManager {
             deck_state: this.game,
             community_cards: this.game.communityCards,
             phase: this.game.phase,
-            cards_dealt: this.game.cardsDealt
+            cards_dealt: this.game.cardsDealt,
+            timer_start_time: this.timerStartTime,
+            timer_duration_seconds: this.timerDurationSeconds,
+            blinds_will_increase: this.blindsWillIncrease
         };
 
         db.gameState.update(gameState, (err) => {
@@ -63,6 +77,19 @@ class GameManager {
 
     dealCards() {
         this.game.dealCards();
+
+        // Start timer on first deal if not already running
+        if (!this.timerStartTime) {
+            this.timerStartTime = new Date().toISOString();
+            console.log(`Timer started at: ${this.timerStartTime}`);
+        }
+
+        // Reset blinds_will_increase flag on new deal
+        if (this.blindsWillIncrease) {
+            console.log('Blinds have increased for this hand');
+            this.blindsWillIncrease = false;
+        }
+
         this.saveGameState();
     }
 
@@ -90,7 +117,53 @@ class GameManager {
     }
 
     getGameState(forUserId = null) {
-        return this.game.getGameState(forUserId);
+        const state = this.game.getGameState(forUserId);
+
+        // Add timer state to game state
+        state.timerState = this.getTimerState();
+
+        return state;
+    }
+
+    getTimerState() {
+        if (!this.timerStartTime) {
+            return {
+                isRunning: false,
+                startTime: null,
+                durationSeconds: this.timerDurationSeconds,
+                remainingSeconds: this.timerDurationSeconds,
+                expired: false,
+                blindsWillIncrease: this.blindsWillIncrease
+            };
+        }
+
+        const startTime = new Date(this.timerStartTime);
+        const now = new Date();
+        const elapsedSeconds = Math.floor((now - startTime) / 1000);
+        const remainingSeconds = Math.max(0, this.timerDurationSeconds - elapsedSeconds);
+        const expired = remainingSeconds === 0;
+
+        return {
+            isRunning: true,
+            startTime: this.timerStartTime,
+            durationSeconds: this.timerDurationSeconds,
+            remainingSeconds: remainingSeconds,
+            expired: expired,
+            blindsWillIncrease: this.blindsWillIncrease
+        };
+    }
+
+    checkAndUpdateTimerExpiration() {
+        const timerState = this.getTimerState();
+
+        if (timerState.expired && !this.blindsWillIncrease) {
+            console.log('Timer expired! Blinds will increase on next deal.');
+            this.blindsWillIncrease = true;
+            this.saveGameState();
+            return true; // Timer just expired
+        }
+
+        return false;
     }
 
     canJoinGame() {
@@ -105,6 +178,12 @@ class GameManager {
     resetGame() {
         console.log('Resetting game...');
         this.game = new PokerGame();
+
+        // Reset timer state
+        this.timerStartTime = null;
+        this.timerDurationSeconds = TIMER_DURATION_SECONDS;
+        this.blindsWillIncrease = false;
+
         db.gameState.reset((err) => {
             if (err) {
                 console.error('Error resetting game state:', err);

@@ -96,6 +96,92 @@
     text-transform: capitalize;
 }
 
+/* Blind Level Timer */
+.timer-section {
+    margin-top: var(--spacing-lg);
+    padding: var(--spacing-md);
+    background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+    border-radius: var(--radius-lg);
+    text-align: center;
+    border: 2px solid var(--color-primary);
+    transition: all 0.3s ease;
+}
+
+.timer-section.timer-idle {
+    opacity: 0.6;
+    border-color: var(--color-text-muted);
+}
+
+.timer-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.timer-label {
+    font-size: var(--font-sm);
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.timer-countdown {
+    font-size: var(--font-3xl);
+    font-weight: bold;
+    font-family: 'Courier New', monospace;
+    color: var(--color-primary);
+    text-shadow: 0 0 10px rgba(46, 204, 113, 0.3);
+}
+
+.timer-section.timer-warning .timer-countdown {
+    color: #f39c12;
+    text-shadow: 0 0 10px rgba(243, 156, 18, 0.5);
+    animation: pulse-warning 1s ease-in-out infinite;
+}
+
+.timer-section.timer-critical .timer-countdown {
+    color: #e74c3c;
+    text-shadow: 0 0 15px rgba(231, 76, 60, 0.7);
+    animation: pulse-critical 0.5s ease-in-out infinite;
+}
+
+.timer-section.timer-expired {
+    border-color: #e74c3c;
+    background: linear-gradient(135deg, #4a1a1a 0%, #2d1515 100%);
+}
+
+.timer-section.timer-expired .timer-countdown {
+    color: #e74c3c;
+}
+
+.timer-alert {
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background-color: rgba(231, 76, 60, 0.2);
+    border: 1px solid #e74c3c;
+    border-radius: var(--radius-md);
+    color: #e74c3c;
+    font-weight: bold;
+    font-size: var(--font-md);
+    animation: flash-alert 1s ease-in-out infinite;
+}
+
+@keyframes pulse-warning {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.02); }
+}
+
+@keyframes pulse-critical {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.05); }
+}
+
+@keyframes flash-alert {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
 /* Hole Cards Section */
 .hole-cards-section {
     background-color: var(--color-surface);

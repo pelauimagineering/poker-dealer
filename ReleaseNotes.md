@@ -1,5 +1,87 @@
 # Release Notes - Poker Dealer
 
+## 2025-12-29 - feature/timer-7-minute
+
+### New Feature
+
+#### Blind Level Timer
+- **7-Minute Countdown Timer**: Tournament-style timer that tracks blind level duration
+  - Timer starts when cards are first dealt
+  - Displays countdown visible to all players
+  - Shows "Blind Level" label with MM:SS format
+  - Timer persists across page refreshes (stored in database)
+
+- **Visual Feedback**:
+  - Timer turns yellow and pulses when under 1 minute remaining
+  - Timer turns red with faster pulse when under 30 seconds
+  - Alert message flashes when timer expires: "Blinds will increase next hand!"
+
+- **Timer Behavior**:
+  - Starts automatically on first deal
+  - Continues running through all phases (pre-flop, flop, turn, river)
+  - When expired, sets flag that blinds will increase
+  - Flag resets on next deal (blind increase handled by future issue #21)
+  - Game reset clears timer completely
+
+### Technical Details
+
+#### Backend Changes
+- Modified `database/schema.sql`:
+  - Added `timer_start_time` (TEXT) - ISO timestamp when timer started
+  - Added `timer_duration_seconds` (INTEGER) - Duration in seconds (default 420 = 7 min)
+  - Added `blinds_will_increase` (INTEGER) - Flag for blind level up
+
+- Modified `scripts/init-db.js`:
+  - Added migration to add timer columns to existing databases
+
+- Modified `server/db.js`:
+  - Updated gameStateOps to include timer fields in get/update/reset operations
+
+- Modified `server/game-manager.js`:
+  - Added timer state properties and constants
+  - Added `getTimerState()` method for timer calculations
+  - Added `checkAndUpdateTimerExpiration()` for expiration detection
+  - Modified `dealCards()` to start timer on first deal
+  - Modified `getGameState()` to include timer state
+  - Modified `resetGame()` to clear timer state
+
+- Modified `server/websocket.js`:
+  - Added timer check interval (every 1 second)
+  - Added `timer-expired` WebSocket message type
+  - Included timer state in all game state broadcasts
+
+#### Frontend Changes
+- Created `public/js/timer.js`:
+  - `BlindTimer` class for managing countdown display
+  - Local countdown with server time sync
+  - Warning threshold detection (1 min, 30 sec, 10 sec)
+
+- Modified `views/game.ejs`:
+  - Added timer section HTML below phase indicator
+  - Included timer.js script
+
+- Modified `public/js/game.js`:
+  - Added `timer-expired` WebSocket handler
+  - Integrated `blindTimer.update()` in `updateUI()`
+
+- Modified `public/css/game.css`:
+  - Added `.timer-section` styling with gradient background
+  - Added `.timer-countdown` with monospace font
+  - Added `.timer-warning` and `.timer-critical` states
+  - Added `.timer-alert` with flash animation
+  - Added pulse keyframe animations
+
+### Usage
+1. Join game and have dealer selected
+2. Dealer clicks "Deal Cards" - timer starts
+3. Timer counts down from 7:00
+4. At 1 minute: timer turns yellow and pulses
+5. At 30 seconds: timer turns red with faster pulse
+6. At 0:00: alert message appears "Blinds will increase next hand!"
+7. Next deal resets the alert (future: blinds double)
+
+---
+
 ## 2025-12-01 - feature/reset-phrase-env-variable
 
 ### Enhancement
