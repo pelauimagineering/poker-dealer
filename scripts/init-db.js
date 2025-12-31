@@ -57,6 +57,22 @@ db.exec(schema, (err) => {
         });
     });
 
+    // Add blind amount columns if they don't exist
+    const blindMigrations = [
+        'ALTER TABLE game_state ADD COLUMN small_blind INTEGER DEFAULT 1',
+        'ALTER TABLE game_state ADD COLUMN big_blind INTEGER DEFAULT 2'
+    ];
+
+    blindMigrations.forEach(migration => {
+        db.run(migration, (err) => {
+            if (err && !err.message.includes('duplicate column')) {
+                if (!err.message.includes('duplicate column name')) {
+                    console.log(`Migration note: ${err.message}`);
+                }
+            }
+        });
+    });
+
     // Seed users
     console.log('Seeding users...');
 

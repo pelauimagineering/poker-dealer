@@ -2,6 +2,8 @@ const { PokerGame } = require('./game/poker-game');
 const db = require('./db');
 
 const TIMER_DURATION_SECONDS = 420; // 7 minutes
+const DEFAULT_SMALL_BLIND = 1;
+const DEFAULT_BIG_BLIND = 2;
 
 class GameManager {
     constructor() {
@@ -9,6 +11,8 @@ class GameManager {
         this.timerStartTime = null;
         this.timerDurationSeconds = TIMER_DURATION_SECONDS;
         this.blindsWillIncrease = false;
+        this.smallBlind = DEFAULT_SMALL_BLIND;
+        this.bigBlind = DEFAULT_BIG_BLIND;
         this.loadGameState();
     }
 
@@ -30,6 +34,11 @@ class GameManager {
                 this.timerDurationSeconds = gameState.timer_duration_seconds || TIMER_DURATION_SECONDS;
                 this.blindsWillIncrease = gameState.blinds_will_increase || false;
                 console.log(`Timer state: startTime=${this.timerStartTime}, blindsWillIncrease=${this.blindsWillIncrease}`);
+
+                // Load blind levels
+                this.smallBlind = gameState.small_blind || DEFAULT_SMALL_BLIND;
+                this.bigBlind = gameState.big_blind || DEFAULT_BIG_BLIND;
+                console.log(`Blind levels: ${this.smallBlind}/${this.bigBlind}`);
             } else {
                 console.log('No saved game state, starting fresh');
             }
@@ -48,7 +57,9 @@ class GameManager {
             cards_dealt: this.game.cardsDealt,
             timer_start_time: this.timerStartTime,
             timer_duration_seconds: this.timerDurationSeconds,
-            blinds_will_increase: this.blindsWillIncrease
+            blinds_will_increase: this.blindsWillIncrease,
+            small_blind: this.smallBlind,
+            big_blind: this.bigBlind
         };
 
         db.gameState.update(gameState, (err) => {
@@ -84,9 +95,16 @@ class GameManager {
             console.log(`Timer started at: ${this.timerStartTime}`);
         }
 
-        // Reset blinds_will_increase flag on new deal
+        // Double blinds and reset timer if blinds_will_increase flag is set
         if (this.blindsWillIncrease) {
-            console.log('Blinds have increased for this hand');
+            this.smallBlind *= 2;
+            this.bigBlind *= 2;
+            console.log(`Blinds increased to: ${this.smallBlind}/${this.bigBlind}`);
+
+            // Reset timer for new blind level
+            this.timerStartTime = new Date().toISOString();
+            console.log(`Timer reset for new blind level at: ${this.timerStartTime}`);
+
             this.blindsWillIncrease = false;
         }
 
@@ -121,6 +139,12 @@ class GameManager {
 
         // Add timer state to game state
         state.timerState = this.getTimerState();
+
+        // Add blind levels to game state
+        state.blinds = {
+            small: this.smallBlind,
+            big: this.bigBlind
+        };
 
         return state;
     }
@@ -183,6 +207,11 @@ class GameManager {
         this.timerStartTime = null;
         this.timerDurationSeconds = TIMER_DURATION_SECONDS;
         this.blindsWillIncrease = false;
+
+        // Reset blind levels
+        this.smallBlind = DEFAULT_SMALL_BLIND;
+        this.bigBlind = DEFAULT_BIG_BLIND;
+        console.log(`Blinds reset to: ${this.smallBlind}/${this.bigBlind}`);
 
         db.gameState.reset((err) => {
             if (err) {

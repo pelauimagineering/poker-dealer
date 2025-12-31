@@ -10,8 +10,24 @@ What's New:
 - Automatic dealer rotation after each hand
 - Public community cards display for shared screens (no authentication required)
 
-Latest Changes (2025-12-29):
+Latest Changes (2025-12-30):
 ----------------------------
+- **Blind Level Tracking (Issue #21)**
+  - Blind amount display shows "Blinds: X/Y" in the timer section
+  - Blinds start at 1/2 (small blind = 1, big blind = 2) by default
+  - Golden color styling for blinds display for visibility
+  - Blinds automatically double when the 7-minute timer expires
+  - Timer resets to 7:00 when blinds increase (progression: 1/2 → 2/4 → 4/8 → etc.)
+  - SB (Small Blind) badge appears next to player in blue color
+  - BB (Big Blind) badge appears next to player in orange color
+  - D (Dealer) badge remains in green color
+  - Badges update automatically when dealer rotates
+  - Heads-up support: In 2-player games, dealer posts small blind (standard heads-up rules)
+  - With 3+ players: SB is left of dealer, BB is left of SB
+  - Blinds reset to 1/2 on game reset
+
+Previous Changes (2025-12-29):
+------------------------------
 - **7-Minute Blind Level Timer**
   - Tournament-style countdown timer that starts when cards are first dealt
   - Displays "Blind Level" label with MM:SS countdown visible to all players
@@ -20,7 +36,6 @@ Latest Changes (2025-12-29):
   - At 0:00, flashing alert appears: "Blinds will increase next hand!"
   - Timer persists across page refreshes (stored in database)
   - Timer resets when game is reset
-  - Prepares for future blind level tracking (Issue #21)
 
 Latest Changes (2025-12-05):
 ----------------------------
@@ -598,6 +613,86 @@ Scenario 27: Timer on Community Display
 6. Verify timer state syncs between player view and community display
 7. Wait for timer to expire
 8. Verify alert appears on community display
+
+Scenario 28: Blind Level Display
+1. Login with 2-3 players and join game
+2. Verify timer section shows "Blinds: 1/2" below the countdown
+3. Verify blinds display has golden color styling
+4. Select dealer and deal cards
+5. Verify blinds still show "1/2" after dealing
+6. Refresh browser page
+7. Verify blinds display persists with correct value
+8. Click "Reset Game" with challenge phrase
+9. Verify blinds reset to "1/2"
+
+Scenario 29: Blind Position Badges (3+ Players)
+1. Login with 3-4 players (Gary, Neave, Harish, Chris) on separate devices
+2. All players join game
+3. Click "Choose Dealer" to select dealer (e.g., Gary is dealer)
+4. Verify on all devices:
+   - Gary has green "D" (Dealer) badge
+   - Neave has blue "SB" (Small Blind) badge
+   - Harish has orange "BB" (Big Blind) badge
+   - Chris has no blind badge (just waiting to act)
+5. Deal cards and complete the hand
+6. Verify dealer rotates to Neave
+7. Verify badges update:
+   - Neave has "D" badge
+   - Harish has "SB" badge
+   - Chris has "BB" badge
+   - Gary has no badge
+8. Complete another hand and verify badges continue rotating correctly
+
+Scenario 30: Blind Position Badges (Heads-Up / 2 Players)
+1. Login with 2 players (Gary and Neave) on separate devices
+2. Both players join game
+3. Click "Choose Dealer" to select dealer (e.g., Gary is dealer)
+4. Verify badges follow heads-up rules:
+   - Gary has "D" badge AND "SB" badge (dealer posts small blind in heads-up)
+   - Neave has "BB" badge
+5. Deal cards and complete the hand
+6. Verify dealer rotates to Neave
+7. Verify badges update:
+   - Neave has "D" and "SB" badges
+   - Gary has "BB" badge
+8. Complete multiple hands to verify heads-up rotation works correctly
+
+Scenario 31: Blind Increase on Timer Expiration
+1. Login with 2-3 players and join game
+2. Verify blinds display shows "1/2"
+3. Select dealer and deal cards
+4. Wait for timer to count down to 0:00
+5. Verify alert appears: "Blinds will increase next hand!"
+6. Verify blinds still show "1/2" (not yet increased)
+7. Dealer deals next hand
+8. Verify blinds update to "2/4" (doubled)
+9. Verify timer resets to 7:00 and starts counting down
+10. Wait for timer to expire again
+11. Deal another hand
+12. Verify blinds update to "4/8" (doubled again)
+13. Continue pattern to verify progression: 1/2 → 2/4 → 4/8 → 8/16 → etc.
+
+Scenario 32: Blind State Persistence
+1. Login with 2-3 players and join game
+2. Deal cards and let timer expire
+3. Deal again to increase blinds to 2/4
+4. Let timer expire and deal again to increase to 4/8
+5. Refresh browser on all devices
+6. Verify blinds display shows "4/8" (persisted value)
+7. Verify timer continues from correct state
+8. Click "Reset Game" with challenge phrase
+9. Verify blinds reset to "1/2"
+10. Verify timer resets to 7:00 in idle state
+
+Scenario 33: Community Display - Blinds and Badges
+1. Navigate to /community page on shared screen
+2. On player devices, login and join game with 3 players
+3. Select dealer
+4. Verify community display shows current blinds in timer section
+5. Verify SB and BB badges visible on community display player list
+6. Deal cards and let timer expire
+7. Deal again and verify blinds increase to 2/4 on community display
+8. Verify badges update correctly on community display when dealer rotates
 
 For Issues:
 ----------
