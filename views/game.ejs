@@ -70,6 +70,17 @@
                         </div>
 
                         <div id="phaseIndicator" class="phase-indicator">Phase: Waiting</div>
+
+                        <!-- Blind Level Timer -->
+                        <div id="timerSection" class="timer-section timer-idle">
+                            <div class="timer-display">
+                                <span class="timer-label">Blind Level</span>
+                                <span id="timerCountdown" class="timer-countdown">7:00</span>
+                            </div>
+                            <div id="timerAlert" class="timer-alert hidden">
+                                Blinds will increase next hand!
+                            </div>
+                        </div>
                     </section>
 
                     <!-- Your Hole Cards Section -->
@@ -135,6 +146,7 @@
         </footer>
 
         <script src="/js/websocket-client.js"></script>
+        <script src="/js/timer.js"></script>
         <script src="/js/game.js"></script>
         <script src="/js/dealer-controls.js"></script>
     </body>

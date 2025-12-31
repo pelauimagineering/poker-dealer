@@ -36,6 +36,27 @@ db.exec(schema, (err) => {
         process.exit(1);
     }
 
+    // Run migrations for existing databases
+    console.log('Running migrations...');
+
+    // Add timer columns if they don't exist
+    const timerMigrations = [
+        'ALTER TABLE game_state ADD COLUMN timer_start_time TEXT DEFAULT NULL',
+        'ALTER TABLE game_state ADD COLUMN timer_duration_seconds INTEGER DEFAULT 420',
+        'ALTER TABLE game_state ADD COLUMN blinds_will_increase INTEGER DEFAULT 0'
+    ];
+
+    timerMigrations.forEach(migration => {
+        db.run(migration, (err) => {
+            if (err && !err.message.includes('duplicate column')) {
+                // Ignore duplicate column errors (column already exists)
+                if (!err.message.includes('duplicate column name')) {
+                    console.log(`Migration note: ${err.message}`);
+                }
+            }
+        });
+    });
+
     // Seed users
     console.log('Seeding users...');
 

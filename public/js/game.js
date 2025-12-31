@@ -135,6 +135,13 @@ function setupWebSocketHandlers() {
             window.location.href = '/';
         }, 2000);
     });
+
+    // Handle timer expired
+    wsClient.on('timer-expired', (message) => {
+        console.log('Timer expired:', message.message);
+        showSuccess(message.message);
+        blindTimer.showExpiredAlert();
+    });
 }
 
 function updateUI() {
@@ -167,6 +174,11 @@ function updateUI() {
 
     // Update slide-to-show control visibility
     updateSlideToShowControl();
+
+    // Update blind level timer
+    if (gameState.timerState) {
+        blindTimer.update(gameState.timerState);
+    }
 }
 
 function updatePlayersList() {

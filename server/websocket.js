@@ -6,6 +6,7 @@ const clients = new Map(); // userId -> WebSocket
 const publicClients = new Set(); // WebSocket connections for public views
 
 let gameManager = null;
+let timerCheckInterval = null;
 
 function initWebSocketServer(server) {
     console.log('Initializing WebSocket server...');
@@ -55,7 +56,30 @@ function initWebSocketServer(server) {
 
     console.log('WebSocket server initialized');
 
+    // Start timer check interval
+    startTimerCheckInterval();
+
     return wss;
+}
+
+function startTimerCheckInterval() {
+    // Check timer every second
+    timerCheckInterval = setInterval(() => {
+        if (gameManager) {
+            const timerJustExpired = gameManager.checkAndUpdateTimerExpiration();
+
+            if (timerJustExpired) {
+                console.log('Broadcasting timer-expired event');
+                broadcast({
+                    type: 'timer-expired',
+                    message: 'Blind level timer has expired. Blinds will increase on the next deal!'
+                });
+
+                // Also broadcast updated game state so clients get the new timer state
+                broadcastGameState();
+            }
+        }
+    }, 1000);
 }
 
 function handleMessage(ws, data, setUser) {
@@ -72,7 +96,8 @@ function handleMessage(ws, data, setUser) {
             communityCards: gameState.communityCards,
             phase: gameState.phase,
             cardsDealt: gameState.cardsDealt,
-            revealedHands: gameState.revealedHands
+            revealedHands: gameState.revealedHands,
+            timerState: gameState.timerState
         };
 
         ws.send(JSON.stringify({
@@ -90,7 +115,8 @@ function handleMessage(ws, data, setUser) {
             communityCards: gameState.communityCards,
             phase: gameState.phase,
             cardsDealt: gameState.cardsDealt,
-            revealedHands: gameState.revealedHands
+            revealedHands: gameState.revealedHands,
+            timerState: gameState.timerState
         };
 
         ws.send(JSON.stringify({
@@ -431,7 +457,8 @@ function broadcastGameState() {
         communityCards: gameState.communityCards,
         phase: gameState.phase,
         cardsDealt: gameState.cardsDealt,
-        revealedHands: gameState.revealedHands
+        revealedHands: gameState.revealedHands,
+        timerState: gameState.timerState
     };
 
     for (const client of publicClients) {

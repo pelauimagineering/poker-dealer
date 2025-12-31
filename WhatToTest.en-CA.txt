@@ -10,6 +10,18 @@ What's New:
 - Automatic dealer rotation after each hand
 - Public community cards display for shared screens (no authentication required)
 
+Latest Changes (2025-12-29):
+----------------------------
+- **7-Minute Blind Level Timer**
+  - Tournament-style countdown timer that starts when cards are first dealt
+  - Displays "Blind Level" label with MM:SS countdown visible to all players
+  - Timer turns yellow and pulses when under 1 minute remaining
+  - Timer turns red with faster pulse when under 30 seconds
+  - At 0:00, flashing alert appears: "Blinds will increase next hand!"
+  - Timer persists across page refreshes (stored in database)
+  - Timer resets when game is reset
+  - Prepares for future blind level tracking (Issue #21)
+
 Latest Changes (2025-12-05):
 ----------------------------
 - **Fixed Logout Button Display Name**
@@ -555,6 +567,37 @@ Important Notes:
 - Monitor WebSocket connection in network tab
 - Test both portrait and landscape orientations on mobile
 - Verify session persistence after page refresh
+
+Scenario 26: Blind Level Timer
+1. Login with 2-3 players and join game
+2. Select dealer and verify timer shows "7:00" in idle state (slightly dimmed)
+3. Dealer clicks "Deal Cards"
+4. Verify timer starts counting down from 7:00
+5. Verify timer label shows "Blind Level"
+6. Verify timer is visible to all players (check on multiple devices)
+7. Wait for timer to reach 1:00
+8. Verify timer turns yellow and starts pulsing
+9. Wait for timer to reach 0:30
+10. Verify timer turns red with faster pulse
+11. Wait for timer to reach 0:00
+12. Verify flashing alert appears: "Blinds will increase next hand!"
+13. Verify success message notification appears
+14. Dealer deals next hand
+15. Verify alert disappears but timer continues from where it was
+16. Refresh browser page
+17. Verify timer continues from correct time (not reset)
+18. Click "Reset Game" with challenge phrase
+19. Verify timer resets to 7:00 in idle state
+
+Scenario 27: Timer on Community Display
+1. Navigate to /community page on shared screen
+2. On player devices, login and join game
+3. Verify timer is visible on community display
+4. Dealer deals cards
+5. Verify timer starts counting on community display
+6. Verify timer state syncs between player view and community display
+7. Wait for timer to expire
+8. Verify alert appears on community display
 
 For Issues:
 ----------

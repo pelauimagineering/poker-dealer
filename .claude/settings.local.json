@@ -26,7 +26,10 @@
       "Bash(gh pr view:*)",
       "Bash(git ls-tree:*)",
       "Bash(cat:*)",
-      "Bash(echo $NODE_ENV)"
+      "Bash(echo $NODE_ENV)",
+      "Bash(gh issue list:*)",
+      "Skill(workflow)",
+      "Bash(gh issue view:*)"
     ],
     "deny": [],
     "ask": []

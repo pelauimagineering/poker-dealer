@@ -116,7 +116,10 @@ const gameStateOps = {
                     player_order: JSON.parse(result.player_order || '[]'),
                     community_cards: JSON.parse(result.community_cards || '[]'),
                     deck_state: result.deck_state ? JSON.parse(result.deck_state) : null,
-                    cards_dealt: Boolean(result.cards_dealt)
+                    cards_dealt: Boolean(result.cards_dealt),
+                    timer_start_time: result.timer_start_time || null,
+                    timer_duration_seconds: result.timer_duration_seconds || 420,
+                    blinds_will_increase: Boolean(result.blinds_will_increase)
                 };
                 callback(null, parsed);
             } else {
@@ -134,7 +137,10 @@ const gameStateOps = {
                 community_cards = ?,
                 phase = ?,
                 cards_dealt = ?,
-                updated_at = datetime('now')
+                updated_at = datetime('now'),
+                timer_start_time = ?,
+                timer_duration_seconds = ?,
+                blinds_will_increase = ?
             WHERE id = 1
         `;
 
@@ -146,7 +152,10 @@ const gameStateOps = {
                 gameState.deck_state ? JSON.stringify(gameState.deck_state) : null,
                 JSON.stringify(gameState.community_cards || []),
                 gameState.phase,
-                gameState.cards_dealt ? 1 : 0
+                gameState.cards_dealt ? 1 : 0,
+                gameState.timer_start_time || null,
+                gameState.timer_duration_seconds || 420,
+                gameState.blinds_will_increase ? 1 : 0
             ],
             callback
         );
@@ -161,7 +170,10 @@ const gameStateOps = {
                 community_cards = '[]',
                 phase = 'waiting',
                 cards_dealt = 0,
-                updated_at = datetime('now')
+                updated_at = datetime('now'),
+                timer_start_time = NULL,
+                timer_duration_seconds = 420,
+                blinds_will_increase = 0
             WHERE id = 1
         `;
         getDb().run(query, [], callback);
