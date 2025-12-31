@@ -1,5 +1,76 @@
 # Release Notes - Poker Dealer
 
+## 2025-12-30 - feature/blind-level-tracking
+
+### New Feature
+
+#### Blind Level Tracking (Issue #21)
+- **Blind Amount Display**: Shows current blind levels in the timer section
+  - Displays "Blinds: X/Y" format (e.g., "Blinds: 1/2")
+  - Blinds start at 1/2 by default
+  - Golden color styling for visibility
+
+- **Automatic Blind Increases**:
+  - Blinds double when the 7-minute timer expires
+  - Timer resets to 7:00 when blinds increase
+  - Example progression: 1/2 → 2/4 → 4/8 → 8/16 → etc.
+
+- **Player Position Indicators**:
+  - SB (Small Blind) badge - Blue color
+  - BB (Big Blind) badge - Orange color
+  - D (Dealer) badge - Green color (existing)
+  - Badges appear next to player names in the player list
+  - Positions update automatically when dealer rotates
+
+- **Heads-Up Support**:
+  - In 2-player games, dealer posts small blind (standard heads-up rules)
+  - With 3+ players, SB is left of dealer, BB is left of SB
+
+### Technical Details
+
+#### Backend Changes
+- Modified `database/schema.sql`:
+  - Added `small_blind` (INTEGER DEFAULT 1)
+  - Added `big_blind` (INTEGER DEFAULT 2)
+
+- Modified `scripts/init-db.js`:
+  - Added migration for blind columns
+
+- Modified `server/db.js`:
+  - Added blind fields to get/update/reset operations
+
+- Modified `server/game-manager.js`:
+  - Added `smallBlind` and `bigBlind` properties
+  - Modified `dealCards()` to double blinds and reset timer when `blindsWillIncrease` is true
+  - Added blinds to `getGameState()` response
+  - Reset blinds to 1/2 in `resetGame()`
+
+- Modified `server/game/poker-game.js`:
+  - Added `getSmallBlindIndex()` method
+  - Added `getBigBlindIndex()` method
+  - Added `isSmallBlind` and `isBigBlind` flags to player state
+
+#### Frontend Changes
+- Modified `views/game.ejs`:
+  - Added blinds display in timer section
+
+- Modified `public/js/game.js`:
+  - Added `updateBlindsDisplay()` function
+  - Added SB/BB badges to player list
+
+- Modified `public/css/game.css`:
+  - Added `.blinds-display` and `.blinds-amount` styles
+  - Added `.player-sb-badge` (blue) and `.player-bb-badge` (orange) styles
+
+### Usage
+1. Start a game with 2+ players
+2. Select dealer - SB and BB badges appear
+3. Deal cards - timer starts, blinds show 1/2
+4. When timer expires, blinds will double on next deal
+5. New deal doubles blinds (2/4) and resets timer
+
+---
+
 ## 2025-12-29 - feature/timer-7-minute
 
 ### New Feature

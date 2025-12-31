@@ -179,6 +179,9 @@ function updateUI() {
     if (gameState.timerState) {
         blindTimer.update(gameState.timerState);
     }
+
+    // Update blinds display
+    updateBlindsDisplay();
 }
 
 function updatePlayersList() {
@@ -224,8 +227,22 @@ function updatePlayersList() {
         if (player.isDealer) {
             const badge = document.createElement('span');
             badge.className = 'player-dealer-badge';
-            badge.textContent = 'DEALER';
+            badge.textContent = 'D';
             playerItem.appendChild(badge);
+        }
+
+        if (player.isSmallBlind) {
+            const sbBadge = document.createElement('span');
+            sbBadge.className = 'player-sb-badge';
+            sbBadge.textContent = 'SB';
+            playerItem.appendChild(sbBadge);
+        }
+
+        if (player.isBigBlind) {
+            const bbBadge = document.createElement('span');
+            bbBadge.className = 'player-bb-badge';
+            bbBadge.textContent = 'BB';
+            playerItem.appendChild(bbBadge);
         }
 
         // Add drag handle indicator if draggable
@@ -472,6 +489,20 @@ function hideHoleCard(cardDiv) {
 function updatePhaseIndicator() {
     const phaseIndicator = document.getElementById('phaseIndicator');
     phaseIndicator.textContent = `Phase: ${gameState.phase}`;
+}
+
+function updateBlindsDisplay() {
+    const blindsAmount = document.getElementById('blindsAmount');
+
+    if (!blindsAmount) {
+        return;
+    }
+
+    if (gameState && gameState.blinds) {
+        blindsAmount.textContent = `${gameState.blinds.small}/${gameState.blinds.big}`;
+    } else {
+        blindsAmount.textContent = '1/2';
+    }
 }
 
 function updateJoinGameSection() {

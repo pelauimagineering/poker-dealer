@@ -254,14 +254,49 @@ class PokerGame {
         return this.players[this.dealerIndex];
     }
 
+    getSmallBlindIndex() {
+        if (this.players.length === 0 || this.dealerIndex === -1) {
+            return -1;
+        }
+
+        // In heads-up (2 players), dealer is small blind
+        if (this.players.length === 2) {
+            return this.dealerIndex;
+        }
+
+        // With 3+ players, SB is to the left of dealer (dealer + 1)
+        return (this.dealerIndex + 1) % this.players.length;
+    }
+
+    getBigBlindIndex() {
+        if (this.players.length === 0 || this.dealerIndex === -1) {
+            return -1;
+        }
+
+        // In heads-up (2 players), non-dealer is big blind
+        if (this.players.length === 2) {
+            return (this.dealerIndex + 1) % this.players.length;
+        }
+
+        // With 3+ players, BB is two to the left of dealer (dealer + 2)
+        return (this.dealerIndex + 2) % this.players.length;
+    }
+
     getGameState(forUserId = null) {
+        const smallBlindIndex = this.getSmallBlindIndex();
+        const bigBlindIndex = this.getBigBlindIndex();
+
         const state = {
             players: this.players.map((p, index) => ({
                 id: p.id,
                 name: p.name,
-                isDealer: this.dealerIndex !== -1 && index === this.dealerIndex
+                isDealer: this.dealerIndex !== -1 && index === this.dealerIndex,
+                isSmallBlind: smallBlindIndex !== -1 && index === smallBlindIndex,
+                isBigBlind: bigBlindIndex !== -1 && index === bigBlindIndex
             })),
             dealerIndex: this.dealerIndex,
+            smallBlindIndex: smallBlindIndex,
+            bigBlindIndex: bigBlindIndex,
             communityCards: this.communityCards.map(card => card.toJSON()),
             phase: this.phase,
             cardsDealt: this.cardsDealt

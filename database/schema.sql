@@ -19,7 +19,10 @@ CREATE TABLE IF NOT EXISTS game_state (
     -- Timer fields for blind level tracking
     timer_start_time TEXT DEFAULT NULL,
     timer_duration_seconds INTEGER DEFAULT 420,
-    blinds_will_increase INTEGER DEFAULT 0
+    blinds_will_increase INTEGER DEFAULT 0,
+    -- Blind amounts
+    small_blind INTEGER DEFAULT 1,
+    big_blind INTEGER DEFAULT 2
 );
 
 -- Sessions table
