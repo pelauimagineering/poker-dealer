@@ -8,9 +8,8 @@ adds source code and CI/workflows.
 
 # Copilot instructions — poker-dealer
 
-- **Repo snapshot:** The repository currently contains only `README.md` with a
-  short description: "A digital card dealer for in-person sessions of a Texas
-  Hold’em poker game." No source code, tests, or CI workflows were found.
+- **Repo snapshot:** Project description: "A digital card dealer for in-person sessions of a Texas
+  Hold’em poker game." 
 
 - **Primary goal for an agent:** Avoid guessing project specifics. First, ask
   the maintainer clarifying questions (see "Questions to ask").
@@ -44,6 +43,10 @@ adds source code and CI/workflows.
   validate behavior without devices attached.
 - Put real hardware integration into a separate module (e.g. `io/` or
   `hw/`) and mock it in tests.
+- Focus on checking for security vulnerabilities.
+- Point out complex logic that reduces readability.
+- Check if the project's naming conventions (camelCase, etc.) are followed.
+- Suggest adding test code if it is missing.
 
 ## What to commit and how
 - Make small, focused commits; each commit should implement a single concept
