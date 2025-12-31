@@ -10,8 +10,18 @@ What's New:
 - Automatic dealer rotation after each hand
 - Public community cards display for shared screens (no authentication required)
 
-Latest Changes (2025-12-30):
+Latest Changes (2025-12-31):
 ----------------------------
+- **Manual Dealer Selection (Issue #17)**
+  - Click directly on a player's name to select them as dealer
+  - Player items show dashed green border when selectable
+  - Hover effect highlights the player with solid border
+  - "Random Dealer" button still available for random selection
+  - Both options only available before a dealer is selected
+  - Once dealer is selected, players are no longer clickable
+
+Previous Changes (2025-12-30):
+------------------------------
 - **Blind Level Tracking (Issue #21)**
   - Blind amount display shows "Blinds: X/Y" in the timer section
   - Blinds start at 1/2 (small blind = 1, big blind = 2) by default
@@ -693,6 +703,36 @@ Scenario 33: Community Display - Blinds and Badges
 6. Deal cards and let timer expire
 7. Deal again and verify blinds increase to 2/4 on community display
 8. Verify badges update correctly on community display when dealer rotates
+
+Scenario 34: Manual Dealer Selection - Click to Select
+1. Start server with `npm run start:reset` for clean state
+2. Login with 3-4 players (Gary, Neave, Harish, Chris) on separate devices
+3. All players join the game
+4. Verify player items have dashed green borders (indicating they are selectable)
+5. Hover over a player's name - verify border becomes solid and item shifts slightly
+6. Click on Neave's name to select them as dealer
+7. Verify Neave is now marked as dealer with "D" badge
+8. Verify SB and BB badges appear on appropriate players
+9. Verify player items no longer have dashed borders (not clickable)
+10. Verify "Random Dealer" button is now disabled
+11. Complete a hand and verify dealer rotation works normally
+
+Scenario 35: Manual Dealer Selection - Random Button Still Works
+1. Start server with `npm run start:reset` for clean state
+2. Login with 3 players on separate devices
+3. All players join the game
+4. Instead of clicking a player, click "Random Dealer" button
+5. Verify a random player is selected as dealer
+6. Verify SB and BB badges appear correctly
+7. Verify player items are no longer clickable
+
+Scenario 36: Manual Dealer Selection - Multiple Devices
+1. Login with 3 players on 3 different devices
+2. All players join the game
+3. On Device 1, verify all players have dashed borders
+4. On Device 2, click to select a specific player as dealer
+5. On all devices, verify the dealer selection is reflected immediately
+6. Verify all devices show the same dealer, SB, and BB assignments
 
 For Issues:
 ----------

@@ -1,5 +1,59 @@
 # Release Notes - Poker Dealer
 
+## 2025-12-31 - feature/manual-dealer-selection
+
+### New Feature
+
+#### Manual Dealer Selection (Issue #17)
+- **Click-to-Select Dealer**: Players can now click directly on a player's name to select them as the dealer
+  - Player items become clickable when no dealer has been selected
+  - Visual feedback with dashed border and hover effects
+  - Click transforms to solid border with slight slide animation
+
+- **Random Dealer Option**: The "Random Dealer" button is still available
+  - Renamed from "Choose Dealer" to "Random Dealer" for clarity
+  - Randomly selects a dealer from all players in the game
+
+- **Updated Hint Text**: New hint explains both options
+  - "Click a player's name to select them as dealer, or use the button for random selection"
+
+### Technical Details
+
+#### Backend Changes
+- Modified `server/game/poker-game.js`:
+  - Added `selectDealerById(playerId)` method for manual dealer selection
+  - Validates player exists in game before setting as dealer
+
+- Modified `server/websocket.js`:
+  - Added `select-dealer` WebSocket message handler
+  - Added `handleSelectDealer()` function to process manual selection
+  - Broadcasts dealer selection to all connected clients
+
+#### Frontend Changes
+- Modified `public/js/game.js`:
+  - Added `selectPlayerAsDealer()` function
+  - Updated `updatePlayersList()` to make players clickable when no dealer selected
+  - Added click event listeners for dealer selection
+
+- Modified `views/game.ejs`:
+  - Renamed button from "Choose Dealer" to "Random Dealer"
+  - Updated hint text to explain both selection methods
+
+- Modified `public/css/game.css`:
+  - Added `.selectable-dealer` class with dashed border
+  - Added hover and active states with visual feedback
+  - Smooth transition animations
+
+### Usage
+1. All players join the game
+2. Before dealer is selected, player names have dashed green borders
+3. Click any player's name to select them as dealer, OR
+4. Click "Random Dealer" button for random selection
+5. Once dealer is selected, player items are no longer clickable
+6. Dealer rotation continues automatically for subsequent hands
+
+---
+
 ## 2025-12-30 - feature/blind-level-tracking
 
 ### New Feature
