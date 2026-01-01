@@ -8,6 +8,7 @@ class PokerGame {
         this.communityCards = [];
         this.playerHands = new Map(); // userId -> [card1, card2]
         this.revealedHands = new Set(); // Set of userIds who have revealed their cards
+        this.foldedPlayers = new Set(); // Set of userIds who have folded
         this.phase = 'waiting'; // waiting, pre-flop, flop, turn, river, complete
         this.cardsDealt = false;
     }
@@ -235,6 +236,7 @@ class PokerGame {
         this.playerHands.clear();
         this.communityCards = [];
         this.revealedHands.clear(); // Clear revealed cards when hand completes
+        this.foldedPlayers.clear(); // Clear folded players when hand completes
         this.rotateDealer();
         this.phase = 'waiting';
     }
@@ -258,6 +260,42 @@ class PokerGame {
         this.revealedHands.add(userId);
         console.log(`Player ${userId} cards revealed successfully. Total revealed: ${this.revealedHands.size}`);
         return true;
+    }
+
+    foldPlayer(userId) {
+        console.log(`Player ${userId} folding`);
+
+        if (!this.cardsDealt) {
+            throw new Error('Cannot fold before cards are dealt');
+        }
+
+        if (!this.playerHands.has(userId)) {
+            throw new Error('Player is not in this hand');
+        }
+
+        if (this.foldedPlayers.has(userId)) {
+            console.log(`Player ${userId} already folded`);
+            return false; // Already folded
+        }
+
+        this.foldedPlayers.add(userId);
+        console.log(`Player ${userId} folded successfully. Total folded: ${this.foldedPlayers.size}`);
+        return true;
+    }
+
+    hasPlayerFolded(userId) {
+        return this.foldedPlayers.has(userId);
+    }
+
+    getActivePlayerCount() {
+        // Count players who haven't folded
+        let activeCount = 0;
+        for (const player of this.players) {
+            if (this.playerHands.has(player.id) && !this.foldedPlayers.has(player.id)) {
+                activeCount++;
+            }
+        }
+        return activeCount;
     }
 
     getPlayerHand(userId) {
@@ -309,14 +347,16 @@ class PokerGame {
                 name: p.name,
                 isDealer: this.dealerIndex !== -1 && index === this.dealerIndex,
                 isSmallBlind: smallBlindIndex !== -1 && index === smallBlindIndex,
-                isBigBlind: bigBlindIndex !== -1 && index === bigBlindIndex
+                isBigBlind: bigBlindIndex !== -1 && index === bigBlindIndex,
+                hasFolded: this.foldedPlayers.has(p.id)
             })),
             dealerIndex: this.dealerIndex,
             smallBlindIndex: smallBlindIndex,
             bigBlindIndex: bigBlindIndex,
             communityCards: this.communityCards.map(card => card.toJSON()),
             phase: this.phase,
-            cardsDealt: this.cardsDealt
+            cardsDealt: this.cardsDealt,
+            activePlayerCount: this.getActivePlayerCount()
         };
 
         // Include player-specific hole cards if userId is provided
@@ -353,6 +393,7 @@ class PokerGame {
                 cards: cards.map(card => card.toJSON())
             })),
             revealedHands: Array.from(this.revealedHands),
+            foldedPlayers: Array.from(this.foldedPlayers),
             phase: this.phase,
             cardsDealt: this.cardsDealt
         };
@@ -400,6 +441,14 @@ class PokerGame {
             game.revealedHands.clear();
             for (const userId of data.revealedHands) {
                 game.revealedHands.add(userId);
+            }
+        }
+
+        // Restore folded players
+        if (data.foldedPlayers) {
+            game.foldedPlayers.clear();
+            for (const userId of data.foldedPlayers) {
+                game.foldedPlayers.add(userId);
             }
         }
 

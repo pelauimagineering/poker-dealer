@@ -12,6 +12,15 @@ What's New:
 
 Latest Changes (2025-12-31):
 ----------------------------
+- **Fold Button with Safety Switch (Issue #19)**
+  - Slide-to-fold control appears below hole cards after cards are dealt
+  - Red gradient slide track prevents accidental folds (must slide 90%)
+  - Folded players show "FOLDED" badge (gray) next to their name
+  - Player item becomes semi-transparent with strikethrough name
+  - Hole cards show "You have folded" message after folding
+  - Fold state persists across refreshes and resets when hand completes
+  - All players see who has folded in real-time
+
 - **Manual Dealer Selection (Issue #17)**
   - Click directly on a player's name to select them as dealer
   - Player items show dashed green border when selectable
@@ -733,6 +742,63 @@ Scenario 36: Manual Dealer Selection - Multiple Devices
 4. On Device 2, click to select a specific player as dealer
 5. On all devices, verify the dealer selection is reflected immediately
 6. Verify all devices show the same dealer, SB, and BB assignments
+
+Scenario 37: Fold Button - Slide to Fold
+1. Start server with `npm run start:reset` for clean state
+2. Login with 3-4 players on separate devices
+3. All players join the game and select dealer
+4. Dealer deals cards
+5. Verify red "Slide to Fold" track appears below hole cards
+6. On one player's device, slide the button partway and release
+7. Verify button slides back to start (not folded)
+8. Slide the button past 90% of track width
+9. Verify fold is confirmed with success message
+10. Verify hole cards section shows "You have folded" message
+11. Verify slide-to-fold control disappears after folding
+12. Verify slide-to-show control also disappears (can't show folded cards)
+
+Scenario 38: Fold Button - Player List Updates
+1. Login with 3 players (Gary, Neave, Harish) on separate devices
+2. All join game, select dealer, deal cards
+3. On Gary's device, slide to fold
+4. On all devices, verify:
+   - Gary's player item shows "FOLDED" badge (gray)
+   - Gary's player item is semi-transparent with dashed border
+   - Gary's name has strikethrough styling
+5. On Neave's device, also fold
+6. Verify both Gary and Neave show folded state on all devices
+7. Harish should still see their cards and fold option
+
+Scenario 39: Fold Button - Multi-Device Sync
+1. Login with 4 players on 4 different devices
+2. All join game, deal cards
+3. On Device 1, player folds
+4. On Devices 2, 3, 4, verify fold notification appears
+5. Verify all devices show correct folded state
+6. Complete the hand (flip through all phases)
+7. Deal new hand
+8. Verify fold states are reset - no players show as folded
+9. Verify fold controls reappear for all players
+
+Scenario 40: Fold Button - Persistence
+1. Login with 2-3 players, deal cards
+2. One player folds
+3. Refresh the folded player's browser
+4. Verify fold state persists after refresh
+5. Verify hole cards still show "You have folded"
+6. Verify slide controls don't reappear
+7. Complete hand and deal again
+8. Verify fold state is reset after new deal
+
+Scenario 41: Fold Button - Mobile Touch
+1. Login on mobile device (iOS or Android)
+2. Join game with other players, deal cards
+3. Verify red slide track is visible on mobile
+4. Touch and drag button slowly across track
+5. Lift finger before 90% - verify button returns
+6. Touch and drag past 90%
+7. Verify fold is confirmed
+8. Test in portrait and landscape orientations
 
 For Issues:
 ----------
