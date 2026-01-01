@@ -1,5 +1,72 @@
 # Release Notes - Poker Dealer
 
+## 2025-12-31 - feature/fold-button
+
+### New Feature
+
+#### Fold Button with Safety Switch (Issue #19)
+- **Slide-to-Fold Control**: Players can fold their hand using a slide action
+  - Red gradient slide track appears after cards are dealt
+  - Must slide past 90% to confirm fold (prevents accidental folds)
+  - Slide button uses 🃏 icon for clear visual distinction
+  - Works on both desktop (mouse) and mobile (touch)
+
+- **Folded State Visual Feedback**:
+  - Folded players show "FOLDED" badge (gray) next to their name
+  - Player item becomes semi-transparent with dashed border
+  - Player name gets strikethrough styling
+  - Hole cards section shows "You have folded" message
+
+- **Game State Tracking**:
+  - Fold state persists across page refreshes
+  - All players see who has folded in real-time
+  - Active player count tracked and broadcast
+  - Fold state resets when hand completes
+
+### Technical Details
+
+#### Backend Changes
+- Modified `server/game/poker-game.js`:
+  - Added `foldedPlayers` Set to track folded players
+  - Added `foldPlayer(userId)` method
+  - Added `hasPlayerFolded(userId)` method
+  - Added `getActivePlayerCount()` method
+  - Updated `getGameState()` to include `hasFolded` flag per player
+  - Updated `toJSON()` and `fromJSON()` for fold state persistence
+  - Clear folded players in `completeHand()`
+
+- Modified `server/websocket.js`:
+  - Added `fold-hand` WebSocket message handler
+  - Added `handleFoldHand()` function
+  - Broadcasts `player-folded` notification to all clients
+
+#### Frontend Changes
+- Modified `views/game.ejs`:
+  - Added slide-to-fold HTML component
+
+- Modified `public/js/game.js`:
+  - Added `fold-confirmed` and `player-folded` WebSocket handlers
+  - Added `updateSlideToFoldControl()` function
+  - Added slide-to-fold functionality (setupSlideToFold, startSlideFold, doSlideFold, endSlideFold)
+  - Added `foldMyHand()` function
+  - Updated player list to show folded badge and styling
+
+- Modified `public/css/game.css`:
+  - Added `.slide-to-fold-container` and related slide styles (red theme)
+  - Added `.player-folded-badge` styling (gray)
+  - Added `.player-item.is-folded` styling (opacity, dashed border)
+  - Added `.folded-message` styling
+
+### Usage
+1. Cards must be dealt before fold option appears
+2. Red "Slide to Fold" track appears below hole cards
+3. Slide the button past 90% to confirm fold
+4. Folded player's cards are hidden
+5. Other players see the FOLDED badge
+6. Fold state resets when hand completes
+
+---
+
 ## 2025-12-31 - feature/manual-dealer-selection
 
 ### New Feature

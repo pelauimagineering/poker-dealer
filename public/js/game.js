@@ -142,6 +142,18 @@ function setupWebSocketHandlers() {
         showSuccess(message.message);
         blindTimer.showExpiredAlert();
     });
+
+    // Handle fold confirmed
+    wsClient.on('fold-confirmed', (message) => {
+        console.log('Fold confirmed:', message.message);
+        showSuccess(message.message);
+    });
+
+    // Handle player folded notification
+    wsClient.on('player-folded', (message) => {
+        console.log(`${message.playerName} folded. Active players: ${message.activePlayerCount}`);
+        showSuccess(`${message.playerName} has folded`);
+    });
 }
 
 function updateUI() {
@@ -174,6 +186,9 @@ function updateUI() {
 
     // Update slide-to-show control visibility
     updateSlideToShowControl();
+
+    // Update slide-to-fold control visibility
+    updateSlideToFoldControl();
 
     // Update blind level timer
     if (gameState.timerState) {
@@ -253,6 +268,15 @@ function updatePlayersList() {
             bbBadge.className = 'player-bb-badge';
             bbBadge.textContent = 'BB';
             playerItem.appendChild(bbBadge);
+        }
+
+        // Add folded badge and styling if player has folded
+        if (player.hasFolded) {
+            playerItem.classList.add('is-folded');
+            const foldedBadge = document.createElement('span');
+            foldedBadge.className = 'player-folded-badge';
+            foldedBadge.textContent = 'FOLDED';
+            playerItem.appendChild(foldedBadge);
         }
 
         // Add drag handle indicator if draggable
@@ -813,6 +837,127 @@ function revealMyCards() {
     slideContainer.classList.add('hidden');
 
     showSuccess('Your cards have been revealed to all players!');
+}
+
+// Slide-to-Fold functionality
+let slideFoldStartX = 0;
+let slideFoldCurrentX = 0;
+let isSlidingFold = false;
+let alreadyFolded = false;
+
+function updateSlideToFoldControl() {
+    const slideContainer = document.getElementById('slideToFoldContainer');
+
+    if (!slideContainer) {
+        console.warn('slideToFoldContainer element not found');
+        return;
+    }
+
+    // Check if cards are dealt and user is in game
+    const isInGame = gameState && gameState.players && gameState.players.some(p => p.id === currentUser.id);
+    const cardsDealt = gameState && gameState.cardsDealt;
+
+    // Check if current user has already folded
+    const currentPlayer = gameState && gameState.players && gameState.players.find(p => p.id === currentUser.id);
+    const hasFolded = currentPlayer && currentPlayer.hasFolded;
+
+    console.log('updateSlideToFoldControl - isInGame:', isInGame, 'cardsDealt:', cardsDealt, 'hasFolded:', hasFolded);
+
+    if (isInGame && cardsDealt && !hasFolded) {
+        console.log('SHOWING fold control - removing hidden class');
+        slideContainer.classList.remove('hidden');
+        alreadyFolded = false;
+        setupSlideToFold();
+    } else {
+        console.log('HIDING fold control - adding hidden class');
+        slideContainer.classList.add('hidden');
+    }
+}
+
+function setupSlideToFold() {
+    const slideFoldButton = document.getElementById('slideFoldButton');
+    const slideTrack = slideFoldButton.parentElement;
+
+    // Remove existing listeners
+    slideFoldButton.replaceWith(slideFoldButton.cloneNode(true));
+    const newSlideFoldButton = document.getElementById('slideFoldButton');
+
+    // Mouse events
+    newSlideFoldButton.addEventListener('mousedown', startSlideFold);
+    document.addEventListener('mousemove', doSlideFold);
+    document.addEventListener('mouseup', endSlideFold);
+
+    // Touch events
+    newSlideFoldButton.addEventListener('touchstart', startSlideFold);
+    document.addEventListener('touchmove', doSlideFold);
+    document.addEventListener('touchend', endSlideFold);
+}
+
+function startSlideFold(e) {
+    e.preventDefault();
+    isSlidingFold = true;
+
+    const slideFoldButton = document.getElementById('slideFoldButton');
+    const touch = e.touches ? e.touches[0] : e;
+    slideFoldStartX = touch.clientX - slideFoldButton.offsetLeft;
+
+    console.log('Started sliding to fold');
+}
+
+function doSlideFold(e) {
+    if (!isSlidingFold) return;
+
+    const touch = e.touches ? e.touches[0] : e;
+    const slideFoldButton = document.getElementById('slideFoldButton');
+    const slideTrack = slideFoldButton.parentElement;
+    const maxSlide = slideTrack.offsetWidth - slideFoldButton.offsetWidth - 10;
+
+    slideFoldCurrentX = touch.clientX - slideFoldStartX;
+
+    // Constrain to track bounds
+    if (slideFoldCurrentX < 0) slideFoldCurrentX = 0;
+    if (slideFoldCurrentX > maxSlide) slideFoldCurrentX = maxSlide;
+
+    slideFoldButton.style.left = slideFoldCurrentX + 'px';
+
+    // Check if slid far enough (90% of track width)
+    if (slideFoldCurrentX >= maxSlide * 0.9 && !alreadyFolded) {
+        alreadyFolded = true;
+        foldMyHand();
+    }
+}
+
+function endSlideFold(e) {
+    if (!isSlidingFold) return;
+
+    isSlidingFold = false;
+    const slideFoldButton = document.getElementById('slideFoldButton');
+
+    // Reset button position if not completed
+    if (!alreadyFolded) {
+        slideFoldButton.style.left = '0px';
+    }
+}
+
+function foldMyHand() {
+    console.log('Folding my hand');
+
+    // Send WebSocket message to fold
+    wsClient.send('fold-hand');
+
+    // Hide the slide control
+    const slideContainer = document.getElementById('slideToFoldContainer');
+    slideContainer.classList.add('hidden');
+
+    // Also hide hole cards since we folded
+    const holeCardsContainer = document.getElementById('holeCards');
+    holeCardsContainer.innerHTML = '<div class="no-cards-message folded-message">You have folded</div>';
+
+    // Hide the slide-to-show control as well
+    const slideToShowContainer = document.getElementById('slideToShowContainer');
+    if (slideToShowContainer) {
+        slideToShowContainer.classList.add('hidden');
+    }
 }
 
 function updateRevealedHands() {

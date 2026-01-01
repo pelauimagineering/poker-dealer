@@ -210,6 +210,10 @@ function handleMessage(ws, data, setUser) {
                 handleShowMyCards(userId, ws);
                 break;
 
+            case 'fold-hand':
+                handleFoldHand(userId, ws);
+                break;
+
             case 'get-state':
                 const gameState = gameManager.getGameState(userId);
                 ws.send(JSON.stringify({
@@ -481,6 +485,49 @@ function handleShowMyCards(userId, ws) {
         }
     } catch (error) {
         console.error('Error revealing cards:', error);
+        ws.send(JSON.stringify({
+            type: 'error',
+            message: error.message
+        }));
+    }
+}
+
+function handleFoldHand(userId, ws) {
+    console.log(`User ${userId} attempting to fold`);
+
+    try {
+        const folded = gameManager.game.foldPlayer(userId);
+
+        if (folded) {
+            const player = gameManager.game.players.find(p => p.id === userId);
+            const playerName = player ? player.name : 'Unknown';
+            console.log(`Player ${playerName} folded successfully`);
+            gameManager.saveGameState();
+
+            // Broadcast updated game state to all clients
+            broadcastGameState();
+
+            // Notify the player who folded
+            ws.send(JSON.stringify({
+                type: 'fold-confirmed',
+                message: 'You have folded your hand'
+            }));
+
+            // Broadcast fold notification to all players
+            broadcast({
+                type: 'player-folded',
+                playerId: userId,
+                playerName: playerName,
+                activePlayerCount: gameManager.game.getActivePlayerCount()
+            });
+        } else {
+            ws.send(JSON.stringify({
+                type: 'error',
+                message: 'You have already folded'
+            }));
+        }
+    } catch (error) {
+        console.error('Error folding hand:', error);
         ws.send(JSON.stringify({
             type: 'error',
             message: error.message

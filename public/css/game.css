@@ -306,6 +306,58 @@
     user-select: none;
 }
 
+/* Slide to Fold Control */
+.slide-to-fold-container {
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-md);
+}
+
+.slide-track-fold {
+    position: relative;
+    width: 100%;
+    height: 60px;
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+}
+
+.slide-instruction-fold {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-weight: bold;
+    font-size: var(--font-md);
+    pointer-events: none;
+    user-select: none;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.slide-button-fold {
+    position: absolute;
+    left: 0;
+    width: 70px;
+    height: 50px;
+    background-color: white;
+    border-radius: 25px;
+    margin: 5px;
+    cursor: grab;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transition: transform 0.1s ease;
+    touch-action: none;
+}
+
+.slide-button-fold:active {
+    cursor: grabbing;
+    transform: scale(1.05);
+}
+
 /* Revealed Hands Display */
 .cards-display-container {
     display: flex;
@@ -493,6 +545,34 @@
     padding: var(--spacing-xs) var(--spacing-sm);
     border-radius: var(--radius-sm);
     font-size: var(--font-xs);
+    font-weight: bold;
+}
+
+/* Folded Player Badge */
+.player-folded-badge {
+    background-color: #7f8c8d;
+    color: white;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-xs);
+    font-weight: bold;
+}
+
+/* Folded Player Styling */
+.player-item.is-folded {
+    opacity: 0.5;
+    background-color: rgba(127, 140, 141, 0.1);
+    border: 1px dashed #7f8c8d;
+}
+
+.player-item.is-folded .player-name {
+    text-decoration: line-through;
+    color: var(--color-text-muted);
+}
+
+/* Folded Message in Hole Cards */
+.folded-message {
+    color: #e74c3c;
     font-weight: bold;
 }
 
