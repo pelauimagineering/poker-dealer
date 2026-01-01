@@ -199,7 +199,11 @@ function updatePlayersList() {
     const isCurrentUserDealer = currentDealer && currentDealer.id === currentUser.id;
     const canReorder = isCurrentUserDealer && !gameState.cardsDealt;
 
-    console.log('updatePlayersList - Can reorder:', canReorder, 'isDealer:', isCurrentUserDealer, 'cardsDealt:', gameState.cardsDealt);
+    // Check if players can be selected as dealer (no dealer yet, cards not dealt)
+    const noDealerSelected = !currentDealer;
+    const canSelectDealer = noDealerSelected && !gameState.cardsDealt && gameState.players.length > 0;
+
+    console.log('updatePlayersList - Can reorder:', canReorder, 'isDealer:', isCurrentUserDealer, 'cardsDealt:', gameState.cardsDealt, 'canSelectDealer:', canSelectDealer);
 
     gameState.players.forEach((player, index) => {
         const playerItem = document.createElement('div');
@@ -209,6 +213,12 @@ function updatePlayersList() {
 
         if (player.isDealer) {
             playerItem.classList.add('is-dealer');
+        }
+
+        // Make clickable to select as dealer (before dealer is selected)
+        if (canSelectDealer) {
+            playerItem.classList.add('selectable-dealer');
+            playerItem.addEventListener('click', () => selectPlayerAsDealer(player.id, player.name));
         }
 
         // Make draggable only if dealer and cards haven't been dealt
@@ -563,8 +573,13 @@ function joinGame() {
 }
 
 function chooseDealer() {
-    console.log('Attempting to choose dealer');
+    console.log('Attempting to choose dealer randomly');
     wsClient.send('choose-dealer');
+}
+
+function selectPlayerAsDealer(playerId, playerName) {
+    console.log(`Selecting ${playerName} as dealer`);
+    wsClient.send('select-dealer', { playerId: playerId });
 }
 
 async function resetGame() {

@@ -198,6 +198,10 @@ function handleMessage(ws, data, setUser) {
                 handleChooseDealer(userId, ws);
                 break;
 
+            case 'select-dealer':
+                handleSelectDealer(userId, data.playerId, ws);
+                break;
+
             case 'reorder-players':
                 handleReorderPlayers(userId, data.playerIds, ws);
                 break;
@@ -320,7 +324,7 @@ function handleFlipCommunityCard(userId, ws) {
 }
 
 function handleChooseDealer(userId, ws) {
-    console.log(`User ${userId} attempting to choose dealer`);
+    console.log(`User ${userId} attempting to choose dealer randomly`);
 
     // Check if dealer has already been chosen (game has started)
     if (gameManager.game.cardsDealt || (gameManager.game.dealerIndex >= 0 && gameManager.game.players.length > 0)) {
@@ -345,7 +349,54 @@ function handleChooseDealer(userId, ws) {
         gameManager.saveGameState();
 
         const dealer = gameManager.game.getCurrentDealer();
-        console.log(`Dealer selected: ${dealer.name}`);
+        console.log(`Dealer selected randomly: ${dealer.name}`);
+
+        // Broadcast to all clients
+        broadcastGameState();
+
+        // Send specific notification
+        broadcast({
+            type: 'dealer-selected',
+            dealer: {
+                id: dealer.id,
+                name: dealer.name
+            }
+        });
+    } catch (error) {
+        ws.send(JSON.stringify({
+            type: 'error',
+            message: error.message
+        }));
+    }
+}
+
+function handleSelectDealer(userId, playerId, ws) {
+    console.log(`User ${userId} attempting to select player ${playerId} as dealer`);
+
+    // Check if dealer has already been chosen (game has started)
+    if (gameManager.game.cardsDealt || (gameManager.game.dealerIndex >= 0 && gameManager.game.players.length > 0)) {
+        ws.send(JSON.stringify({
+            type: 'error',
+            message: 'Dealer has already been selected for this game session'
+        }));
+        return;
+    }
+
+    // Check if there are players to choose from
+    if (gameManager.game.players.length === 0) {
+        ws.send(JSON.stringify({
+            type: 'error',
+            message: 'No players in game to select as dealer'
+        }));
+        return;
+    }
+
+    try {
+        gameManager.game.selectDealerById(playerId);
+        gameManager.saveGameState();
+
+        const dealer = gameManager.game.getCurrentDealer();
+        console.log(`Dealer manually selected: ${dealer.name}`);
 
         // Broadcast to all clients
         broadcastGameState();

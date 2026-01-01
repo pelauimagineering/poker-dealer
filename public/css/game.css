@@ -416,6 +416,25 @@
     background-color: rgba(46, 204, 113, 0.1);
 }
 
+/* Selectable Dealer State */
+.player-item.selectable-dealer {
+    cursor: pointer;
+    border: 2px dashed var(--color-primary);
+    transition: all 0.2s ease;
+}
+
+.player-item.selectable-dealer:hover {
+    background-color: rgba(46, 204, 113, 0.15);
+    border-color: var(--color-primary);
+    border-style: solid;
+    transform: translateX(5px);
+}
+
+.player-item.selectable-dealer:active {
+    transform: translateX(2px);
+    background-color: rgba(46, 204, 113, 0.25);
+}
+
 /* Drag and Drop Styles */
 .player-item.draggable {
     cursor: move;

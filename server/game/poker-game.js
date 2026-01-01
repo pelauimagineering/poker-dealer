@@ -70,6 +70,23 @@ class PokerGame {
         console.log(`Random dealer selected: ${this.players[this.dealerIndex].name} (index ${this.dealerIndex})`);
     }
 
+    selectDealerById(playerId) {
+        if (this.players.length === 0) {
+            throw new Error('No players in game to select as dealer');
+        }
+
+        // Normalize playerId to number
+        const normalizedId = typeof playerId === 'string' ? parseInt(playerId, 10) : playerId;
+
+        const playerIndex = this.players.findIndex(p => p.id === normalizedId);
+        if (playerIndex === -1) {
+            throw new Error('Player not found in game');
+        }
+
+        this.dealerIndex = playerIndex;
+        console.log(`Dealer manually selected: ${this.players[this.dealerIndex].name} (index ${this.dealerIndex})`);
+    }
+
     reorderPlayers(playerIds) {
         console.log('Reordering players with IDs:', playerIds);
         console.log('Current player order:', this.players.map(p => `${p.name}(${p.id})`));
