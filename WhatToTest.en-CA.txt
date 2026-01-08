@@ -1,6 +1,11 @@
 Poker Dealer - Initial Release
 ================================
 
+Latest Changes (2025-01-07):
+----------------------------
+- Renamed "Join Game" button to "Next >" on the Select User login screen
+- Tapping footer text "Made with 💕 in the 6ix" now refreshes the page
+
 What's New:
 -----------
 - Complete Texas Hold'em digital dealer application
