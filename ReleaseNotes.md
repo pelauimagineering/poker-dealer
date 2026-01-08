@@ -1,5 +1,11 @@
 # Release Notes - Poker Dealer
 
+## 2025-01-07 - feature/rename-join-game-button
+
+### UI Changes
+- Renamed "Join Game" button to "Next >" on the Select User login screen
+- Added tap target to footer text "Made with 💕 in the 6ix" to refresh the page
+
 ## 2025-12-31 - feature/fold-button
 
 ### New Feature
