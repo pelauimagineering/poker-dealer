@@ -32,7 +32,8 @@
       "Bash(gh issue view:*)",
       "Bash(\"\nfor clearer user flow indication.\n\nAlso added CLAUDE.md for Claude Code guidance.\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
       "Bash(\" instead of \"Join Game\"\n\n## Checklist\n- [x] Code follows project style guidelines\n- [x] Self-review completed\n- [x] No breaking changes\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\nEOF\n\\)\")",
-      "Bash(\"\n- Added tap target to footer text to refresh the page\n\nAlso added CLAUDE.md for Claude Code guidance.\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
+      "Bash(\"\n- Added tap target to footer text to refresh the page\n\nAlso added CLAUDE.md for Claude Code guidance.\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(\" instead of \"Join Game\"\n3. Tap/click the footer text \"Made with 💕 in the 6ix\" and verify the page refreshes\n\n## Checklist\n- [x] Code follows project style guidelines\n- [x] Self-review completed\n- [x] No breaking changes\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\nEOF\n\\)\")"
     ],
     "deny": [],
     "ask": []
