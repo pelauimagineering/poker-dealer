@@ -258,6 +258,7 @@
 .slide-track {
     position: relative;
     width: 100%;
+    min-width: 280px;
     height: 60px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border-radius: 30px;
@@ -315,6 +316,7 @@
 .slide-track-fold {
     position: relative;
     width: 100%;
+    min-width: 280px;
     height: 60px;
     background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
     border-radius: 30px;
@@ -568,6 +570,42 @@
 .player-item.is-folded .player-name {
     text-decoration: line-through;
     color: var(--color-text-muted);
+}
+
+/* Issue #31: Broke Player Styling */
+.player-item.is-broke {
+    opacity: 0.6;
+    background-color: rgba(231, 76, 60, 0.1);
+    border: 2px dashed #e74c3c;
+}
+
+.player-item.is-broke .player-name {
+    text-decoration: line-through;
+    color: #e74c3c;
+}
+
+.player-broke-badge {
+    background-color: #e74c3c;
+    color: white;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-xs);
+    font-weight: bold;
+}
+
+/* Broke toggle button for dealer */
+.broke-toggle-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: var(--font-md);
+    padding: var(--spacing-xs);
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+}
+
+.broke-toggle-btn:hover {
+    opacity: 1;
 }
 
 /* Folded Message in Hole Cards */

@@ -9,6 +9,7 @@ class PokerGame {
         this.playerHands = new Map(); // userId -> [card1, card2]
         this.revealedHands = new Set(); // Set of userIds who have revealed their cards
         this.foldedPlayers = new Set(); // Set of userIds who have folded
+        this.brokePlayers = new Set(); // Issue #31: Set of userIds who are broke (no chips)
         this.phase = 'waiting'; // waiting, pre-flop, flop, turn, river, complete
         this.cardsDealt = false;
     }
@@ -150,11 +151,27 @@ class PokerGame {
         console.log(`Dealer rotated to: ${this.players[this.dealerIndex].name} (index ${this.dealerIndex})`);
     }
 
+    // Issue #29: Shuffle deck without dealing cards
+    shuffleDeck() {
+        console.log('Shuffling deck...');
+
+        if (this.cardsDealt) {
+            throw new Error('Cannot shuffle deck while cards are dealt');
+        }
+
+        this.deck.reset();
+        this.deck.shuffle();
+        console.log('Deck shuffled successfully');
+    }
+
     dealCards() {
         console.log('Dealing cards...');
 
-        if (this.players.length < 2) {
-            throw new Error('Need at least 2 players to deal');
+        // Issue #31: Only count active (non-broke) players
+        const activePlayers = this.getActivePlayers();
+
+        if (activePlayers.length < 2) {
+            throw new Error('Need at least 2 active players to deal');
         }
 
         if (this.cardsDealt) {
@@ -169,8 +186,8 @@ class PokerGame {
         this.playerHands.clear();
         this.communityCards = [];
 
-        // Deal 2 hole cards to each player
-        for (const player of this.players) {
+        // Issue #31: Deal 2 hole cards only to active (non-broke) players
+        for (const player of activePlayers) {
             const holeCards = this.deck.deal(2);
             // Hole cards are visible to the player
             holeCards.forEach(card => card.visible = true);
@@ -184,7 +201,7 @@ class PokerGame {
         this.phase = 'pre-flop';
         this.cardsDealt = true;
 
-        console.log(`Dealt cards to ${this.players.length} players`);
+        console.log(`Dealt cards to ${activePlayers.length} active players (${this.brokePlayers.size} broke)`);
     }
 
     revealFlop() {
@@ -287,6 +304,37 @@ class PokerGame {
         return this.foldedPlayers.has(userId);
     }
 
+    // Issue #31: Toggle player broke status
+    togglePlayerBroke(userId) {
+        if (this.cardsDealt) {
+            throw new Error('Cannot change player status while cards are dealt');
+        }
+
+        const player = this.players.find(p => p.id === userId);
+        if (!player) {
+            throw new Error('Player not found');
+        }
+
+        if (this.brokePlayers.has(userId)) {
+            this.brokePlayers.delete(userId);
+            console.log(`Player ${player.name} is now active (has chips)`);
+            return false; // Now active
+        } else {
+            this.brokePlayers.add(userId);
+            console.log(`Player ${player.name} is now broke (no chips)`);
+            return true; // Now broke
+        }
+    }
+
+    isPlayerBroke(userId) {
+        return this.brokePlayers.has(userId);
+    }
+
+    // Get players who can receive cards (not broke)
+    getActivePlayers() {
+        return this.players.filter(p => !this.brokePlayers.has(p.id));
+    }
+
     getActivePlayerCount() {
         // Count players who haven't folded
         let activeCount = 0;
@@ -348,7 +396,8 @@ class PokerGame {
                 isDealer: this.dealerIndex !== -1 && index === this.dealerIndex,
                 isSmallBlind: smallBlindIndex !== -1 && index === smallBlindIndex,
                 isBigBlind: bigBlindIndex !== -1 && index === bigBlindIndex,
-                hasFolded: this.foldedPlayers.has(p.id)
+                hasFolded: this.foldedPlayers.has(p.id),
+                isBroke: this.brokePlayers.has(p.id) // Issue #31
             })),
             dealerIndex: this.dealerIndex,
             smallBlindIndex: smallBlindIndex,
@@ -394,6 +443,7 @@ class PokerGame {
             })),
             revealedHands: Array.from(this.revealedHands),
             foldedPlayers: Array.from(this.foldedPlayers),
+            brokePlayers: Array.from(this.brokePlayers), // Issue #31
             phase: this.phase,
             cardsDealt: this.cardsDealt
         };
@@ -449,6 +499,14 @@ class PokerGame {
             game.foldedPlayers.clear();
             for (const userId of data.foldedPlayers) {
                 game.foldedPlayers.add(userId);
+            }
+        }
+
+        // Issue #31: Restore broke players
+        if (data.brokePlayers) {
+            game.brokePlayers.clear();
+            for (const userId of data.brokePlayers) {
+                game.brokePlayers.add(userId);
             }
         }
 

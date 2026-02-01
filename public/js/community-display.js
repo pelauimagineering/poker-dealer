@@ -109,6 +109,22 @@ function updateCommunityCards(state) {
 
     // Update revealed hands
     updateRevealedHands(state.revealedHands || []);
+
+    // Update blind level timer (Issue #27)
+    if (state.timerState && typeof blindTimer !== 'undefined') {
+        blindTimer.update(state.timerState);
+    }
+
+    // Update blinds display (Issue #27)
+    updateBlindsDisplay(state.blinds);
+}
+
+// Update blinds display (Issue #27)
+function updateBlindsDisplay(blinds) {
+    const blindsAmount = document.getElementById('blindsAmount');
+    if (blindsAmount && blinds) {
+        blindsAmount.textContent = `${blinds.small}/${blinds.big}`;
+    }
 }
 
 function updatePhaseIndicator(phase) {

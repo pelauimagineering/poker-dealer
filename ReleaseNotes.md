@@ -1,5 +1,74 @@
 # Release Notes - Poker Dealer
 
+## 2026-02-01 - feature/fix-seven-issues
+
+### Bug Fixes and Enhancements
+
+This release addresses 7 GitHub issues with bug fixes and new features:
+
+#### Issue #18: Fixed "reveal/show cards" requiring refresh
+- **Problem**: The slide-to-show cards feature required a page refresh between hands
+- **Fix**: Reset `cardsAlreadyRevealed` flag when new cards are dealt and when slide control becomes visible
+- **Files**: `public/js/game.js`
+
+#### Issue #27: Show timer on /community display
+- **Feature**: Blind level timer now visible on public community display page
+- **Details**:
+  - Added timer section HTML to community.ejs
+  - Included timer.js script in community page
+  - Added blinds display update logic
+  - Timer and blinds sync with main game view
+- **Files**: `views/community.ejs`, `public/js/community-display.js`, `server/websocket.js`
+
+#### Issue #28: Improved slide-to-action controls
+- **Changes**:
+  - Removed text/emoji from slider buttons for cleaner appearance
+  - Increased slider track minimum width (280px)
+  - Increased activation threshold from 90% to 95% (requires fuller slide)
+- **Files**: `views/game.ejs`, `public/css/game.css`, `public/js/game.js`
+
+#### Issue #29: Added Shuffle Deck button for dealer
+- **Feature**: Dealers can now manually shuffle the deck before dealing
+- **Details**:
+  - New "Shuffle Deck" button in dealer controls
+  - Only available when cards are not dealt
+  - Resets and shuffles deck without dealing
+- **Files**: `views/game.ejs`, `public/js/dealer-controls.js`, `server/websocket.js`, `server/game-manager.js`, `server/game/poker-game.js`
+
+#### Issue #30: Fixed player reorder freezing
+- **Problem**: Drag-and-drop player reordering sometimes froze the UI
+- **Fix**:
+  - Clear stale drag state at start of list updates
+  - Added error handling in drag/drop event handlers
+  - Added debounce to prevent rapid-fire server updates
+  - Improved cleanup on drag end
+- **Files**: `public/js/game.js`
+
+#### Issue #31: Added "Broke" player state (no chips)
+- **Feature**: Dealers can mark players as "broke" (out of chips)
+- **Details**:
+  - 💸/💰 toggle button for dealer to mark/unmark players
+  - Broke players show strikethrough name, red "BROKE" badge
+  - Broke players are skipped when dealing cards
+  - Broke players can still serve as dealer
+  - State persists until toggled back or game reset
+- **Files**: `server/game/poker-game.js`, `server/websocket.js`, `public/js/game.js`, `public/css/game.css`
+
+#### Issue #32: Anyone can become dealer
+- **Feature**: Dealer can now be changed between hands
+- **Details**:
+  - Click any player name to select as dealer (when cards not dealt)
+  - "Random Dealer" button available between hands
+  - Handles situations where current dealer leaves
+- **Files**: `server/websocket.js`, `public/js/game.js`
+
+### Technical Notes
+- All changes are backward compatible with existing game state
+- New broke player state is persisted to database
+- WebSocket protocol extended with new message types: `shuffle-deck`, `toggle-player-broke`
+
+---
+
 ## 2025-01-07 - feature/rename-join-game-button
 
 ### UI Changes

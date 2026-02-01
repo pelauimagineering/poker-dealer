@@ -94,6 +94,8 @@ function setupWebSocketHandlers() {
     wsClient.on('cards-dealt', (message) => {
         console.log('Cards dealt!');
         showSuccess('Cards have been dealt!');
+        // Reset reveal state for new hand (Issue #18 fix)
+        cardsAlreadyRevealed = false;
     });
 
     // Handle community card revealed
@@ -154,6 +156,12 @@ function setupWebSocketHandlers() {
         console.log(`${message.playerName} folded. Active players: ${message.activePlayerCount}`);
         showSuccess(`${message.playerName} has folded`);
     });
+
+    // Issue #31: Handle player broke status toggled
+    wsClient.on('player-broke-toggled', (message) => {
+        console.log(`${message.playerName} is now ${message.isBroke ? 'broke' : 'active'}`);
+        showSuccess(message.message);
+    });
 }
 
 function updateUI() {
@@ -202,6 +210,9 @@ function updateUI() {
 function updatePlayersList() {
     const playersList = document.getElementById('playersList');
 
+    // Clear any stale drag state before updating list (Issue #30 fix)
+    cleanupDragState();
+
     if (!gameState.players || gameState.players.length === 0) {
         playersList.innerHTML = '<div class="no-cards-message">No players yet</div>';
         return;
@@ -214,9 +225,8 @@ function updatePlayersList() {
     const isCurrentUserDealer = currentDealer && currentDealer.id === currentUser.id;
     const canReorder = isCurrentUserDealer && !gameState.cardsDealt;
 
-    // Check if players can be selected as dealer (no dealer yet, cards not dealt)
-    const noDealerSelected = !currentDealer;
-    const canSelectDealer = noDealerSelected && !gameState.cardsDealt && gameState.players.length > 0;
+    // Issue #32: Allow dealer selection/change when cards not dealt (even if dealer exists)
+    const canSelectDealer = !gameState.cardsDealt && gameState.players.length > 0;
 
     console.log('updatePlayersList - Can reorder:', canReorder, 'isDealer:', isCurrentUserDealer, 'cardsDealt:', gameState.cardsDealt, 'canSelectDealer:', canSelectDealer);
 
@@ -279,6 +289,28 @@ function updatePlayersList() {
             playerItem.appendChild(foldedBadge);
         }
 
+        // Issue #31: Add broke badge and styling if player is broke
+        if (player.isBroke) {
+            playerItem.classList.add('is-broke');
+            const brokeBadge = document.createElement('span');
+            brokeBadge.className = 'player-broke-badge';
+            brokeBadge.textContent = 'BROKE';
+            playerItem.appendChild(brokeBadge);
+        }
+
+        // Issue #31: Add broke toggle button for dealer (only when cards not dealt)
+        if (isCurrentUserDealer && !gameState.cardsDealt) {
+            const brokeToggleBtn = document.createElement('button');
+            brokeToggleBtn.className = 'broke-toggle-btn';
+            brokeToggleBtn.title = player.isBroke ? 'Mark as active (has chips)' : 'Mark as broke (no chips)';
+            brokeToggleBtn.textContent = player.isBroke ? '💰' : '💸';
+            brokeToggleBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); // Don't trigger dealer selection
+                togglePlayerBroke(player.id, player.name);
+            });
+            playerItem.appendChild(brokeToggleBtn);
+        }
+
         // Add drag handle indicator if draggable
         if (canReorder) {
             const dragHandle = document.createElement('span');
@@ -292,6 +324,7 @@ function updatePlayersList() {
 }
 
 let draggedElement = null;
+let reorderDebounceTimeout = null;
 
 function setupDragAndDrop(element) {
     element.addEventListener('dragstart', handleDragStart);
@@ -303,11 +336,19 @@ function setupDragAndDrop(element) {
 }
 
 function handleDragStart(e) {
-    draggedElement = this;
-    this.classList.add('dragging');
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/html', this.innerHTML);
-    console.log('Drag started for player:', this.dataset.playerId);
+    try {
+        // Clear any stale drag state (Issue #30 fix)
+        cleanupDragState();
+
+        draggedElement = this;
+        this.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/html', this.innerHTML);
+        console.log('Drag started for player:', this.dataset.playerId);
+    } catch (error) {
+        console.error('Error in handleDragStart:', error);
+        cleanupDragState();
+    }
 }
 
 function handleDragOver(e) {
@@ -329,44 +370,67 @@ function handleDragLeave(e) {
 }
 
 function handleDrop(e) {
-    if (e.stopPropagation) {
-        e.stopPropagation();
-    }
-
-    if (draggedElement !== this) {
-        const playersList = document.getElementById('playersList');
-        const allItems = Array.from(playersList.querySelectorAll('.player-item'));
-
-        const draggedIndex = allItems.indexOf(draggedElement);
-        const targetIndex = allItems.indexOf(this);
-
-        console.log('Drop - moving from index', draggedIndex, 'to', targetIndex);
-
-        // Reorder DOM elements
-        if (draggedIndex < targetIndex) {
-            this.parentNode.insertBefore(draggedElement, this.nextSibling);
-        } else {
-            this.parentNode.insertBefore(draggedElement, this);
+    try {
+        if (e.stopPropagation) {
+            e.stopPropagation();
         }
 
-        // Send new order to server
-        sendPlayerOrder();
-    }
+        if (draggedElement && draggedElement !== this) {
+            const playersList = document.getElementById('playersList');
+            const allItems = Array.from(playersList.querySelectorAll('.player-item'));
 
-    this.classList.remove('drag-over');
+            const draggedIndex = allItems.indexOf(draggedElement);
+            const targetIndex = allItems.indexOf(this);
+
+            console.log('Drop - moving from index', draggedIndex, 'to', targetIndex);
+
+            // Validate indices (Issue #30 fix)
+            if (draggedIndex === -1 || targetIndex === -1) {
+                console.warn('Invalid drag indices, aborting drop');
+                cleanupDragState();
+                return false;
+            }
+
+            // Reorder DOM elements
+            if (draggedIndex < targetIndex) {
+                this.parentNode.insertBefore(draggedElement, this.nextSibling);
+            } else {
+                this.parentNode.insertBefore(draggedElement, this);
+            }
+
+            // Send new order to server with debounce (Issue #30 fix)
+            sendPlayerOrderDebounced();
+        }
+
+        this.classList.remove('drag-over');
+    } catch (error) {
+        console.error('Error in handleDrop:', error);
+        cleanupDragState();
+    }
     return false;
 }
 
 function handleDragEnd(e) {
-    this.classList.remove('dragging');
+    try {
+        this.classList.remove('dragging');
+        cleanupDragState();
+    } catch (error) {
+        console.error('Error in handleDragEnd:', error);
+        cleanupDragState();
+    }
+}
 
-    // Remove all drag-over classes
+// Cleanup function to clear all drag state (Issue #30 fix)
+function cleanupDragState() {
+    // Remove all drag-over and dragging classes
     const playersList = document.getElementById('playersList');
-    const allItems = playersList.querySelectorAll('.player-item');
-    allItems.forEach(item => {
-        item.classList.remove('drag-over');
-    });
-
+    if (playersList) {
+        const allItems = playersList.querySelectorAll('.player-item');
+        allItems.forEach(item => {
+            item.classList.remove('drag-over');
+            item.classList.remove('dragging');
+        });
+    }
     draggedElement = null;
 }
 
@@ -378,6 +442,17 @@ function sendPlayerOrder() {
     console.log('Sending new player order to server:', playerIds);
 
     wsClient.send('reorder-players', { playerIds: playerIds });
+}
+
+// Debounced version to prevent rapid-fire updates (Issue #30 fix)
+function sendPlayerOrderDebounced() {
+    if (reorderDebounceTimeout) {
+        clearTimeout(reorderDebounceTimeout);
+    }
+    reorderDebounceTimeout = setTimeout(() => {
+        sendPlayerOrder();
+        reorderDebounceTimeout = null;
+    }, 100);
 }
 
 function updateCommunityCards() {
@@ -606,6 +681,12 @@ function selectPlayerAsDealer(playerId, playerName) {
     wsClient.send('select-dealer', { playerId: playerId });
 }
 
+// Issue #31: Toggle player broke status
+function togglePlayerBroke(playerId, playerName) {
+    console.log(`Toggling broke status for ${playerName}`);
+    wsClient.send('toggle-player-broke', { playerId: playerId });
+}
+
 async function resetGame() {
     console.log('Reset game button clicked');
 
@@ -659,21 +740,18 @@ async function resetGame() {
 function updateChooseDealerButton() {
     const chooseDealerBtn = document.getElementById('chooseDealerBtn');
 
-    // Enable button only if:
+    // Issue #32: Enable button if:
     // - There are players in the game
-    // - No dealer has been selected yet
-    // - Cards have not been dealt
+    // - Cards have not been dealt (allow changing dealer anytime between hands)
     const hasPlayers = gameState.players && gameState.players.length > 0;
-    const noDealerSelected = !gameState.players || !gameState.players.some(p => p.isDealer);
     const noCardsDealt = !gameState.cardsDealt;
 
-    const shouldEnable = hasPlayers && noDealerSelected && noCardsDealt;
+    const shouldEnable = hasPlayers && noCardsDealt;
 
     chooseDealerBtn.disabled = !shouldEnable;
 
     console.log('Choose dealer button state:', {
         hasPlayers,
-        noDealerSelected,
         noCardsDealt,
         shouldEnable
     });
@@ -754,6 +832,8 @@ function updateSlideToShowControl() {
     if (isInGame && cardsDealt && !hasRevealed) {
         console.log('SHOWING slide control - removing hidden class');
         slideContainer.classList.remove('hidden');
+        // Reset reveal flag when control becomes visible (Issue #18 fix)
+        cardsAlreadyRevealed = false;
         setupSlideToShow();
     } else {
         console.log('HIDING slide control - adding hidden class. Reason: isInGame=' + isInGame + ', cardsDealt=' + cardsDealt + ', hasRevealed=' + hasRevealed);
@@ -807,8 +887,8 @@ function doSlide(e) {
 
     slideButton.style.left = slideCurrentX + 'px';
 
-    // Check if slid far enough (90% of track width)
-    if (slideCurrentX >= maxSlide * 0.9 && !cardsAlreadyRevealed) {
+    // Check if slid far enough (95% of track width - Issue #28)
+    if (slideCurrentX >= maxSlide * 0.95 && !cardsAlreadyRevealed) {
         cardsAlreadyRevealed = true;
         revealMyCards();
     }
@@ -920,8 +1000,8 @@ function doSlideFold(e) {
 
     slideFoldButton.style.left = slideFoldCurrentX + 'px';
 
-    // Check if slid far enough (90% of track width)
-    if (slideFoldCurrentX >= maxSlide * 0.9 && !alreadyFolded) {
+    // Check if slid far enough (95% of track width - Issue #28)
+    if (slideFoldCurrentX >= maxSlide * 0.95 && !alreadyFolded) {
         alreadyFolded = true;
         foldMyHand();
     }

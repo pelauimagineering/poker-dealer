@@ -1,6 +1,48 @@
 Poker Dealer - Initial Release
 ================================
 
+Latest Changes (2026-02-01):
+----------------------------
+**Fix for 7 GitHub Issues (Issues #18, #27, #28, #29, #30, #31, #32)**
+
+- **Issue #18: Fixed "reveal/show cards" requiring refresh**
+  - Reset reveal state flag when new cards are dealt
+  - Slide-to-show control now works consistently across multiple hands without refresh
+
+- **Issue #27: Show timer on /community display**
+  - Blind level timer now visible on public community display
+  - Current blinds display shows on community page
+  - Timer state syncs with main game view
+
+- **Issue #28: Improved slide-to-action controls**
+  - Removed text label from slider button (cleaner look)
+  - Made slider track longer (min-width 280px)
+  - Increased activation threshold from 90% to 95% (requires fuller slide)
+
+- **Issue #29: Added Shuffle Deck button for dealer**
+  - New "Shuffle Deck" button in dealer controls
+  - Only available when cards not dealt
+  - Allows dealer to cut/shuffle deck before dealing
+
+- **Issue #30: Fixed player reorder freezing**
+  - Added cleanup of stale drag state
+  - Added error handling in drag/drop handlers
+  - Added debounce to prevent rapid-fire server updates
+  - Player reordering now works reliably
+
+- **Issue #31: Added "Broke" player state**
+  - Dealer can mark players as broke (no chips) using 💸/💰 toggle
+  - Broke players show with strikethrough name, red "BROKE" badge
+  - Broke players are skipped when dealing cards
+  - Broke players can still be dealer
+  - Broke status persists until toggled back or game reset
+
+- **Issue #32: Anyone can become dealer**
+  - Dealer can now be changed anytime cards are not dealt
+  - Click any player name to select them as dealer between hands
+  - "Random Dealer" button also available between hands
+  - Handles situations where current dealer leaves
+
 Latest Changes (2025-01-07):
 ----------------------------
 - Renamed "Join Game" button to "Next >" on the Select User login screen
@@ -804,6 +846,86 @@ Scenario 41: Fold Button - Mobile Touch
 6. Touch and drag past 90%
 7. Verify fold is confirmed
 8. Test in portrait and landscape orientations
+
+Scenario 42: Reveal Cards Without Refresh (Issue #18)
+1. Login with 2-3 players, deal cards
+2. On one player's device, use slide-to-show to reveal cards
+3. Complete hand (flip through all phases)
+4. Dealer deals new hand
+5. On same player's device, verify slide-to-show control appears
+6. Use slide-to-show - verify it works WITHOUT needing to refresh
+7. Repeat for multiple hands to confirm fix
+
+Scenario 43: Timer on Community Display (Issue #27)
+1. Navigate to /community page on shared screen/TV
+2. On player devices, login and join game
+3. Verify timer section is visible on community display
+4. Select dealer and deal cards
+5. Verify timer starts counting down on community display
+6. Verify blinds display (e.g., "1/2") shows on community display
+7. Wait for timer warning states (yellow at 1:00, red at 0:30)
+8. Verify warnings appear on community display
+9. Timer expires - verify alert shows on community display
+
+Scenario 44: Improved Slide Controls (Issue #28)
+1. Login and join game, deal cards
+2. Verify slide buttons have no text/emoji (cleaner appearance)
+3. Verify slide track appears longer than before
+4. Slide button to 90% and release - verify action NOT triggered
+5. Slide button to 95%+ - verify action triggers
+6. Test on both show-cards and fold slide controls
+
+Scenario 45: Shuffle Deck Button (Issue #29)
+1. Login and join game with 2+ players
+2. Select dealer (you should be dealer for this test)
+3. Verify "Shuffle Deck" button appears in dealer controls
+4. Click "Shuffle Deck" - verify success message
+5. Click "Shuffle Deck" multiple times - each should work
+6. Deal cards
+7. Verify "Shuffle Deck" button becomes disabled
+8. Complete hand (all phases)
+9. Verify "Shuffle Deck" button re-enables
+10. Non-dealer: verify shuffle button is not visible
+
+Scenario 46: Player Reorder Stability (Issue #30)
+1. Login with 4-5 players
+2. Select dealer
+3. As dealer, rapidly drag and drop players multiple times
+4. Verify no freezing occurs
+5. Verify order updates correctly after each reorder
+6. Verify other players see updates in real-time
+7. Close browser tab mid-drag - reopen and verify no issues
+
+Scenario 47: Broke Player State (Issue #31)
+1. Login with 4 players, select dealer
+2. As dealer, verify 💸 button appears next to each player
+3. Click 💸 on one player - verify they show "BROKE" badge
+4. Verify their name has strikethrough and red tint
+5. Deal cards - verify broke player does NOT receive cards
+6. Verify broke player doesn't see hole cards
+7. Click 💰 on broke player to make them active again
+8. Deal new hand - verify they receive cards
+9. Test: Mark multiple players as broke, deal to remaining active
+10. Test: Broke player can still be dealer (mark current dealer as broke)
+
+Scenario 48: Broke Player - Minimum Players Check
+1. Login with exactly 3 players
+2. Mark 2 players as broke (leaving only 1 active)
+3. Try to deal cards - should fail (need 2 active players)
+4. Mark one broke player as active
+5. Deal cards - should now work with 2 active players
+
+Scenario 49: Anyone Can Become Dealer (Issue #32)
+1. Login with 3-4 players
+2. Select Gary as dealer
+3. Deal cards and complete hand
+4. Verify dealer rotates to next player
+5. Before dealing new hand, click on different player's name
+6. Verify that player becomes new dealer
+7. Verify "Random Dealer" button is enabled between hands
+8. Click "Random Dealer" - verify new random dealer selected
+9. Test: During active hand (cards dealt), try clicking player name
+10. Verify dealer cannot be changed while cards are dealt
 
 For Issues:
 ----------

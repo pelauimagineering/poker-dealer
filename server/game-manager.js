@@ -86,6 +86,15 @@ class GameManager {
         this.saveGameState();
     }
 
+    // Issue #29: Shuffle deck without dealing
+    shuffleDeck() {
+        if (this.game.cardsDealt) {
+            throw new Error('Cannot shuffle deck while cards are dealt');
+        }
+        this.game.shuffleDeck();
+        this.saveGameState();
+    }
+
     dealCards() {
         this.game.dealCards();
 

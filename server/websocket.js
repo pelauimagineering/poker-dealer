@@ -97,7 +97,8 @@ function handleMessage(ws, data, setUser) {
             phase: gameState.phase,
             cardsDealt: gameState.cardsDealt,
             revealedHands: gameState.revealedHands,
-            timerState: gameState.timerState
+            timerState: gameState.timerState,
+            blinds: gameState.blinds // Issue #27: Include blinds for community display
         };
 
         ws.send(JSON.stringify({
@@ -116,7 +117,8 @@ function handleMessage(ws, data, setUser) {
             phase: gameState.phase,
             cardsDealt: gameState.cardsDealt,
             revealedHands: gameState.revealedHands,
-            timerState: gameState.timerState
+            timerState: gameState.timerState,
+            blinds: gameState.blinds // Issue #27: Include blinds for community display
         };
 
         ws.send(JSON.stringify({
@@ -194,6 +196,10 @@ function handleMessage(ws, data, setUser) {
                 handleFlipCommunityCard(userId, ws);
                 break;
 
+            case 'shuffle-deck':
+                handleShuffleDeck(userId, ws);
+                break;
+
             case 'choose-dealer':
                 handleChooseDealer(userId, ws);
                 break;
@@ -212,6 +218,10 @@ function handleMessage(ws, data, setUser) {
 
             case 'fold-hand':
                 handleFoldHand(userId, ws);
+                break;
+
+            case 'toggle-player-broke':
+                handleTogglePlayerBroke(userId, data.playerId, ws);
                 break;
 
             case 'get-state':
@@ -327,14 +337,46 @@ function handleFlipCommunityCard(userId, ws) {
     }
 }
 
+// Issue #29: Handle shuffle deck request
+function handleShuffleDeck(userId, ws) {
+    console.log(`User ${userId} attempting to shuffle deck`);
+
+    if (!gameManager.isDealer(userId)) {
+        ws.send(JSON.stringify({
+            type: 'error',
+            message: 'Only the dealer can shuffle the deck'
+        }));
+        return;
+    }
+
+    try {
+        gameManager.shuffleDeck();
+        console.log('Deck shuffled successfully');
+
+        // Broadcast to all clients
+        broadcastGameState();
+
+        // Send specific notification
+        broadcast({
+            type: 'deck-shuffled',
+            message: 'Deck has been shuffled'
+        });
+    } catch (error) {
+        ws.send(JSON.stringify({
+            type: 'error',
+            message: error.message
+        }));
+    }
+}
+
 function handleChooseDealer(userId, ws) {
     console.log(`User ${userId} attempting to choose dealer randomly`);
 
-    // Check if dealer has already been chosen (game has started)
-    if (gameManager.game.cardsDealt || (gameManager.game.dealerIndex >= 0 && gameManager.game.players.length > 0)) {
+    // Issue #32: Allow dealer change when cards not dealt
+    if (gameManager.game.cardsDealt) {
         ws.send(JSON.stringify({
             type: 'error',
-            message: 'Dealer has already been selected for this game session'
+            message: 'Cannot change dealer while cards are dealt'
         }));
         return;
     }
@@ -377,11 +419,12 @@ function handleChooseDealer(userId, ws) {
 function handleSelectDealer(userId, playerId, ws) {
     console.log(`User ${userId} attempting to select player ${playerId} as dealer`);
 
-    // Check if dealer has already been chosen (game has started)
-    if (gameManager.game.cardsDealt || (gameManager.game.dealerIndex >= 0 && gameManager.game.players.length > 0)) {
+    // Issue #32: Allow dealer change when cards not dealt (waiting/complete phase)
+    // Only block during active hand (pre-flop through river)
+    if (gameManager.game.cardsDealt) {
         ws.send(JSON.stringify({
             type: 'error',
-            message: 'Dealer has already been selected for this game session'
+            message: 'Cannot change dealer while cards are dealt'
         }));
         return;
     }
@@ -535,6 +578,48 @@ function handleFoldHand(userId, ws) {
     }
 }
 
+// Issue #31: Handle toggle player broke status
+function handleTogglePlayerBroke(userId, playerId, ws) {
+    console.log(`User ${userId} attempting to toggle broke status for player ${playerId}`);
+
+    // Only dealer can mark players as broke
+    if (!gameManager.isDealer(userId)) {
+        ws.send(JSON.stringify({
+            type: 'error',
+            message: 'Only the dealer can mark players as broke'
+        }));
+        return;
+    }
+
+    try {
+        const isBroke = gameManager.game.togglePlayerBroke(playerId);
+        gameManager.saveGameState();
+
+        const player = gameManager.game.players.find(p => p.id === parseInt(playerId, 10) || p.id === playerId);
+        const playerName = player ? player.name : 'Unknown';
+
+        console.log(`Player ${playerName} is now ${isBroke ? 'broke' : 'active'}`);
+
+        // Broadcast updated game state to all clients
+        broadcastGameState();
+
+        // Send notification
+        broadcast({
+            type: 'player-broke-toggled',
+            playerId: playerId,
+            playerName: playerName,
+            isBroke: isBroke,
+            message: `${playerName} is now ${isBroke ? 'out of chips' : 'back in the game'}`
+        });
+    } catch (error) {
+        console.error('Error toggling player broke status:', error);
+        ws.send(JSON.stringify({
+            type: 'error',
+            message: error.message
+        }));
+    }
+}
+
 function broadcastGameState() {
     console.log(`Broadcasting game state to ${clients.size} authenticated clients and ${publicClients.size} public clients`);
 
@@ -556,7 +641,8 @@ function broadcastGameState() {
         phase: gameState.phase,
         cardsDealt: gameState.cardsDealt,
         revealedHands: gameState.revealedHands,
-        timerState: gameState.timerState
+        timerState: gameState.timerState,
+        blinds: gameState.blinds // Issue #27: Include blinds for community display
     };
 
     for (const client of publicClients) {

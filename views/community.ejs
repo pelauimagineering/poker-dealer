@@ -51,6 +51,21 @@
                         <div class="no-cards-message">Waiting for cards to be dealt...</div>
                     </div>
                     <div id="phaseIndicator" class="phase-indicator-large">Waiting for game to start</div>
+
+                    <!-- Blind Level Timer (Issue #27) -->
+                    <div id="timerSection" class="timer-section timer-idle">
+                        <div class="timer-display">
+                            <span class="timer-label">Blind Level</span>
+                            <span id="timerCountdown" class="timer-countdown">7:00</span>
+                        </div>
+                        <div class="blinds-display">
+                            <span class="blinds-label">Blinds:</span>
+                            <span id="blindsAmount" class="blinds-amount">1/2</span>
+                        </div>
+                        <div id="timerAlert" class="timer-alert hidden">
+                            Blinds will increase next hand!
+                        </div>
+                    </div>
                 </section>
 
                 <!-- Revealed Player Hands Section -->
@@ -69,6 +84,7 @@
                 Made with 💕 in the 6ix
             </footer>
 
+            <script src="/js/timer.js"></script>
             <script src="/js/community-display.js"></script>
         </div>
     </body>

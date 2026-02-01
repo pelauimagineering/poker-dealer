@@ -6,6 +6,7 @@ let isDealerNow = false;
 function setupDealerControls() {
     const dealBtn = document.getElementById('dealBtn');
     const flipBtn = document.getElementById('flipBtn');
+    const shuffleBtn = document.getElementById('shuffleBtn');
 
     if (dealBtn) {
         dealBtn.addEventListener('click', dealCards);
@@ -13,6 +14,11 @@ function setupDealerControls() {
 
     if (flipBtn) {
         flipBtn.addEventListener('click', flipCommunityCard);
+    }
+
+    // Issue #29: Add shuffle button handler
+    if (shuffleBtn) {
+        shuffleBtn.addEventListener('click', shuffleDeck);
     }
 
     // Update dealer UI whenever game state changes
@@ -65,6 +71,7 @@ function updateDealerUI(state) {
 function updateButtonStates(phase, cardsDealt) {
     const dealBtn = document.getElementById('dealBtn');
     const flipBtn = document.getElementById('flipBtn');
+    const shuffleBtn = document.getElementById('shuffleBtn');
 
     console.log('Updating button states - Phase:', phase, 'Cards dealt:', cardsDealt);
 
@@ -75,6 +82,11 @@ function updateButtonStates(phase, cardsDealt) {
     } else {
         dealBtn.disabled = true;
         dealBtn.textContent = 'Cards Dealt';
+    }
+
+    // Issue #29: Shuffle button enabled when cards not dealt
+    if (shuffleBtn) {
+        shuffleBtn.disabled = cardsDealt;
     }
 
     // Flip button: enabled based on phase
@@ -121,6 +133,19 @@ function flipCommunityCard() {
     }
 
     wsClient.send('flip-community-card');
+}
+
+// Issue #29: Shuffle deck function
+function shuffleDeck() {
+    console.log('Dealer shuffling deck');
+
+    if (!isDealerNow) {
+        showError('Only the dealer can shuffle the deck');
+        return;
+    }
+
+    wsClient.send('shuffle-deck');
+    showSuccess('Deck has been shuffled!');
 }
 
 // Initialize dealer controls when game is ready
