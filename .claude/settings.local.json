@@ -44,7 +44,11 @@
       "mcp__puppeteer__puppeteer_evaluate",
       "mcp__puppeteer__puppeteer_select",
       "Bash(git -c user.name=\"Claude Code\" -c user.email=\"claude-code@pelau.com\" commit -m \"$\\(cat <<''EOF''\nAdd footer refresh link to game and community pages\n\nThe footer \"Made with 💕 in the 6ix\" text now reloads the page when\nclicked, matching the existing behavior on the login page.\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
-      "Bash(gh pr list:*)"
+      "Bash(gh pr list:*)",
+      "Bash(git -c user.name=\"Claude Code\" -c user.email=\"claude-code@pelau.com\" add public/js/game.js public/js/dealer-controls.js public/css/common.css ReleaseNotes.md WhatToTest.en-CA.txt)",
+      "Bash(git -c user.name=\"Claude Code\" -c user.email=\"claude-code@pelau.com\" commit -m \"$\\(cat <<''EOF''\nFix 4 GitHub issues \\(Issues #34, #35, #36, #37\\)\n\n- #34: Replace 💸 with 🚫 on broke toggle button for active players\n- #35: Fix dealer controls race condition on page refresh by removing\n  setTimeout and calling setupDealerControls\\(\\) directly from init\\(\\)\n- #36: Hide slide-to-show/fold controls for players with no hole cards\n- #37: Replace subtle bottom toast with centered animated overlay notifications\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git -c user.name=\"Claude Code\" -c user.email=\"claude-code@pelau.com\" add .claude/settings.local.json)",
+      "Bash(git -c user.name=\"Claude Code\" -c user.email=\"claude-code@pelau.com\" commit -m \"$\\(cat <<''EOF''\nUpdate settings.local.json\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")"
     ],
     "deny": [],
     "ask": []
