@@ -145,11 +145,8 @@ function shuffleDeck() {
     }
 
     wsClient.send('shuffle-deck');
-    showSuccess('Deck has been shuffled!');
+    showOverlay('Deck has been shuffled!', 'shuffle');
 }
 
-// Initialize dealer controls when game is ready
-window.addEventListener('load', () => {
-    // Wait a bit for wsClient to be initialized
-    setTimeout(setupDealerControls, 500);
-});
+// setupDealerControls() is called directly from game.js init()
+// to avoid race conditions with WebSocket game-state messages.
