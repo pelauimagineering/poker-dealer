@@ -28,6 +28,7 @@ async function init() {
         if (token) {
             wsClient.connect(token);
             setupWebSocketHandlers();
+            setupDealerControls();
         } else {
             console.error('No session token found');
             window.location.href = '/';
@@ -93,7 +94,7 @@ function setupWebSocketHandlers() {
     // Handle cards dealt
     wsClient.on('cards-dealt', (message) => {
         console.log('Cards dealt!');
-        showSuccess('Cards have been dealt!');
+        showOverlay('Cards have been dealt!', 'deal');
         // Reset reveal state for new hand (Issue #18 fix)
         cardsAlreadyRevealed = false;
     });
@@ -101,13 +102,13 @@ function setupWebSocketHandlers() {
     // Handle community card revealed
     wsClient.on('community-revealed', (message) => {
         console.log('Community card revealed:', message.phase);
-        showSuccess(`${message.phase} revealed!`);
+        showOverlay(`${message.phase} revealed!`, 'reveal');
     });
 
     // Handle join accepted
     wsClient.on('join-accepted', (message) => {
         console.log('Join accepted');
-        showSuccess('Successfully joined the game!');
+        showOverlay('Successfully joined the game!', 'join');
     });
 
     // Handle join rejected
@@ -125,13 +126,13 @@ function setupWebSocketHandlers() {
     // Handle dealer selected
     wsClient.on('dealer-selected', (message) => {
         console.log('Dealer selected:', message.dealer.name);
-        showSuccess(`${message.dealer.name} has been selected as the dealer!`);
+        showOverlay(`${message.dealer.name} is the dealer!`, 'dealer');
     });
 
     // Handle game reset
     wsClient.on('game-reset', (message) => {
         console.log('Game has been reset');
-        showSuccess(message.message);
+        showOverlay(message.message, 'reset');
         // Redirect to login after a short delay
         setTimeout(() => {
             window.location.href = '/';
@@ -141,26 +142,26 @@ function setupWebSocketHandlers() {
     // Handle timer expired
     wsClient.on('timer-expired', (message) => {
         console.log('Timer expired:', message.message);
-        showSuccess(message.message);
+        showOverlay(message.message, 'timer');
         blindTimer.showExpiredAlert();
     });
 
     // Handle fold confirmed
     wsClient.on('fold-confirmed', (message) => {
         console.log('Fold confirmed:', message.message);
-        showSuccess(message.message);
+        showOverlay(message.message, 'fold');
     });
 
     // Handle player folded notification
     wsClient.on('player-folded', (message) => {
         console.log(`${message.playerName} folded. Active players: ${message.activePlayerCount}`);
-        showSuccess(`${message.playerName} has folded`);
+        showOverlay(`${message.playerName} has folded`, 'fold');
     });
 
     // Issue #31: Handle player broke status toggled
     wsClient.on('player-broke-toggled', (message) => {
         console.log(`${message.playerName} is now ${message.isBroke ? 'broke' : 'active'}`);
-        showSuccess(message.message);
+        showOverlay(message.message, 'broke');
     });
 }
 
@@ -303,7 +304,7 @@ function updatePlayersList() {
             const brokeToggleBtn = document.createElement('button');
             brokeToggleBtn.className = 'broke-toggle-btn';
             brokeToggleBtn.title = player.isBroke ? 'Mark as active (has chips)' : 'Mark as broke (no chips)';
-            brokeToggleBtn.textContent = player.isBroke ? '💰' : '💸';
+            brokeToggleBtn.textContent = player.isBroke ? '💰' : '🚫';
             brokeToggleBtn.addEventListener('click', (e) => {
                 e.stopPropagation(); // Don't trigger dealer selection
                 togglePlayerBroke(player.id, player.name);
@@ -722,7 +723,7 @@ async function resetGame() {
 
         if (response.ok) {
             console.log('Game reset successful');
-            showSuccess(data.message);
+            showOverlay(data.message, 'reset');
             // Redirect to login after a short delay
             setTimeout(() => {
                 window.location.href = '/';
@@ -783,23 +784,51 @@ function showError(message) {
     }, 5000);
 }
 
-function showSuccess(message) {
-    // Create success message if it doesn't exist
-    let successDiv = document.getElementById('successMessage');
+const OVERLAY_CATEGORIES = {
+    deal:    { icon: '🎴', color: 'overlay-deal' },
+    reveal:  { icon: '♠',  color: 'overlay-reveal' },
+    fold:    { icon: '✋', color: 'overlay-fold' },
+    join:    { icon: '✅', color: 'overlay-join' },
+    dealer:  { icon: '⭐', color: 'overlay-dealer' },
+    timer:   { icon: '⏰', color: 'overlay-timer' },
+    broke:   { icon: '💰', color: 'overlay-broke' },
+    shuffle: { icon: '🔄', color: 'overlay-shuffle' },
+    reset:   { icon: '🔄', color: 'overlay-reset' },
+    default: { icon: '',   color: 'overlay-default' }
+};
 
-    if (!successDiv) {
-        successDiv = document.createElement('div');
-        successDiv.id = 'successMessage';
-        successDiv.className = 'success-message';
-        document.body.appendChild(successDiv);
+function showOverlay(message, category) {
+    category = category || 'default';
+    const cat = OVERLAY_CATEGORIES[category] || OVERLAY_CATEGORIES.default;
+
+    // Remove any existing overlay
+    const existing = document.querySelector('.overlay-notification');
+    if (existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.className = `overlay-notification ${cat.color}`;
+
+    if (cat.icon) {
+        const iconDiv = document.createElement('div');
+        iconDiv.className = 'overlay-icon';
+        iconDiv.textContent = cat.icon;
+        overlay.appendChild(iconDiv);
     }
 
-    successDiv.textContent = message;
-    successDiv.classList.add('show');
+    const textDiv = document.createElement('div');
+    textDiv.className = 'overlay-text';
+    textDiv.textContent = message;
+    overlay.appendChild(textDiv);
 
-    setTimeout(() => {
-        successDiv.classList.remove('show');
-    }, 3000);
+    document.body.appendChild(overlay);
+
+    // Auto-remove after animation completes
+    overlay.addEventListener('animationend', () => overlay.remove());
+}
+
+// Keep showSuccess as alias for backward compat (used in dealer-controls.js)
+function showSuccess(message) {
+    showOverlay(message, 'default');
 }
 
 // Slide-to-Show functionality
@@ -819,17 +848,18 @@ function updateSlideToShowControl() {
     // Check if cards are dealt and user is in game
     const isInGame = gameState && gameState.players && gameState.players.some(p => p.id === currentUser.id);
     const cardsDealt = gameState && gameState.cardsDealt;
+    const hasCards = gameState && gameState.holeCards && gameState.holeCards.length > 0;
 
     // Check if current user has already revealed their cards
     const hasRevealed = gameState && gameState.revealedHands &&
                         gameState.revealedHands.some(rh => rh.userId === currentUser.id);
 
-    console.log('updateSlideToShowControl - isInGame:', isInGame, 'cardsDealt:', cardsDealt, 'hasRevealed:', hasRevealed);
+    console.log('updateSlideToShowControl - isInGame:', isInGame, 'cardsDealt:', cardsDealt, 'hasCards:', hasCards, 'hasRevealed:', hasRevealed);
     console.log('currentUser:', currentUser);
     console.log('gameState.players:', gameState?.players);
     console.log('gameState.revealedHands:', gameState?.revealedHands);
 
-    if (isInGame && cardsDealt && !hasRevealed) {
+    if (isInGame && cardsDealt && hasCards && !hasRevealed) {
         console.log('SHOWING slide control - removing hidden class');
         slideContainer.classList.remove('hidden');
         // Reset reveal flag when control becomes visible (Issue #18 fix)
@@ -916,7 +946,7 @@ function revealMyCards() {
     const slideContainer = document.getElementById('slideToShowContainer');
     slideContainer.classList.add('hidden');
 
-    showSuccess('Your cards have been revealed to all players!');
+    showOverlay('Your cards have been revealed!', 'reveal');
 }
 
 // Slide-to-Fold functionality
@@ -936,14 +966,15 @@ function updateSlideToFoldControl() {
     // Check if cards are dealt and user is in game
     const isInGame = gameState && gameState.players && gameState.players.some(p => p.id === currentUser.id);
     const cardsDealt = gameState && gameState.cardsDealt;
+    const hasCards = gameState && gameState.holeCards && gameState.holeCards.length > 0;
 
     // Check if current user has already folded
     const currentPlayer = gameState && gameState.players && gameState.players.find(p => p.id === currentUser.id);
     const hasFolded = currentPlayer && currentPlayer.hasFolded;
 
-    console.log('updateSlideToFoldControl - isInGame:', isInGame, 'cardsDealt:', cardsDealt, 'hasFolded:', hasFolded);
+    console.log('updateSlideToFoldControl - isInGame:', isInGame, 'cardsDealt:', cardsDealt, 'hasCards:', hasCards, 'hasFolded:', hasFolded);
 
-    if (isInGame && cardsDealt && !hasFolded) {
+    if (isInGame && cardsDealt && hasCards && !hasFolded) {
         console.log('SHOWING fold control - removing hidden class');
         slideContainer.classList.remove('hidden');
         alreadyFolded = false;

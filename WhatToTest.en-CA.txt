@@ -1,8 +1,31 @@
 Poker Dealer - Initial Release
 ================================
 
-Latest Changes (2026-02-01):
+Latest Changes (2026-02-18):
 ----------------------------
+**Fix for 4 GitHub Issues (Issues #34, #35, #36, #37)**
+
+- **Issue #34: Broke button emoji fix**
+  - Changed "mark as broke" toggle emoji from 💸 (flying money) to 🚫 (no entry)
+  - 💰 (money bag) still used for "mark as active" — clearer visual distinction
+
+- **Issue #35: Dealer controls vanish on page refresh**
+  - Fixed race condition where dealer controls disappeared after full page refresh
+  - Removed setTimeout(500ms) initialization; controls now set up synchronously with WebSocket handlers
+  - Dealer controls reliably appear on refresh, reconnect, and first load
+
+- **Issue #36: Slide buttons hidden for broke players**
+  - Slide-to-show and slide-to-fold controls no longer appear for broke players
+  - Added check: player must have hole cards (not just cardsDealt flag) for controls to show
+
+- **Issue #37: Large overlay animations replace subtle toasts**
+  - Replaced small green success bar with full-screen centered overlay notifications
+  - Each event category has a distinct emoji icon, color tint, and animation
+  - Categories: deal (green/🎴), reveal (blue/♠), fold (red/✋), join (green/✅), dealer (gold/⭐), timer (orange/⏰), broke (yellow/💰), shuffle (blue/🔄), reset (red/🔄)
+  - 2-second scale-in + fade-out CSS animation, pointer-events: none (no tap blocking)
+
+Previous Changes (2026-02-01):
+------------------------------
 **Fix for 7 GitHub Issues (Issues #18, #27, #28, #29, #30, #31, #32)**
 
 - **Issue #18: Fixed "reveal/show cards" requiring refresh**

@@ -44,7 +44,12 @@
       "mcp__puppeteer__puppeteer_evaluate",
       "mcp__puppeteer__puppeteer_select",
       "Bash(git -c user.name=\"Claude Code\" -c user.email=\"claude-code@pelau.com\" commit -m \"$\\(cat <<''EOF''\nAdd footer refresh link to game and community pages\n\nThe footer \"Made with 💕 in the 6ix\" text now reloads the page when\nclicked, matching the existing behavior on the login page.\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
-      "Bash(gh pr list:*)"
+      "Bash(gh pr list:*)",
+      "mcp__puppeteer__puppeteer_fill",
+      "Bash(git -C /Users/darren/code/poker-dealer status)",
+      "Bash(git -C /Users/darren/code/poker-dealer diff)",
+      "Bash(git -C /Users/darren/code/poker-dealer log --oneline -5)",
+      "Bash(git -C /Users/darren/code/poker-dealer add WhatToTest.en-CA.txt public/css/common.css public/js/dealer-controls.js public/js/game.js .claude/settings.local.json)"
     ],
     "deny": [],
     "ask": []
