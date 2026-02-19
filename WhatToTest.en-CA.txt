@@ -1,6 +1,27 @@
 Poker Dealer - Initial Release
 ================================
 
+Latest Changes (2026-02-18):
+----------------------------
+**Fix for 4 GitHub Issues (Issues #34, #35, #36, #37)**
+
+- **Issue #34: Broke button emoji update**
+  - Active players now show 🚫 button (mark as broke), broke players show 💰 button (restore)
+
+- **Issue #35: Dealer controls fixed on browser refresh**
+  - Dealer controls now appear immediately after refreshing the page
+  - Fixed race condition that caused controls to disappear until another player acted
+
+- **Issue #36: Slide buttons hidden when player has no cards**
+  - Broke players no longer see slide-to-show or slide-to-fold controls when cards are dealt
+  - Controls only appear for players who actually have hole cards
+
+- **Issue #37: Prominent animated notifications**
+  - Notifications now appear as large centered overlays with bounce-in animation
+  - Success messages (green) auto-dismiss after 2.5 seconds
+  - Error messages (red) auto-dismiss after 4 seconds
+  - Much more visible than previous bottom-of-screen toast
+
 Latest Changes (2026-02-01):
 ----------------------------
 **Fix for 7 GitHub Issues (Issues #18, #27, #28, #29, #30, #31, #32)**

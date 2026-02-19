@@ -1,5 +1,39 @@
 # Release Notes - Poker Dealer
 
+## 2026-02-18 - bugfix/issues-34-35-36-37
+
+### Bug Fixes and Enhancements
+
+This release addresses 4 GitHub issues:
+
+#### Issue #34: Replace flying money emojis on Broke buttons
+- **Change**: Replaced `💸` emoji with `🚫` on the broke toggle button for active players
+- **Details**: When a player is active, the button to mark them broke now shows `🚫`. When broke, the button to restore them still shows `💰`.
+- **File**: `public/js/game.js`
+
+#### Issue #35: Bug - Dealer controls vanish on page refresh
+- **Problem**: Refreshing the dealer's browser removed all dealer controls; dealer was stuck unable to see updates
+- **Root cause**: Race condition — `dealer-controls.js` registered its game-state handler via a 500ms `setTimeout`, which could miss the initial game-state message if WebSocket connected faster
+- **Fix**: Removed `setTimeout` wrapper; `setupDealerControls()` is now called directly from `game.js` `init()` immediately after WebSocket handlers are registered
+- **Files**: `public/js/dealer-controls.js`, `public/js/game.js`
+
+#### Issue #36: Hide slide buttons when player has no cards
+- **Problem**: Slide-to-show and slide-to-fold controls appeared for broke players who had no hole cards
+- **Fix**: Added `hasCards` guard (`gameState.holeCards.length > 0`) to both `updateSlideToShowControl()` and `updateSlideToFoldControl()`
+- **File**: `public/js/game.js`
+
+#### Issue #37: Add prominent animated overlay notifications
+- **Problem**: Toast/banner at bottom of screen was too subtle and easily missed
+- **Fix**: Replaced toast notifications with large centered overlay that animates in (bounce/scale) and auto-dismisses with fade-out
+- **Details**:
+  - New `.notification-overlay` CSS with `notificationIn`/`notificationOut` keyframe animations
+  - Success notifications: green, 2.5s duration
+  - Error notifications: red, 4s duration
+  - Handles rapid successive notifications cleanly
+- **Files**: `public/css/common.css`, `public/js/game.js`
+
+---
+
 ## 2026-02-01 - feature/fix-seven-issues
 
 ### Bug Fixes and Enhancements

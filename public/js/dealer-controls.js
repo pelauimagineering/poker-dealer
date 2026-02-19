@@ -148,8 +148,6 @@ function shuffleDeck() {
     showSuccess('Deck has been shuffled!');
 }
 
-// Initialize dealer controls when game is ready
-window.addEventListener('load', () => {
-    // Wait a bit for wsClient to be initialized
-    setTimeout(setupDealerControls, 500);
-});
+// Issue #35: setupDealerControls() is now called directly from game.js init()
+// after WebSocket handlers are registered, eliminating the race condition
+// where the 500ms setTimeout could miss the initial game-state message.

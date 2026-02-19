@@ -28,6 +28,8 @@ async function init() {
         if (token) {
             wsClient.connect(token);
             setupWebSocketHandlers();
+            // Issue #35: Register dealer controls handler before WS receives messages
+            setupDealerControls();
         } else {
             console.error('No session token found');
             window.location.href = '/';
@@ -303,7 +305,7 @@ function updatePlayersList() {
             const brokeToggleBtn = document.createElement('button');
             brokeToggleBtn.className = 'broke-toggle-btn';
             brokeToggleBtn.title = player.isBroke ? 'Mark as active (has chips)' : 'Mark as broke (no chips)';
-            brokeToggleBtn.textContent = player.isBroke ? '💰' : '💸';
+            brokeToggleBtn.textContent = player.isBroke ? '💰' : '🚫';
             brokeToggleBtn.addEventListener('click', (e) => {
                 e.stopPropagation(); // Don't trigger dealer selection
                 togglePlayerBroke(player.id, player.name);
@@ -773,33 +775,44 @@ async function logout() {
     }
 }
 
-function showError(message) {
-    const errorDiv = document.getElementById('errorMessage');
-    errorDiv.textContent = message;
-    errorDiv.classList.add('show');
+// Issue #37: Prominent animated overlay notifications
+function showNotification(message, type, duration) {
+    const id = 'notificationOverlay';
+    let overlay = document.getElementById(id);
 
-    setTimeout(() => {
-        errorDiv.classList.remove('show');
-    }, 5000);
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = id;
+        overlay.className = 'notification-overlay';
+        document.body.appendChild(overlay);
+    }
+
+    // Cancel any in-flight animation or pending dismiss
+    overlay.classList.remove('show', 'hide', 'success', 'error');
+    if (overlay._dismissTimeout) clearTimeout(overlay._dismissTimeout);
+    if (overlay._hideTimeout) clearTimeout(overlay._hideTimeout);
+
+    // Force reflow to restart animation
+    void overlay.offsetWidth;
+
+    overlay.textContent = message;
+    overlay.classList.add(type, 'show');
+
+    overlay._dismissTimeout = setTimeout(() => {
+        overlay.classList.remove('show');
+        overlay.classList.add('hide');
+        overlay._hideTimeout = setTimeout(() => {
+            overlay.classList.remove('hide');
+        }, 350);
+    }, duration);
+}
+
+function showError(message) {
+    showNotification(message, 'error', 4000);
 }
 
 function showSuccess(message) {
-    // Create success message if it doesn't exist
-    let successDiv = document.getElementById('successMessage');
-
-    if (!successDiv) {
-        successDiv = document.createElement('div');
-        successDiv.id = 'successMessage';
-        successDiv.className = 'success-message';
-        document.body.appendChild(successDiv);
-    }
-
-    successDiv.textContent = message;
-    successDiv.classList.add('show');
-
-    setTimeout(() => {
-        successDiv.classList.remove('show');
-    }, 3000);
+    showNotification(message, 'success', 2500);
 }
 
 // Slide-to-Show functionality
@@ -820,16 +833,19 @@ function updateSlideToShowControl() {
     const isInGame = gameState && gameState.players && gameState.players.some(p => p.id === currentUser.id);
     const cardsDealt = gameState && gameState.cardsDealt;
 
+    // Issue #36: Check if player actually has hole cards (broke players won't)
+    const hasCards = gameState && gameState.holeCards && gameState.holeCards.length > 0;
+
     // Check if current user has already revealed their cards
     const hasRevealed = gameState && gameState.revealedHands &&
                         gameState.revealedHands.some(rh => rh.userId === currentUser.id);
 
-    console.log('updateSlideToShowControl - isInGame:', isInGame, 'cardsDealt:', cardsDealt, 'hasRevealed:', hasRevealed);
+    console.log('updateSlideToShowControl - isInGame:', isInGame, 'cardsDealt:', cardsDealt, 'hasCards:', hasCards, 'hasRevealed:', hasRevealed);
     console.log('currentUser:', currentUser);
     console.log('gameState.players:', gameState?.players);
     console.log('gameState.revealedHands:', gameState?.revealedHands);
 
-    if (isInGame && cardsDealt && !hasRevealed) {
+    if (isInGame && cardsDealt && hasCards && !hasRevealed) {
         console.log('SHOWING slide control - removing hidden class');
         slideContainer.classList.remove('hidden');
         // Reset reveal flag when control becomes visible (Issue #18 fix)
@@ -937,13 +953,16 @@ function updateSlideToFoldControl() {
     const isInGame = gameState && gameState.players && gameState.players.some(p => p.id === currentUser.id);
     const cardsDealt = gameState && gameState.cardsDealt;
 
+    // Issue #36: Check if player actually has hole cards (broke players won't)
+    const hasCards = gameState && gameState.holeCards && gameState.holeCards.length > 0;
+
     // Check if current user has already folded
     const currentPlayer = gameState && gameState.players && gameState.players.find(p => p.id === currentUser.id);
     const hasFolded = currentPlayer && currentPlayer.hasFolded;
 
-    console.log('updateSlideToFoldControl - isInGame:', isInGame, 'cardsDealt:', cardsDealt, 'hasFolded:', hasFolded);
+    console.log('updateSlideToFoldControl - isInGame:', isInGame, 'cardsDealt:', cardsDealt, 'hasCards:', hasCards, 'hasFolded:', hasFolded);
 
-    if (isInGame && cardsDealt && !hasFolded) {
+    if (isInGame && cardsDealt && hasCards && !hasFolded) {
         console.log('SHOWING fold control - removing hidden class');
         slideContainer.classList.remove('hidden');
         alreadyFolded = false;

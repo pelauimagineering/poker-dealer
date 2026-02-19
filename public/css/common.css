@@ -142,6 +142,68 @@ select {
     transition: border-color var(--transition-fast);
 }
 
+/* Issue #37: Animated notification overlay */
+.notification-overlay {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.5);
+    z-index: var(--z-modal);
+    padding: var(--spacing-xl) var(--spacing-2xl);
+    border-radius: var(--radius-xl);
+    font-size: var(--font-2xl);
+    font-weight: bold;
+    text-align: center;
+    max-width: 80vw;
+    min-width: 280px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.notification-overlay.success {
+    background-color: var(--color-success);
+    color: white;
+    border: 3px solid var(--color-primary-dark);
+    box-shadow: 0 0 40px rgba(46, 204, 113, 0.4), var(--shadow-xl);
+}
+
+.notification-overlay.error {
+    background-color: var(--color-danger);
+    color: white;
+    border: 3px solid var(--color-danger-dark);
+    box-shadow: 0 0 40px rgba(231, 76, 60, 0.4), var(--shadow-xl);
+}
+
+.notification-overlay.show {
+    animation: notificationIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.notification-overlay.hide {
+    animation: notificationOut 0.3s ease-in forwards;
+}
+
+@keyframes notificationIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+@keyframes notificationOut {
+    from {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.7);
+    }
+}
+
 .app-footer {
     text-align: center;
     padding: var(--spacing-md);
