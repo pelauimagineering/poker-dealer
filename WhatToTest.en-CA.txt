@@ -1,8 +1,29 @@
 Poker Dealer - Initial Release
 ================================
 
-Latest Changes (2026-02-18):
+Latest Changes (2026-02-20):
 ----------------------------
+**Fix for 3 GitHub Issues (Issues #40, #41, #42)**
+
+- **Issue #42: Slide button knob padding inconsistency**
+  - Replaced `left: 0` + `margin: 5px` with explicit `top: 5px; left: 5px` positioning
+  - Fixes inconsistent left padding on both deal and fold slide buttons
+  - Equal 5px gap on all sides of the knob now renders predictably across browsers
+
+- **Issue #41: Longer overlay animation durations**
+  - Default overlay display time doubled from 2s to 4s
+  - Timer/blind-increase overlays display for 6s (3x original)
+  - JS sets animationDuration per category; CSS default updated as fallback
+
+- **Issue #40: Broke players should not be assigned blinds**
+  - Added `getNextActivePlayerIndex()` helper that scans clockwise skipping broke players
+  - SB and BB now only assigned to non-broke players
+  - Broke players CAN still be dealer but are skipped for blind positions
+  - Heads-up logic preserved: with exactly 2 active players, dealer is SB
+  - Returns -1 if fewer than 2 active players (no blinds assigned)
+
+Previous Changes (2026-02-18):
+------------------------------
 **Fix for 4 GitHub Issues (Issues #34, #35, #36, #37)**
 
 - **Issue #34: Broke button emoji fix**
