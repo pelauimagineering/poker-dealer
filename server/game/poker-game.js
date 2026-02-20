@@ -357,18 +357,46 @@ class PokerGame {
         return this.players[this.dealerIndex];
     }
 
+    // Find the next non-broke player clockwise from startIndex (exclusive)
+    getNextActivePlayerIndex(startIndex) {
+        const len = this.players.length;
+        for (let i = 1; i <= len; i++) {
+            const idx = (startIndex + i) % len;
+            if (!this.brokePlayers.has(this.players[idx].id)) {
+                return idx;
+            }
+        }
+        return -1; // all players broke
+    }
+
     getSmallBlindIndex() {
         if (this.players.length === 0 || this.dealerIndex === -1) {
             return -1;
         }
 
-        // In heads-up (2 players), dealer is small blind
-        if (this.players.length === 2) {
-            return this.dealerIndex;
+        const activePlayers = this.getActivePlayers();
+        if (activePlayers.length < 2) {
+            console.log('SB: fewer than 2 active players, no SB assigned');
+            return -1;
         }
 
-        // With 3+ players, SB is to the left of dealer (dealer + 1)
-        return (this.dealerIndex + 1) % this.players.length;
+        // Heads-up (exactly 2 active): dealer is SB if dealer is active
+        if (activePlayers.length === 2) {
+            const dealer = this.players[this.dealerIndex];
+            if (!this.brokePlayers.has(dealer.id)) {
+                console.log(`SB (heads-up): dealer ${dealer.name} is SB at index ${this.dealerIndex}`);
+                return this.dealerIndex;
+            }
+            // Dealer is broke — first active player after dealer is SB
+            const sbIdx = this.getNextActivePlayerIndex(this.dealerIndex);
+            console.log(`SB (heads-up, dealer broke): index ${sbIdx}`);
+            return sbIdx;
+        }
+
+        // 3+ active: first active player clockwise from dealer
+        const sbIdx = this.getNextActivePlayerIndex(this.dealerIndex);
+        console.log(`SB (3+): ${this.players[sbIdx]?.name} at index ${sbIdx}`);
+        return sbIdx;
     }
 
     getBigBlindIndex() {
@@ -376,13 +404,15 @@ class PokerGame {
             return -1;
         }
 
-        // In heads-up (2 players), non-dealer is big blind
-        if (this.players.length === 2) {
-            return (this.dealerIndex + 1) % this.players.length;
+        const sbIdx = this.getSmallBlindIndex();
+        if (sbIdx === -1) {
+            return -1;
         }
 
-        // With 3+ players, BB is two to the left of dealer (dealer + 2)
-        return (this.dealerIndex + 2) % this.players.length;
+        // BB is the next active player clockwise from SB
+        const bbIdx = this.getNextActivePlayerIndex(sbIdx);
+        console.log(`BB: ${this.players[bbIdx]?.name} at index ${bbIdx}`);
+        return bbIdx;
     }
 
     getGameState(forUserId = null) {

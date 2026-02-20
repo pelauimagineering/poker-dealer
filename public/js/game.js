@@ -801,12 +801,17 @@ function showOverlay(message, category) {
     category = category || 'default';
     const cat = OVERLAY_CATEGORIES[category] || OVERLAY_CATEGORIES.default;
 
+    // Duration map: timer overlays (blind increases) stay longer
+    const OVERLAY_DURATIONS = { timer: '6s' };
+    const duration = OVERLAY_DURATIONS[category] || '4s';
+
     // Remove any existing overlay
     const existing = document.querySelector('.overlay-notification');
     if (existing) existing.remove();
 
     const overlay = document.createElement('div');
     overlay.className = `overlay-notification ${cat.color}`;
+    overlay.style.animationDuration = duration;
 
     if (cat.icon) {
         const iconDiv = document.createElement('div');

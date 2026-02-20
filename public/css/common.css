@@ -112,7 +112,7 @@ input[type="password"]:focus {
     align-items: center;
     justify-content: center;
     pointer-events: none;
-    animation: overlayFadeInOut 2s ease forwards;
+    animation: overlayFadeInOut 4s ease forwards;
 }
 
 .overlay-icon {
