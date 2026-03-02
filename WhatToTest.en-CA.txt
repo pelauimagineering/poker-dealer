@@ -1,8 +1,29 @@
 Poker Dealer - Initial Release
 ================================
 
-Latest Changes (2026-02-20):
+Latest Changes (2026-03-01):
 ----------------------------
+**Fix for 4 GitHub Issues (Issues #44, #45, #46, #47)**
+
+- **Issue #44: Pause timer after expiration**
+  - Timer now pauses (shows 7:00) when it expires, instead of continuing to run
+  - Timer restarts automatically when the next hand is dealt
+
+- **Issue #45: Blinds max at 64/128**
+  - Blinds stop incrementing once they reach 64/128
+  - Timer does not restart when blinds are at max level
+  - resetGame() still returns blinds to 1/2
+
+- **Issue #46: Community page link on login**
+  - Added "Community Display" link below the login form
+  - Links to /community for viewing community cards on a shared screen
+
+- **Issue #47: Slide button knob padding fix**
+  - Slide knob now maintains 5px left padding at rest position
+  - Both show-cards and fold sliders snap back to 5px (not 0px) on release
+
+Previous Changes (2026-02-20):
+------------------------------
 **Fix for 3 GitHub Issues (Issues #40, #41, #42)**
 
 - **Issue #42: Slide button knob padding inconsistency**

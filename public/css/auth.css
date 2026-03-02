@@ -89,6 +89,27 @@
     font-family: 'Courier New', monospace;
 }
 
+.community-link-section {
+    margin-top: var(--spacing-xl);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--color-border);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.community-link {
+    color: var(--color-primary);
+    text-decoration: none;
+    font-size: var(--font-md);
+    font-weight: 600;
+}
+
+.community-link:hover {
+    text-decoration: underline;
+}
+
 @media (max-width: 480px) {
     .auth-card {
         padding: var(--spacing-lg);

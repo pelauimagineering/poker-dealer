@@ -837,6 +837,7 @@ function showSuccess(message) {
 }
 
 // Slide-to-Show functionality
+const KNOB_PADDING = 5;
 let slideStartX = 0;
 let slideCurrentX = 0;
 let isSliding = false;
@@ -917,7 +918,7 @@ function doSlide(e) {
     slideCurrentX = touch.clientX - slideStartX;
 
     // Constrain to track bounds
-    if (slideCurrentX < 0) slideCurrentX = 0;
+    if (slideCurrentX < KNOB_PADDING) slideCurrentX = KNOB_PADDING;
     if (slideCurrentX > maxSlide) slideCurrentX = maxSlide;
 
     slideButton.style.left = slideCurrentX + 'px';
@@ -937,7 +938,7 @@ function endSlide(e) {
 
     // Reset button position if not completed
     if (!cardsAlreadyRevealed) {
-        slideButton.style.left = '0px';
+        slideButton.style.left = KNOB_PADDING + 'px';
     }
 }
 
@@ -1031,7 +1032,7 @@ function doSlideFold(e) {
     slideFoldCurrentX = touch.clientX - slideFoldStartX;
 
     // Constrain to track bounds
-    if (slideFoldCurrentX < 0) slideFoldCurrentX = 0;
+    if (slideFoldCurrentX < KNOB_PADDING) slideFoldCurrentX = KNOB_PADDING;
     if (slideFoldCurrentX > maxSlide) slideFoldCurrentX = maxSlide;
 
     slideFoldButton.style.left = slideFoldCurrentX + 'px';
@@ -1051,7 +1052,7 @@ function endSlideFold(e) {
 
     // Reset button position if not completed
     if (!alreadyFolded) {
-        slideFoldButton.style.left = '0px';
+        slideFoldButton.style.left = KNOB_PADDING + 'px';
     }
 }
 
