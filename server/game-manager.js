@@ -4,6 +4,8 @@ const db = require('./db');
 const TIMER_DURATION_SECONDS = 420; // 7 minutes
 const DEFAULT_SMALL_BLIND = 1;
 const DEFAULT_BIG_BLIND = 2;
+const MAX_SMALL_BLIND = 64;
+const MAX_BIG_BLIND = 128;
 
 class GameManager {
     constructor() {
@@ -98,21 +100,27 @@ class GameManager {
     dealCards() {
         this.game.dealCards();
 
-        // Start timer on first deal if not already running
-        if (!this.timerStartTime) {
+        // Start timer on first deal if not already running and below max blinds
+        if (!this.timerStartTime && !this.blindsWillIncrease && this.smallBlind < MAX_SMALL_BLIND) {
             this.timerStartTime = new Date().toISOString();
             console.log(`Timer started at: ${this.timerStartTime}`);
         }
 
         // Double blinds and reset timer if blinds_will_increase flag is set
         if (this.blindsWillIncrease) {
-            this.smallBlind *= 2;
-            this.bigBlind *= 2;
-            console.log(`Blinds increased to: ${this.smallBlind}/${this.bigBlind}`);
+            if (this.smallBlind < MAX_SMALL_BLIND) {
+                this.smallBlind *= 2;
+                this.bigBlind *= 2;
+                console.log(`Blinds increased to: ${this.smallBlind}/${this.bigBlind}`);
+            } else {
+                console.log(`Blinds already at max: ${this.smallBlind}/${this.bigBlind}`);
+            }
 
-            // Reset timer for new blind level
-            this.timerStartTime = new Date().toISOString();
-            console.log(`Timer reset for new blind level at: ${this.timerStartTime}`);
+            // Only restart timer if blinds can still increase
+            if (this.smallBlind < MAX_SMALL_BLIND) {
+                this.timerStartTime = new Date().toISOString();
+                console.log(`Timer reset for new blind level at: ${this.timerStartTime}`);
+            }
 
             this.blindsWillIncrease = false;
         }
@@ -192,6 +200,7 @@ class GameManager {
         if (timerState.expired && !this.blindsWillIncrease) {
             console.log('Timer expired! Blinds will increase on next deal.');
             this.blindsWillIncrease = true;
+            this.timerStartTime = null; // Pause timer until next deal
             this.saveGameState();
             return true; // Timer just expired
         }
