@@ -21,6 +21,21 @@ function setupDealerControls() {
         shuffleBtn.addEventListener('click', shuffleDeck);
     }
 
+    // Issue #49: Timer control handlers
+    const timerPauseBtn = document.getElementById('timerPauseBtn');
+    const timerResumeBtn = document.getElementById('timerResumeBtn');
+    const timerResetBtn = document.getElementById('timerResetBtn');
+
+    if (timerPauseBtn) {
+        timerPauseBtn.addEventListener('click', pauseTimer);
+    }
+    if (timerResumeBtn) {
+        timerResumeBtn.addEventListener('click', resumeTimer);
+    }
+    if (timerResetBtn) {
+        timerResetBtn.addEventListener('click', resetTimer);
+    }
+
     // Update dealer UI whenever game state changes
     wsClient.on('game-state', (message) => {
         updateDealerUI(message.data);
@@ -52,10 +67,48 @@ function updateDealerUI(state) {
 
     console.log('Is dealer:', isDealerNow, '- currentDealer.id:', currentDealer?.id, 'currentUser.id:', currentUser?.id);
 
+    // Issue #49: Timer controls visibility
+    const timerControls = document.getElementById('timerControls');
+    const timerPauseBtn = document.getElementById('timerPauseBtn');
+    const timerResumeBtn = document.getElementById('timerResumeBtn');
+    const timerResetBtn = document.getElementById('timerResetBtn');
+
     if (isDealerNow) {
         console.log('User IS dealer - showing controls');
         if (dealerControlsSection) {
             dealerControlsSection.classList.remove('hidden');
+        }
+
+        // Show timer controls when dealer and timer has started or blindsWillIncrease
+        const timerState = state.timerState;
+        const showTimerControls = timerState && (timerState.isRunning || timerState.isPaused || timerState.blindsWillIncrease);
+
+        if (timerControls) {
+            if (showTimerControls) {
+                timerControls.classList.remove('hidden');
+            } else {
+                timerControls.classList.add('hidden');
+            }
+        }
+
+        // Toggle pause/resume button visibility based on paused state
+        if (timerPauseBtn && timerResumeBtn) {
+            if (timerState && timerState.isPaused) {
+                timerPauseBtn.classList.add('hidden');
+                timerResumeBtn.classList.remove('hidden');
+            } else {
+                timerPauseBtn.classList.remove('hidden');
+                timerResumeBtn.classList.add('hidden');
+            }
+        }
+
+        // Show reset when timer has started or blindsWillIncrease
+        if (timerResetBtn) {
+            if (showTimerControls) {
+                timerResetBtn.classList.remove('hidden');
+            } else {
+                timerResetBtn.classList.add('hidden');
+            }
         }
 
         // Update button states based on game phase
@@ -64,6 +117,9 @@ function updateDealerUI(state) {
         console.log('User is NOT dealer - hiding controls');
         if (dealerControlsSection) {
             dealerControlsSection.classList.add('hidden');
+        }
+        if (timerControls) {
+            timerControls.classList.add('hidden');
         }
     }
 }
@@ -146,6 +202,22 @@ function shuffleDeck() {
 
     wsClient.send('shuffle-deck');
     showOverlay('Deck has been shuffled!', 'shuffle');
+}
+
+// Issue #49: Timer control functions
+function pauseTimer() {
+    if (!isDealerNow) return;
+    wsClient.send('pause-timer');
+}
+
+function resumeTimer() {
+    if (!isDealerNow) return;
+    wsClient.send('resume-timer');
+}
+
+function resetTimer() {
+    if (!isDealerNow) return;
+    wsClient.send('reset-timer');
 }
 
 // setupDealerControls() is called directly from game.js init()

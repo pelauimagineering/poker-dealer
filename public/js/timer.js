@@ -12,7 +12,11 @@ class BlindTimer {
         console.log('Timer update:', timerState);
         this.timerState = timerState;
 
-        if (timerState && timerState.isRunning) {
+        if (timerState && timerState.isPaused) {
+            // Timer is paused - show frozen remaining time
+            this.localRemainingSeconds = timerState.remainingSeconds;
+            this.stopLocalCountdown();
+        } else if (timerState && timerState.isRunning) {
             // Calculate local remaining time from server start time
             const startTime = new Date(timerState.startTime);
             const now = new Date();
@@ -79,7 +83,17 @@ class BlindTimer {
         timerCountdown.textContent = formattedTime;
 
         // Update timer section classes based on state
-        timerSection.classList.remove('timer-warning', 'timer-critical', 'timer-expired');
+        timerSection.classList.remove('timer-warning', 'timer-critical', 'timer-expired', 'timer-paused');
+
+        // Handle paused state
+        if (this.timerState && this.timerState.isPaused) {
+            timerSection.classList.add('timer-paused');
+            timerSection.classList.remove('timer-idle');
+            if (timerAlert) {
+                timerAlert.classList.add('hidden');
+            }
+            return;
+        }
 
         if (this.timerState && this.timerState.blindsWillIncrease) {
             timerSection.classList.add('timer-expired');

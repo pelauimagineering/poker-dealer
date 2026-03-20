@@ -224,6 +224,18 @@ function handleMessage(ws, data, setUser) {
                 handleTogglePlayerBroke(userId, data.playerId, ws);
                 break;
 
+            case 'pause-timer':
+                handlePauseTimer(userId, ws);
+                break;
+
+            case 'resume-timer':
+                handleResumeTimer(userId, ws);
+                break;
+
+            case 'reset-timer':
+                handleResetTimer(userId, ws);
+                break;
+
             case 'get-state':
                 const gameState = gameManager.getGameState(userId);
                 ws.send(JSON.stringify({
@@ -618,6 +630,40 @@ function handleTogglePlayerBroke(userId, playerId, ws) {
             message: error.message
         }));
     }
+}
+
+// Issue #49: Timer control handlers
+function handlePauseTimer(userId, ws) {
+    if (!gameManager.isDealer(userId)) {
+        ws.send(JSON.stringify({ type: 'error', message: 'Only the dealer can pause the timer' }));
+        return;
+    }
+
+    gameManager.pauseTimer();
+    console.log('Timer paused by dealer');
+    broadcastGameState();
+}
+
+function handleResumeTimer(userId, ws) {
+    if (!gameManager.isDealer(userId)) {
+        ws.send(JSON.stringify({ type: 'error', message: 'Only the dealer can resume the timer' }));
+        return;
+    }
+
+    gameManager.resumeTimer();
+    console.log('Timer resumed by dealer');
+    broadcastGameState();
+}
+
+function handleResetTimer(userId, ws) {
+    if (!gameManager.isDealer(userId)) {
+        ws.send(JSON.stringify({ type: 'error', message: 'Only the dealer can reset the timer' }));
+        return;
+    }
+
+    gameManager.resetTimer();
+    console.log('Timer reset by dealer');
+    broadcastGameState();
 }
 
 function broadcastGameState() {
