@@ -1,8 +1,22 @@
 Poker Dealer - Initial Release
 ================================
 
-Latest Changes (2026-03-19):
+Latest Changes (2026-03-20):
 ----------------------------
+**Issue #51: Big Blind anchor — prevent BB skip in bloodbath scenarios**
+
+- Big Blind now advances exactly one active seat clockwise per hand, regardless of how many players go broke
+- Blind placement anchored to previous BB position instead of dealer index
+- Small Blind and Dealer derived from BB position (not the other way around)
+- Dead button rule: dealer seat may land on a broke player with 3+ active
+- Heads-up: BB alternates correctly, dealer/SB = the other active player
+- Manual dealer selection resets BB tracking for fresh first-hand derivation
+- BB position locked at deal time so mid-hand broke changes don't affect current hand
+- lastBigBlindIndex persists across server restarts via deck_state JSON
+- Player removal and reorder correctly adjust BB tracking index
+
+Previous Changes (2026-03-19):
+------------------------------
 **Issue #49: Pause Timer**
 
 - Dealer can pause, resume, and reset the blind level timer
@@ -1019,6 +1033,23 @@ Scenario 50: Pause Timer (Issue #49)
 12. Pause timer, then restart server
 13. Verify paused state persists after restart
 14. On /community page, verify paused visual state (blinking amber, no controls)
+
+Scenario 51: Big Blind Bloodbath (Issue #51)
+1. Login with 5 players (A-E) and join game
+2. Select player A as dealer
+3. Verify B=SB, C=BB
+4. Deal cards
+5. Mark B and C as broke during the hand
+6. Complete hand
+7. Verify D=BB (not E — BB advanced exactly one seat from C)
+8. Verify dealer and SB derived correctly from new BB
+9. Complete another hand
+10. Verify E=BB (advances one more seat)
+11. Test with only 2 active players remaining (heads-up)
+12. Verify BB alternates correctly between the two remaining active players
+13. Manually select a new dealer mid-game
+14. Verify BB resets to first-hand derivation from dealer
+15. Restart server and verify BB position persists
 
 For Issues:
 ----------
