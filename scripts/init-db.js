@@ -73,6 +73,22 @@ db.exec(schema, (err) => {
         });
     });
 
+    // Add timer pause columns if they don't exist
+    const timerPauseMigrations = [
+        'ALTER TABLE game_state ADD COLUMN timer_paused INTEGER DEFAULT 0',
+        'ALTER TABLE game_state ADD COLUMN timer_remaining_when_paused INTEGER DEFAULT NULL'
+    ];
+
+    timerPauseMigrations.forEach(migration => {
+        db.run(migration, (err) => {
+            if (err && !err.message.includes('duplicate column')) {
+                if (!err.message.includes('duplicate column name')) {
+                    console.log(`Migration note: ${err.message}`);
+                }
+            }
+        });
+    });
+
     // Seed users
     console.log('Seeding users...');
 

@@ -191,6 +191,46 @@
     text-shadow: 0 0 5px rgba(243, 156, 18, 0.3);
 }
 
+/* Timer Pause Controls */
+.timer-controls {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-md);
+}
+
+.timer-control-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--color-text-muted);
+    color: var(--color-text-primary);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: var(--font-lg);
+    transition: all 0.2s ease;
+}
+
+.timer-control-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: var(--color-primary);
+}
+
+/* Paused Timer State */
+.timer-section.timer-paused {
+    border-color: #f39c12;
+    background: linear-gradient(135deg, #3d3520 0%, #2a2410 100%);
+}
+
+.timer-section.timer-paused .timer-countdown {
+    color: #f39c12;
+    animation: blink-paused 1.5s ease-in-out infinite;
+}
+
+@keyframes blink-paused {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
 @keyframes pulse-warning {
     0%, 100% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.8; transform: scale(1.02); }

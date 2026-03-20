@@ -1,8 +1,20 @@
 Poker Dealer - Initial Release
 ================================
 
-Latest Changes (2026-03-01):
+Latest Changes (2026-03-19):
 ----------------------------
+**Issue #49: Pause Timer**
+
+- Dealer can pause, resume, and reset the blind level timer
+- Pause/resume/reset buttons appear in the timer section (dealer only)
+- Paused timer shows blinking amber countdown to indicate paused state
+- Dealing cards or flipping community cards auto-resumes a paused timer
+- Reset restarts timer from full 7:00 duration and clears blindsWillIncrease
+- Timer pause state persists across server restarts (stored in database)
+- Non-dealer players and community display see paused visual state but no controls
+
+Previous Changes (2026-03-01):
+------------------------------
 **Fix for 4 GitHub Issues (Issues #44, #45, #46, #47)**
 
 - **Issue #44: Pause timer after expiration**
@@ -991,6 +1003,22 @@ Scenario 49: Anyone Can Become Dealer (Issue #32)
 8. Click "Random Dealer" - verify new random dealer selected
 9. Test: During active hand (cards dealt), try clicking player name
 10. Verify dealer cannot be changed while cards are dealt
+
+Scenario 50: Pause Timer (Issue #49)
+1. Login with 2-3 players and join game
+2. Select dealer and deal cards - verify timer starts
+3. As dealer, verify pause (⏸), and reset (↻) buttons appear in timer section
+4. As non-dealer, verify NO timer control buttons are visible
+5. Click ⏸ pause - verify timer freezes with blinking amber display
+6. Verify pause button hides and resume (▶) button appears
+7. Click ▶ resume - verify timer continues from where it paused
+8. Pause again, then deal new hand - verify timer auto-resumes
+9. Pause again, then flip community card - verify timer auto-resumes
+10. Click ↻ reset - verify timer restarts from 7:00
+11. Verify reset clears "Blinds will increase" alert if present
+12. Pause timer, then restart server
+13. Verify paused state persists after restart
+14. On /community page, verify paused visual state (blinking amber, no controls)
 
 For Issues:
 ----------

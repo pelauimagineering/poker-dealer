@@ -13,6 +13,8 @@ class GameManager {
         this.timerStartTime = null;
         this.timerDurationSeconds = TIMER_DURATION_SECONDS;
         this.blindsWillIncrease = false;
+        this.timerPaused = false;
+        this.timerRemainingWhenPaused = null;
         this.smallBlind = DEFAULT_SMALL_BLIND;
         this.bigBlind = DEFAULT_BIG_BLIND;
         this.loadGameState();
@@ -36,6 +38,11 @@ class GameManager {
                 this.timerDurationSeconds = gameState.timer_duration_seconds || TIMER_DURATION_SECONDS;
                 this.blindsWillIncrease = gameState.blinds_will_increase || false;
                 console.log(`Timer state: startTime=${this.timerStartTime}, blindsWillIncrease=${this.blindsWillIncrease}`);
+
+                // Load pause state
+                this.timerPaused = gameState.timer_paused || false;
+                this.timerRemainingWhenPaused = gameState.timer_remaining_when_paused != null ? gameState.timer_remaining_when_paused : null;
+                console.log(`Pause state: paused=${this.timerPaused}, remaining=${this.timerRemainingWhenPaused}`);
 
                 // Load blind levels
                 this.smallBlind = gameState.small_blind || DEFAULT_SMALL_BLIND;
@@ -61,7 +68,9 @@ class GameManager {
             timer_duration_seconds: this.timerDurationSeconds,
             blinds_will_increase: this.blindsWillIncrease,
             small_blind: this.smallBlind,
-            big_blind: this.bigBlind
+            big_blind: this.bigBlind,
+            timer_paused: this.timerPaused,
+            timer_remaining_when_paused: this.timerRemainingWhenPaused
         };
 
         db.gameState.update(gameState, (err) => {
@@ -98,6 +107,11 @@ class GameManager {
     }
 
     dealCards() {
+        // Auto-resume paused timer before dealing
+        if (this.timerPaused) {
+            this.resumeTimer();
+        }
+
         this.game.dealCards();
 
         // Start timer on first deal if not already running and below max blinds
@@ -129,6 +143,11 @@ class GameManager {
     }
 
     flipCommunityCard() {
+        // Auto-resume paused timer before flipping
+        if (this.timerPaused) {
+            this.resumeTimer();
+        }
+
         console.log(`Flipping community card, current phase: ${this.game.phase}`);
 
         switch (this.game.phase) {
@@ -167,9 +186,22 @@ class GameManager {
     }
 
     getTimerState() {
+        if (this.timerPaused) {
+            return {
+                isRunning: false,
+                isPaused: true,
+                startTime: null,
+                durationSeconds: this.timerDurationSeconds,
+                remainingSeconds: this.timerRemainingWhenPaused || this.timerDurationSeconds,
+                expired: false,
+                blindsWillIncrease: this.blindsWillIncrease
+            };
+        }
+
         if (!this.timerStartTime) {
             return {
                 isRunning: false,
+                isPaused: false,
                 startTime: null,
                 durationSeconds: this.timerDurationSeconds,
                 remainingSeconds: this.timerDurationSeconds,
@@ -186,6 +218,7 @@ class GameManager {
 
         return {
             isRunning: true,
+            isPaused: false,
             startTime: this.timerStartTime,
             durationSeconds: this.timerDurationSeconds,
             remainingSeconds: remainingSeconds,
@@ -195,6 +228,10 @@ class GameManager {
     }
 
     checkAndUpdateTimerExpiration() {
+        if (this.timerPaused) {
+            return false;
+        }
+
         const timerState = this.getTimerState();
 
         if (timerState.expired && !this.blindsWillIncrease) {
@@ -217,6 +254,53 @@ class GameManager {
         return dealer && dealer.id === userId;
     }
 
+    pauseTimer() {
+        if (this.timerPaused || !this.timerStartTime) {
+            return;
+        }
+
+        const startTime = new Date(this.timerStartTime);
+        const now = new Date();
+        const elapsedSeconds = Math.floor((now - startTime) / 1000);
+        const remaining = Math.max(0, this.timerDurationSeconds - elapsedSeconds);
+
+        this.timerRemainingWhenPaused = remaining;
+        this.timerStartTime = null;
+        this.timerPaused = true;
+
+        console.log(`Timer paused with ${remaining} seconds remaining`);
+        this.saveGameState();
+    }
+
+    resumeTimer() {
+        if (!this.timerPaused) {
+            return;
+        }
+
+        const remaining = this.timerRemainingWhenPaused || this.timerDurationSeconds;
+
+        // Back-calculate a synthetic start time so existing elapsed-time math works
+        const now = new Date();
+        const syntheticStart = new Date(now.getTime() - (this.timerDurationSeconds - remaining) * 1000);
+        this.timerStartTime = syntheticStart.toISOString();
+
+        this.timerPaused = false;
+        this.timerRemainingWhenPaused = null;
+
+        console.log(`Timer resumed with ${remaining} seconds remaining`);
+        this.saveGameState();
+    }
+
+    resetTimer() {
+        this.timerStartTime = new Date().toISOString();
+        this.timerPaused = false;
+        this.timerRemainingWhenPaused = null;
+        this.blindsWillIncrease = false;
+
+        console.log('Timer reset to full duration');
+        this.saveGameState();
+    }
+
     resetGame() {
         console.log('Resetting game...');
         this.game = new PokerGame();
@@ -225,6 +309,8 @@ class GameManager {
         this.timerStartTime = null;
         this.timerDurationSeconds = TIMER_DURATION_SECONDS;
         this.blindsWillIncrease = false;
+        this.timerPaused = false;
+        this.timerRemainingWhenPaused = null;
 
         // Reset blind levels
         this.smallBlind = DEFAULT_SMALL_BLIND;

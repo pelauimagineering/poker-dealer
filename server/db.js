@@ -121,7 +121,9 @@ const gameStateOps = {
                     timer_duration_seconds: result.timer_duration_seconds || 420,
                     blinds_will_increase: Boolean(result.blinds_will_increase),
                     small_blind: result.small_blind || 1,
-                    big_blind: result.big_blind || 2
+                    big_blind: result.big_blind || 2,
+                    timer_paused: Boolean(result.timer_paused),
+                    timer_remaining_when_paused: result.timer_remaining_when_paused != null ? result.timer_remaining_when_paused : null
                 };
                 callback(null, parsed);
             } else {
@@ -144,7 +146,9 @@ const gameStateOps = {
                 timer_duration_seconds = ?,
                 blinds_will_increase = ?,
                 small_blind = ?,
-                big_blind = ?
+                big_blind = ?,
+                timer_paused = ?,
+                timer_remaining_when_paused = ?
             WHERE id = 1
         `;
 
@@ -161,7 +165,9 @@ const gameStateOps = {
                 gameState.timer_duration_seconds || 420,
                 gameState.blinds_will_increase ? 1 : 0,
                 gameState.small_blind || 1,
-                gameState.big_blind || 2
+                gameState.big_blind || 2,
+                gameState.timer_paused ? 1 : 0,
+                gameState.timer_remaining_when_paused != null ? gameState.timer_remaining_when_paused : null
             ],
             callback
         );
@@ -181,7 +187,9 @@ const gameStateOps = {
                 timer_duration_seconds = 420,
                 blinds_will_increase = 0,
                 small_blind = 1,
-                big_blind = 2
+                big_blind = 2,
+                timer_paused = 0,
+                timer_remaining_when_paused = NULL
             WHERE id = 1
         `;
         getDb().run(query, [], callback);
