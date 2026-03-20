@@ -54,7 +54,8 @@
       "Bash(git -c user.name=\"Claude Code\" -c user.email=\"claude-code@pelau.com\" add:*)",
       "Bash(git -c:*)",
       "Bash(gh pr merge:*)",
-      "Bash(./scripts/workflow.sh issue-49-pause-timer:*)"
+      "Bash(./scripts/workflow.sh issue-49-pause-timer:*)",
+      "Bash(./scripts/workflow.sh issue-51-bigblind-anchor:*)"
     ],
     "deny": [],
     "ask": []

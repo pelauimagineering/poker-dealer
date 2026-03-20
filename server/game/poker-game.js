@@ -12,6 +12,8 @@ class PokerGame {
         this.brokePlayers = new Set(); // Issue #31: Set of userIds who are broke (no chips)
         this.phase = 'waiting'; // waiting, pre-flop, flop, turn, river, complete
         this.cardsDealt = false;
+        this.lastBigBlindIndex = -1; // -1 = first hand, derive from dealer
+        this._handBigBlindIndex = -1; // BB index locked at deal time for current hand
     }
 
     addPlayer(userId, userName) {
@@ -59,6 +61,20 @@ class PokerGame {
             else if (index < this.dealerIndex) {
                 this.dealerIndex--;
             }
+
+            // Adjust lastBigBlindIndex for removed player
+            if (this.lastBigBlindIndex !== -1) {
+                if (index === this.lastBigBlindIndex) {
+                    // BB player removed: clamp to bounds so next hand finds correct next
+                    if (this.players.length === 0) {
+                        this.lastBigBlindIndex = -1;
+                    } else if (this.lastBigBlindIndex >= this.players.length) {
+                        this.lastBigBlindIndex = this.players.length - 1;
+                    }
+                } else if (index < this.lastBigBlindIndex) {
+                    this.lastBigBlindIndex--;
+                }
+            }
         }
     }
 
@@ -69,6 +85,7 @@ class PokerGame {
         }
 
         this.dealerIndex = Math.floor(Math.random() * this.players.length);
+        this.lastBigBlindIndex = -1; // Reset for fresh derivation from dealer
         console.log(`Random dealer selected: ${this.players[this.dealerIndex].name} (index ${this.dealerIndex})`);
     }
 
@@ -86,6 +103,7 @@ class PokerGame {
         }
 
         this.dealerIndex = playerIndex;
+        this.lastBigBlindIndex = -1; // Reset for fresh derivation from dealer
         console.log(`Dealer manually selected: ${this.players[this.dealerIndex].name} (index ${this.dealerIndex})`);
     }
 
@@ -118,8 +136,11 @@ class PokerGame {
             throw new Error('Invalid player IDs provided');
         }
 
-        // Store the current dealer's ID
+        // Store the current dealer's ID and BB player ID before reorder
         const currentDealerId = this.players[this.dealerIndex].id;
+        const currentBBPlayerId = this.lastBigBlindIndex !== -1 && this.lastBigBlindIndex < this.players.length
+            ? this.players[this.lastBigBlindIndex].id
+            : null;
         console.log(`Current dealer: ${this.players[this.dealerIndex].name} (${currentDealerId}) at index ${this.dealerIndex}`);
 
         // Reorder players array based on provided IDs
@@ -132,6 +153,11 @@ class PokerGame {
         // Update dealer index to match the reordered array
         this.dealerIndex = this.players.findIndex(p => p.id === currentDealerId);
 
+        // Update lastBigBlindIndex to match the reordered array
+        if (currentBBPlayerId !== null) {
+            this.lastBigBlindIndex = this.players.findIndex(p => p.id === currentBBPlayerId);
+        }
+
         console.log(`Players reordered successfully. New order:`, this.players.map(p => `${p.name}(${p.id})`));
         console.log(`New dealer index: ${this.dealerIndex} (${this.players[this.dealerIndex].name})`);
     }
@@ -142,12 +168,25 @@ class PokerGame {
             return;
         }
 
-        // If no dealer was set, start with the first player
-        if (this.dealerIndex === -1) {
-            this.dealerIndex = 0;
-        } else {
-            this.dealerIndex = (this.dealerIndex + 1) % this.players.length;
+        const activePlayers = this.getActivePlayers();
+        if (activePlayers.length < 2) {
+            // Not enough active players to derive blinds — keep current dealer
+            return;
         }
+
+        // Derive dealer from blind positions
+        const bbIdx = this._computeBigBlindIndex();
+        const sbIdx = this._computeSmallBlindIndex(bbIdx);
+
+        if (activePlayers.length === 2) {
+            // Heads-up: dealer = SB = the non-BB active player
+            this.dealerIndex = sbIdx;
+        } else {
+            // 3+ active: dealer = seat immediately before SB (dead button rule)
+            const len = this.players.length;
+            this.dealerIndex = (sbIdx - 1 + len) % len;
+        }
+
         console.log(`Dealer rotated to: ${this.players[this.dealerIndex].name} (index ${this.dealerIndex})`);
     }
 
@@ -201,6 +240,10 @@ class PokerGame {
         this.phase = 'pre-flop';
         this.cardsDealt = true;
 
+        // Lock in current BB position at deal time (before broke status changes mid-hand)
+        this._handBigBlindIndex = this._computeBigBlindIndex();
+        console.log(`Locked handBBIndex: ${this._handBigBlindIndex}`);
+
         console.log(`Dealt cards to ${activePlayers.length} active players (${this.brokePlayers.size} broke)`);
     }
 
@@ -247,6 +290,13 @@ class PokerGame {
 
     completeHand() {
         console.log('Completing hand...');
+
+        // Promote stashed BB to lastBigBlindIndex for next hand's computation
+        if (this._handBigBlindIndex !== -1) {
+            this.lastBigBlindIndex = this._handBigBlindIndex;
+            console.log(`Saved lastBigBlindIndex: ${this.lastBigBlindIndex}`);
+        }
+        this._handBigBlindIndex = -1;
 
         this.phase = 'complete';
         this.cardsDealt = false;
@@ -369,49 +419,80 @@ class PokerGame {
         return -1; // all players broke
     }
 
-    getSmallBlindIndex() {
+    // Find the nearest non-broke player counter-clockwise from startIndex (exclusive)
+    getPreviousActivePlayerIndex(startIndex) {
+        const len = this.players.length;
+        for (let i = 1; i <= len; i++) {
+            const idx = (startIndex - i + len) % len;
+            if (!this.brokePlayers.has(this.players[idx].id)) {
+                return idx;
+            }
+        }
+        return -1; // all players broke
+    }
+
+    // Private: compute BB index from lastBigBlindIndex or dealer
+    _computeBigBlindIndex() {
         if (this.players.length === 0 || this.dealerIndex === -1) {
             return -1;
         }
 
         const activePlayers = this.getActivePlayers();
         if (activePlayers.length < 2) {
-            console.log('SB: fewer than 2 active players, no SB assigned');
             return -1;
         }
 
-        // Heads-up (exactly 2 active): dealer is SB if dealer is active
-        if (activePlayers.length === 2) {
-            const dealer = this.players[this.dealerIndex];
-            if (!this.brokePlayers.has(dealer.id)) {
-                console.log(`SB (heads-up): dealer ${dealer.name} is SB at index ${this.dealerIndex}`);
-                return this.dealerIndex;
+        if (this.lastBigBlindIndex === -1) {
+            // First hand or manual dealer select: derive from dealer (legacy behavior)
+            if (activePlayers.length === 2) {
+                // Heads-up: BB = next active from dealer
+                return this.getNextActivePlayerIndex(this.dealerIndex);
             }
-            // Dealer is broke — first active player after dealer is SB
+            // 3+ active: SB = next active from dealer, BB = next active from SB
             const sbIdx = this.getNextActivePlayerIndex(this.dealerIndex);
-            console.log(`SB (heads-up, dealer broke): index ${sbIdx}`);
-            return sbIdx;
+            return this.getNextActivePlayerIndex(sbIdx);
         }
 
-        // 3+ active: first active player clockwise from dealer
-        const sbIdx = this.getNextActivePlayerIndex(this.dealerIndex);
-        console.log(`SB (3+): ${this.players[sbIdx]?.name} at index ${sbIdx}`);
+        // BB advances exactly one active seat clockwise from last BB
+        return this.getNextActivePlayerIndex(this.lastBigBlindIndex);
+    }
+
+    // Private: compute SB index from a known BB index
+    _computeSmallBlindIndex(bbIdx) {
+        if (bbIdx === -1) {
+            return -1;
+        }
+
+        const activePlayers = this.getActivePlayers();
+        if (activePlayers.length < 2) {
+            return -1;
+        }
+
+        if (activePlayers.length === 2) {
+            // Heads-up: SB = the other active player (also the dealer)
+            return this.getPreviousActivePlayerIndex(bbIdx);
+        }
+
+        // 3+ active: SB = previous active player from BB
+        return this.getPreviousActivePlayerIndex(bbIdx);
+    }
+
+    getSmallBlindIndex() {
+        // During a hand, use the locked-in BB from deal time
+        const bbIdx = this._handBigBlindIndex !== -1 ? this._handBigBlindIndex : this._computeBigBlindIndex();
+        const sbIdx = this._computeSmallBlindIndex(bbIdx);
+        if (sbIdx !== -1) {
+            console.log(`SB: ${this.players[sbIdx]?.name} at index ${sbIdx}`);
+        }
         return sbIdx;
     }
 
     getBigBlindIndex() {
-        if (this.players.length === 0 || this.dealerIndex === -1) {
-            return -1;
+        // During a hand, use the locked-in BB from deal time
+        const bbIdx = this._handBigBlindIndex !== -1 ? this._handBigBlindIndex : this._computeBigBlindIndex();
+        if (bbIdx !== -1) {
+            console.log(`BB: ${this.players[bbIdx]?.name} at index ${bbIdx}`);
         }
-
-        const sbIdx = this.getSmallBlindIndex();
-        if (sbIdx === -1) {
-            return -1;
-        }
-
-        // BB is the next active player clockwise from SB
-        const bbIdx = this.getNextActivePlayerIndex(sbIdx);
-        console.log(`BB: ${this.players[bbIdx]?.name} at index ${bbIdx}`);
         return bbIdx;
     }
 
@@ -474,6 +555,7 @@ class PokerGame {
             revealedHands: Array.from(this.revealedHands),
             foldedPlayers: Array.from(this.foldedPlayers),
             brokePlayers: Array.from(this.brokePlayers), // Issue #31
+            lastBigBlindIndex: this.lastBigBlindIndex, // Issue #51
             phase: this.phase,
             cardsDealt: this.cardsDealt
         };
@@ -539,6 +621,9 @@ class PokerGame {
                 game.brokePlayers.add(userId);
             }
         }
+
+        // Issue #51: Restore last big blind index
+        game.lastBigBlindIndex = data.lastBigBlindIndex !== undefined ? data.lastBigBlindIndex : -1;
 
         return game;
     }
