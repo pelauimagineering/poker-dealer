@@ -103,7 +103,8 @@ db.exec(schema, (err) => {
         { display_name: 'Wayne', user_name: 'wayne' },
         { display_name: 'Dee', user_name: 'dee' },
         { display_name: 'Lorenzo', user_name: 'lorenzo' },
-        { display_name: 'JB', user_name: 'jb' }
+        { display_name: 'JB', user_name: 'jb' },
+        { display_name: 'Evan', user_name: 'evan' }
     ];
 
     const insertUser = db.prepare('INSERT OR IGNORE INTO users (display_name, user_name) VALUES (?, ?)');

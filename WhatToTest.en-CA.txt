@@ -1,8 +1,15 @@
 Poker Dealer - Initial Release
 ================================
 
-Latest Changes (2026-03-20):
+Latest Changes (2026-04-19):
 ----------------------------
+**Add player: Evan Matthews**
+
+- New player "Evan Matthews" (username: evan) added to the seed user list
+- Existing users and sessions unaffected (INSERT OR IGNORE)
+
+Previous Changes (2026-03-20):
+------------------------------
 **Issue #51: Big Blind anchor — prevent BB skip in bloodbath scenarios**
 
 - Big Blind now advances exactly one active seat clockwise per hand, regardless of how many players go broke
