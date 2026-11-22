@@ -1,8 +1,16 @@
 Poker Dealer - Initial Release
 ================================
 
-Latest Changes (2026-04-19):
+Latest Changes (2026-11-22):
 ----------------------------
+**Deployment guide updated (documentation only)**
+
+- DEPLOYMENT.md now matches the current app; no app behaviour changed
+- Nothing new to test in the game itself
+- If you deploy from the guide: confirm login works over HTTPS and video loads on /game and /community
+
+Previous Changes (2026-04-19):
+------------------------------
 **Add player: Evan Matthews**
 
 - New player "Evan Matthews" (username: evan) added to the seed user list
