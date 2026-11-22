@@ -2,7 +2,7 @@
 
 This guide covers running the Poker Dealer app in production: first the DigitalOcean App Platform deployment at `poker.pelau.com`, then a self-hosted Docker setup on a droplet.
 
-The app lives in the `poker-dealer/` folder of the [pelauimagineering/mmp](https://github.com/pelauimagineering/mmp) repository. All commands below run from that folder.
+The live app is built from the `main` branch of [pelauimagineering/poker-dealer](https://github.com/pelauimagineering/poker-dealer). Merging a pull request into `main` is what ships a change.
 
 ## What the app needs in production
 
@@ -32,14 +32,23 @@ On startup the server logs `WARNING: Missing JWT env vars: ...` and lists every 
 
 **Adding a player** takes two code changes and one token: add them to the list in `scripts/init-db.js`, add a matching entry in `server/jwt-config.js`, and set their `JWT_<USERNAME>`. Without the last two the player can still play, without video.
 
+### Video tokens
+
+The tokens come from the 8x8 JaaS console (<https://jaas.8x8.vc>), under the app whose ID appears in `client/src/components/VideoRoom.jsx`. A new token should match the existing ones:
+
+- Room `MMPPoker`
+- The player's display name as the user name, with moderator rights
+- Signed with RS256 by a JaaS API key belonging to that app. Each existing token uses its own API key
+
+**All tokens issued in November 2025 expire on 2027-01-01.** Video stops working for everyone on that date until they are replaced. Give a new token a later expiry, and replace the others before then.
+
 ## DigitalOcean App Platform (production)
 
-The live app runs on DigitalOcean App Platform. Its build and run settings are kept in the DigitalOcean dashboard, not in this repository; `.do/dev-config.yaml` at the repository root only records the app ID.
+The live app runs on DigitalOcean App Platform and deploys from the `main` branch of this repository. Its build and run settings are kept in the DigitalOcean dashboard, not in this repository.
 
 What the platform has to do, however it is configured:
 
-- Use `poker-dealer/` as the source directory
-- Install dependencies, run `npm run build`, run `node scripts/init-db.js`, then start `node server/index.js`. Building from `poker-dealer/Dockerfile` does all four
+- Install dependencies, run `npm run build`, run `node scripts/init-db.js`, then start `node server/index.js`. Building from the `Dockerfile` does all four
 - Route HTTP to port `3000`
 - Use `/api/health` as the health check
 
@@ -49,7 +58,7 @@ HTTPS and the certificate for the custom domain are handled by the platform.
 
 **The filesystem is temporary.** Every deploy or restart starts from a freshly seeded database: a game in progress, everyone's login and any edited display names are gone, and the seeded players are back. Deploy between game nights, not during one.
 
-To deploy, push to the branch the app tracks, or use **Actions → Deploy** in the dashboard. Then:
+To deploy, merge to `main`, or use **Actions → Deploy** in the dashboard. Then:
 
 1. Open **Runtime Logs** and confirm there is no `Missing JWT env vars` warning
 2. Load `https://poker.pelau.com/api/health` and expect `{"status":"ok",...}`
@@ -83,9 +92,8 @@ This guide uses `docker compose` (with a space). The older standalone `docker-co
 ### Step 2: Get the code and configure it
 
 ```bash
-mkdir -p /opt/mmp
-git clone https://github.com/pelauimagineering/mmp.git /opt/mmp
-cd /opt/mmp/poker-dealer
+git clone https://github.com/pelauimagineering/poker-dealer.git /opt/poker-dealer
+cd /opt/poker-dealer
 ```
 
 Create `.env`. There is no `.env.example` in the repository:
@@ -226,9 +234,8 @@ Players can also clear the table and log everyone out from inside the app; it as
 
 Update:
 ```bash
-cd /opt/mmp
+cd /opt/poker-dealer
 git pull
-cd poker-dealer
 docker compose build
 docker compose up -d
 
@@ -264,8 +271,8 @@ docker compose start
 Install a current Node.js LTS release (the app needs Node 18 or newer; Node 18 itself is end-of-life), then:
 
 ```bash
-git clone https://github.com/pelauimagineering/mmp.git /opt/mmp
-cd /opt/mmp/poker-dealer
+git clone https://github.com/pelauimagineering/poker-dealer.git /opt/poker-dealer
+cd /opt/poker-dealer
 npm install
 npm run build
 npm run db:init
@@ -308,7 +315,7 @@ docker stats poker-dealer
 ## Troubleshooting
 
 ### "The poker client has not been built yet"
-Run `npm run build` in `poker-dealer/`, or rebuild the Docker image.
+Run `npm run build`, or rebuild the Docker image.
 
 ### Video is unavailable for a player
 - Their `JWT_<USERNAME>` is missing. Check the startup logs for `Missing JWT env vars`

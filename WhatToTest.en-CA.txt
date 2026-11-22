@@ -1,8 +1,19 @@
 Poker Dealer - Initial Release
 ================================
 
-Latest Changes (2026-04-19):
+Latest Changes (2026-11-22):
 ----------------------------
+**New look and more reliable syncing; Evan's video**
+
+- Every page has a new design (login, your seat, the shared board). Check each on a phone and on the TV
+- Lock your phone mid-hand, then unlock it: your cards and the board should catch up within a few seconds without a refresh
+- Open the same seat on two devices: both should stay live
+- Players without a video token can still play; the video drawer says video is unavailable
+- Evan: once his token is added on DigitalOcean, the video drawer should work for him
+- After this is deployed everyone has to log in again, and any game in progress is cleared
+
+Previous Changes (2026-04-19):
+------------------------------
 **Add player: Evan Matthews**
 
 - New player "Evan Matthews" (username: evan) added to the seed user list
