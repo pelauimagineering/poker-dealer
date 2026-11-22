@@ -2,17 +2,24 @@
 
 ## 2026-11-22 - claude/busy-ride-tqw6cg
 
-### Documentation: DEPLOYMENT.md brought in line with the current app
+### Fix: Evan can open the game page
 
-No application code changed. The deployment guide was last updated in November 2025 and no longer matched the app.
+- **Problem**: player `evan` was added to the database but had no entry in the JWT mapping, so `/game` returned "Video conferencing not configured" for him
+- **Fix**: added `evan` → `JWT_EVAN` to the mapping
+- **Action needed**: add a `JWT_EVAN` token to `.env` on every deployment; until then the server logs it as missing at startup
+- **Files**: `server/jwt-config.js`
+
+### Documentation: DEPLOYMENT.md and README.md brought in line with the current app
+
+The deployment guide was last updated in November 2025 and no longer matched the app.
 
 - **Added**: Jitsi (8x8 JaaS) JWT setup, `RESET_PHRASE`, and a `docker-compose.override.yml` that passes `.env` into the container and binds port 3000 to localhost
 - **Corrected**: HTTPS is required in production (secure login cookie, camera/microphone access), not optional
 - **Corrected**: the update procedure now re-runs `scripts/init-db.js`, which is how new columns and new players reach an existing database
 - **Corrected**: backup and restore commands (the image has no `sqlite3` CLI; a restored file needs its ownership fixed)
 - **Removed**: references to the missing `.env.example`, passwords, the unused `/ws` Nginx block, Heroku instructions, and multi-instance scaling advice
-- **Documented as a known limitation**: player `evan` has no entry in `server/jwt-config.js`, so he cannot open the game page
-- **Files**: `DEPLOYMENT.md`
+- **README**: removed stale references to email/password login and test accounts; login is pick-your-name
+- **Files**: `DEPLOYMENT.md`, `README.md`
 
 ## 2026-02-01 - feature/fix-seven-issues
 

@@ -89,6 +89,7 @@ JWT_WAYNE=<token>
 JWT_DEE=<token>
 JWT_LORENZO=<token>
 JWT_JB=<token>
+JWT_EVAN=<token>
 
 # Jitsi token for the public /community display
 JWT_COMMUNITY=<token>
@@ -101,7 +102,7 @@ Notes on the environment:
 - Never commit `.env`. It is listed in `.gitignore` and `.dockerignore`.
 - On startup the server logs `WARNING: Missing JWT env vars: ...` and lists any token it could not find. Check the logs for this line after every deploy.
 
-**Known limitation:** the player `evan` is in the database, but `server/jwt-config.js` has no entry for him, so setting `JWT_EVAN` has no effect. He can log in, then gets a "Video conferencing not configured" error. This needs a code change. The same applies to any player added to `scripts/init-db.js` without a matching entry in `server/jwt-config.js`.
+**Adding a player later** takes two code changes and one token: add them to the list in `scripts/init-db.js`, add a matching entry in `server/jwt-config.js`, and set their `JWT_<USERNAME>` in `.env`. A player without the `jwt-config.js` entry or the token can log in, then gets a "Video conferencing not configured" error.
 
 ### Step 4: Build and Run with Docker
 

@@ -3,10 +3,11 @@ Poker Dealer - Initial Release
 
 Latest Changes (2026-11-22):
 ----------------------------
-**Deployment guide updated (documentation only)**
+**Evan can now open the game page; deployment guide and README updated**
 
-- DEPLOYMENT.md now matches the current app; no app behaviour changed
-- Nothing new to test in the game itself
+- Log in as Evan: the game page should load with video (needs a JWT_EVAN token in .env first)
+- All other players: no change
+- DEPLOYMENT.md and README.md now match the current app
 - If you deploy from the guide: confirm login works over HTTPS and video loads on /game and /community
 
 Previous Changes (2026-04-19):
