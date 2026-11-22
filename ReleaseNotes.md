@@ -1,5 +1,34 @@
 # Release Notes - Poker Dealer
 
+## 2026-11-22 - feature/react-client-and-deploy-docs
+
+### New client, sync fixes, deployment guide, Evan's video
+
+Brings over the work done in the `pelauimagineering/mmp` copy of this app, so it can ship from `main`.
+
+#### React + Tailwind client on a new design system
+- Login, game and community pages are now one React bundle built with Vite (`npm run build`, output in `public/app`), served through `views/app.ejs`
+- The old `public/css`, `public/js`, `login.html`, `game.ejs` and `community.ejs` are removed
+- Sample-data mode: add `?demo=<scene>` to any page
+- Design critique, polish and web interface guideline fixes
+
+#### Staying in sync
+- The server tracks a set of sockets per player, numbers every snapshot, pings every 25 seconds and closes sockets on shutdown
+- The client reconnects indefinitely and resyncs when the device wakes
+- Regression tests: `npm test`
+
+#### Video is optional
+- A missing Jitsi token no longer returns a 500; the table works and the video drawer explains why video is unavailable
+- **Evan**: `server/jwt-config.js` now maps `evan` to `JWT_EVAN`. Add a `JWT_EVAN` secret on DigitalOcean to give him video
+
+#### Documentation
+- `DEPLOYMENT.md` rewritten for the current app: App Platform first, self-hosted Docker second, with a section on the video tokens. The existing tokens all expire on 2027-01-01
+- `README.md`: removed the stale email/password and test-account wording
+
+#### Differences from the mmp copy
+- No `postinstall` design-system sync (that script only applies inside the mmp monorepo)
+- `package-lock.json` stays untracked, as before
+
 ## 2026-02-01 - feature/fix-seven-issues
 
 ### Bug Fixes and Enhancements
