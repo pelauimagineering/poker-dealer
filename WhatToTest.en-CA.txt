@@ -1,6 +1,13 @@
 Poker Dealer - Initial Release
 ================================
 
+Latest Changes (2026-11-24):
+----------------------------
+**Fix: database setup now follows DATABASE_PATH**
+
+- Nothing changes for players. After deploying, log in and check the player list appears as usual
+- Server owners: run `DATABASE_PATH=/some/other/file.db npm run db:init`, then start the server with the same setting; the player list should load
+
 Latest Changes (2026-11-23):
 ----------------------------
 **Fix: joining video from a phone**
