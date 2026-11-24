@@ -1,5 +1,13 @@
 # Release Notes - Poker Dealer
 
+## 2026-11-23 - bugfix/phone-video-height
+
+### Fix: players could not join video from a phone
+
+- The video drawer on the game page was only about 200px tall on a phone, so the 8x8 pre-join screen pushed its "Join meeting" button out of view and nobody could join
+- The video area is now at least 420px tall (the old client used 400px), which shows the name field, "Join meeting" and the mic/camera buttons
+- Wide screens are unchanged
+
 ## 2026-11-22 - feature/react-client-and-deploy-docs
 
 ### New client, sync fixes, deployment guide, Evan's video
