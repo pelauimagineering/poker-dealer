@@ -1,5 +1,14 @@
 # Release Notes - Poker Dealer
 
+## 2026-11-24 - bugfix/reset-flag-stale-game
+
+### Fix: `--reset` did not clear a game in progress
+
+- Starting the server with `--reset` (`npm run start:reset`) cleared the database, but the server had already loaded the old game into memory, and wrote it back on the next change. Players, cards and the dealer from the previous session came back
+- The game is now loaded only after the reset has finished
+- This was also why 3 of the 6 sync tests failed on a machine whose local database held an unfinished hand. All 6 pass now
+- The in-app "reset game" button was not affected
+
 ## 2026-11-24 - bugfix/init-db-database-path
 
 ### Fix: `init-db.js` ignored `DATABASE_PATH`
