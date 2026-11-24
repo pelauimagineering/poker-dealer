@@ -1,5 +1,13 @@
 # Release Notes - Poker Dealer
 
+## 2026-11-24 - bugfix/init-db-database-path
+
+### Fix: `init-db.js` ignored `DATABASE_PATH`
+
+- `scripts/init-db.js` always wrote to `database/poker-dealer.db`, while the server opens whatever `DATABASE_PATH` names. With a custom path the server started on an empty file and every request failed with "no such table: users"
+- The script now uses `DATABASE_PATH` (from the environment or `.env`) with the same default as the server, and creates the folder if it is missing
+- No change when `DATABASE_PATH` is unset, or in Docker, where it already matches the default
+
 ## 2026-11-23 - bugfix/phone-video-height
 
 ### Fix: players could not join video from a phone
