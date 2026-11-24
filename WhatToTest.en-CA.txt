@@ -3,6 +3,11 @@ Poker Dealer - Initial Release
 
 Latest Changes (2026-11-24):
 ----------------------------
+**Fix: starting the server with a reset now really clears the table**
+
+- Server owners: deal a hand, stop the server, start it with `npm run start:reset`. Log in: the table should be empty, with no players, cards or dealer left over
+- Nothing changes for players on DigitalOcean, where every deploy already starts clean
+
 **Fix: database setup now follows DATABASE_PATH**
 
 - Nothing changes for players. After deploying, log in and check the player list appears as usual
