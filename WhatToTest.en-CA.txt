@@ -1,6 +1,13 @@
 Poker Dealer - Initial Release
 ================================
 
+Latest Changes (2026-11-23):
+----------------------------
+**Fix: joining video from a phone**
+
+- On a phone, open "Video table" on your seat: you should see your name, a "Join meeting" button and the mic/camera buttons. Tap "Join meeting" and confirm others can see and hear you
+- Check it on an iPhone and an Android phone
+
 Latest Changes (2026-11-22):
 ----------------------------
 **New look and more reliable syncing; Evan's video**
